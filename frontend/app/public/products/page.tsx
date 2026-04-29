@@ -1,6 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { use, useMemo, useState } from "react";
+import { useEffect } from "react";
+import { useProductStore } from "@/app/store/product.store";
+
 import type { SVGProps } from "react";
 
 function SearchIcon(props: SVGProps<SVGSVGElement>) {
@@ -175,7 +178,13 @@ const products: Product[] = [
 
 const categories: ProductCategory[] = ["All", "Glassware", "Decor", "Lighting", "Tableware"];
 
-export default function page() {
+export default function Page() {
+
+  const products = useProductStore((state) => state.products);
+    const fetchProducts = useProductStore((state) => state.fetchProducts);
+
+
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<ProductCategory>("All");
   const [sort, setSort] = useState("featured");
@@ -197,6 +206,14 @@ export default function page() {
 
     return result;
   }, [search, category, sort]);
+
+
+    useEffect(() => {
+      // Fetch products from the store (which in turn fetches from the API)
+      fetchProducts()
+    }, [fetchProducts]); 
+
+    console.log("Products in store:", products);
 
   return (
     <main className="min-h-screen overflow-hidden bg-gradient-to-b from-[#f5f5f7] via-white to-[#f5f5f7] text-zinc-950">
@@ -272,15 +289,15 @@ export default function page() {
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredProducts.map((product) => (
+            {products.map((product) => (
               <article
                 key={product.id}
                 className="group relative overflow-hidden rounded-[2rem] border border-zinc-200/80 bg-white/80 p-4 shadow-sm backdrop-blur-xl transition duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-zinc-900/10 before:pointer-events-none before:absolute before:inset-y-0 before:left-[-120%] before:z-20 before:w-1/2 before:skew-x-[-18deg] before:bg-gradient-to-r before:from-transparent before:via-white/70 before:to-transparent before:transition-all before:duration-700 hover:before:left-[140%]"
               >
-                <div className={`relative flex h-64 items-center justify-center overflow-hidden rounded-[1.5rem] bg-gradient-to-br ${product.gradient}`}>
+                <div className={`relative flex h-64 items-center justify-center overflow-hidden rounded-[1.5rem] bg-gradient-to-br `}>
                   <div className="absolute inset-6 rounded-[1.5rem] border border-white/70 bg-white/35 backdrop-blur-xl" />
                   <div className="absolute left-5 top-5 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-zinc-700 shadow-sm backdrop-blur-xl">
-                    {product.tag}
+                   
                   </div>
 
                   <div className="relative h-36 w-20 rounded-b-[2.25rem] rounded-t-2xl border border-white/90 bg-white/45 shadow-2xl backdrop-blur-md transition duration-300 group-hover:scale-105">

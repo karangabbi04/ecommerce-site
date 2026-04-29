@@ -1,3 +1,9 @@
 {
-    "folder-color.pathColors": []
+    "folder-color.pathColors": [
+        {
+            "folderPath": "ecommerce site/frontend/",
+            "isFolderOnly": true,
+            "color": "foldercolorizer.color_0000af"
+        }
+    ]
 }

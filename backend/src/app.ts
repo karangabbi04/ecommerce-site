@@ -6,17 +6,24 @@ import productRoutes from "./routes/product.routes.js";
 
 const app = express();
 
-app.use(cors());
+app.use(cors(
+ { origin: "http://localhost:3000",
+  credentials: true,
+}
+));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-
-
-app.use("/api/v1", productRoutes);
 
 
 app.get("/", (_req: Request, res: Response) => {
   res.send("API is running...");
 });
+
+app.use("/api/v1", productRoutes);
+
+
+
 
 app.get("/db-test", async (_req: Request, res: Response) => {
   const result = await pool.query("SELECT NOW()");
@@ -27,8 +34,9 @@ app.get("/db-test", async (_req: Request, res: Response) => {
   });
 
 
-    app.use(errorHandler)
 
 });
+    app.use(errorHandler)
+
 
 export default app;
