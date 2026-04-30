@@ -3,39 +3,61 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { prisma } from "../lib/prisma.js";
+import { uploadToCloudinary } from "../utils/CloudinaryUpload.js";
+
 
 // Create a new product
- const createProduct = asyncHandler(async (req: Request, res: Response) => {
+
+
+ const createProduct = asyncHandler (async (req: Request, res: Response) => {
   const {
     name,
     description,
     price,
-    category,
     stock,
-    imageUrl,
     isFeatured,
   } = req.body;
 
-  if (!name || price === undefined) {
-    throw new ApiError(400, "Product name and price are required");
+  const files = req.files as Express.Multer.File[];
+
+   if (!name || !description || price === undefined || stock === undefined) {
+      throw new ApiError(400, "Name, description, price and stock are required");
+    }
+
+  if (!files || files.length === 0) {
+    throw new ApiError(400, "At least one product image is required");
   }
+
+  const uploadedImages = await Promise.all(
+    files.map((file) =>
+      uploadToCloudinary(file.path, "ecocraft/products")
+    )
+  );
 
   const product = await prisma.product.create({
     data: {
       name,
       description,
-      price,
-      category,
-      stock,
-      imageUrl,
-      isFeatured,
+      price: Number(price),
+      stock: Number(stock),
+      isFeatured: isFeatured === "true",
+
+      images: {
+        create: uploadedImages.map((image) => ({
+          url: image.url,
+          publicId: image.publicId,
+        })),
+      },
+    },
+    include: {
+      images: true,
     },
   });
-
+ console.log("uploadedImages", uploadedImages);
   return res
     .status(201)
     .json(new ApiResponse(201, product, "Product created successfully"));
-
+  
 });
 // delete a product by ID
 const deleteProduct = asyncHandler(async (req: Request, res: Response) => {
@@ -78,6 +100,9 @@ const  getProductById = asyncHandler<{ id: string }>(
     // 2. Find product
     const product = await prisma.product.findUnique({
       where: { id },
+       include: {
+      images: true,
+    },
     });
 
     // 3. Not found
@@ -94,7 +119,16 @@ const  getProductById = asyncHandler<{ id: string }>(
 //get all products with pagination, filtering, sorting
 const getallProducts = asyncHandler(async (req: Request, res: Response) => {
     const products = await prisma.product.findMany({
-        orderBy: { createdAt: "desc" },
+       where: {
+      isFeatured: true,
+    },
+    include: {
+      images: true,   // 👈 ye line important hai
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  
     });
     return res
       .status(200)
