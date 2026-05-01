@@ -88,93 +88,8 @@ function ShoppingBagIcon(props: SVGProps<SVGSVGElement>) {
 
 type ProductCategory = "All" | "Glassware" | "Decor" | "Lighting" | "Tableware";
 
-type Product = {
-  id: number;
-  name: string;
-  category: Exclude<ProductCategory, "All">;
-  price: number;
-  oldPrice?: number;
-  tag: string;
-  description: string;
-  gradient: string;
-};
 
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Bottle Glass Set",
-    category: "Glassware",
-    price: 799,
-    oldPrice: 999,
-    tag: "Best Seller",
-    description: "Smooth-edged drinking glasses made from rescued bottles.",
-    gradient: "from-emerald-100 via-white to-cyan-100",
-  },
-  {
-    id: 2,
-    name: "Cut Bottle Tumbler",
-    category: "Glassware",
-    price: 349,
-    tag: "Daily Use",
-    description: "Minimal tumbler with a clean polished rim.",
-    gradient: "from-sky-100 via-white to-indigo-100",
-  },
-  {
-    id: 3,
-    name: "Candle Holder",
-    category: "Decor",
-    price: 499,
-    tag: "Cozy Decor",
-    description: "Warm glass glow for tables, shelves, and corners.",
-    gradient: "from-amber-100 via-white to-orange-100",
-  },
-  {
-    id: 4,
-    name: "Flower Vase",
-    category: "Decor",
-    price: 899,
-    oldPrice: 1199,
-    tag: "Hand Polished",
-    description: "A clean centerpiece crafted for modern rooms.",
-    gradient: "from-lime-100 via-white to-emerald-100",
-  },
-  {
-    id: 5,
-    name: "Bottle Table Lamp",
-    category: "Lighting",
-    price: 1499,
-    tag: "Premium Pick",
-    description: "Recycled glass base with a soft luxury glow.",
-    gradient: "from-purple-100 via-white to-sky-100",
-  },
-  {
-    id: 6,
-    name: "Glass Coaster Set",
-    category: "Tableware",
-    price: 399,
-    tag: "New Drop",
-    description: "Small details that make your table feel premium.",
-    gradient: "from-zinc-100 via-white to-stone-100",
-  },
-  {
-    id: 7,
-    name: "Wall Decor Piece",
-    category: "Decor",
-    price: 999,
-    tag: "Art Piece",
-    description: "Unique handmade decor with sustainable character.",
-    gradient: "from-rose-100 via-white to-purple-100",
-  },
-  {
-    id: 8,
-    name: "Serving Bottle Tray",
-    category: "Tableware",
-    price: 699,
-    tag: "Limited",
-    description: "A premium tray concept made for gifting and serving.",
-    gradient: "from-teal-100 via-white to-emerald-100",
-  },
-];
+
 
 const categories: ProductCategory[] = ["All", "Glassware", "Decor", "Lighting", "Tableware"];
 
@@ -284,7 +199,7 @@ export default function Page() {
         <div className="mx-auto max-w-7xl">
           <div className="mb-8 flex items-center justify-between">
             <p className="text-sm text-zinc-500">
-              Showing <span className="font-semibold text-zinc-950">{filteredProducts.length}</span> products
+              Showing <span className="font-semibold text-zinc-950">{products.length}</span> products
             </p>
           </div>
 

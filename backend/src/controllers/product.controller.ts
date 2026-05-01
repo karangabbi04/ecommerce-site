@@ -4,7 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { prisma } from "../lib/prisma.js";
 import { uploadToCloudinary } from "../utils/CloudinaryUpload.js";
-
+import slugify from "slugify";
 
 // Create a new product
 
@@ -28,6 +28,28 @@ import { uploadToCloudinary } from "../utils/CloudinaryUpload.js";
     throw new ApiError(400, "At least one product image is required");
   }
 
+  //generate slug
+  const baseSlug = slugify(name, {
+      lower: true,
+      strict: true,
+      trim: true,
+    });
+
+    // 2. check karo same slug pehle se exist to nahi karta
+    const existingProduct = await prisma.product.findUnique({
+      where: {
+        slug: baseSlug,
+      },
+    });
+
+    // 3. agar same slug exist karta hai to unique slug banao
+    const slug = existingProduct
+      ? `${baseSlug}-${Date.now()}`
+      : baseSlug;
+
+
+
+
   const uploadedImages = await Promise.all(
     files.map((file) =>
       uploadToCloudinary(file.path, "ecocraft/products")
@@ -37,11 +59,11 @@ import { uploadToCloudinary } from "../utils/CloudinaryUpload.js";
   const product = await prisma.product.create({
     data: {
       name,
+      slug,
       description,
       price: Number(price),
       stock: Number(stock),
       isFeatured: isFeatured === "true",
-
       images: {
         create: uploadedImages.map((image) => ({
           url: image.url,
@@ -53,7 +75,6 @@ import { uploadToCloudinary } from "../utils/CloudinaryUpload.js";
       images: true,
     },
   });
- console.log("uploadedImages", uploadedImages);
   return res
     .status(201)
     .json(new ApiResponse(201, product, "Product created successfully"));
@@ -116,6 +137,31 @@ const  getProductById = asyncHandler<{ id: string }>(
       .json(new ApiResponse(200, product, "Product fetched successfully"));
   }
 );
+//get products by slug
+const getProductBySlug = asyncHandler<{ slug: string }>(
+  async (req, res) => {
+    const { slug } = req.params;
+
+    if (!slug) {
+      throw new ApiError(400, "Product slug is required");
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { slug },
+      include: {
+        images: true,
+      },
+    });
+
+    if (!product) {
+      throw new ApiError(404, "Product not found");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, product, "Product fetched successfully"));
+  }
+);
 //get all products with pagination, filtering, sorting
 const getallProducts = asyncHandler(async (req: Request, res: Response) => {
     const products = await prisma.product.findMany({
@@ -136,7 +182,7 @@ const getallProducts = asyncHandler(async (req: Request, res: Response) => {
 });
 
 
-export { createProduct, deleteProduct, getProductById, getallProducts
+export { createProduct, deleteProduct, getProductById, getProductBySlug, getallProducts
 
 
  };
