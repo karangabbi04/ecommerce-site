@@ -3,6 +3,7 @@ import cors from "cors";
 import { pool } from "./db/index.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import productRoutes from "./routes/product.routes.js";
+import aiRoutes from "./routes/ai.routes.js";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 app.use("/api/v1", productRoutes);
+app.use("/api/v1/ai", aiRoutes);
 
 
 

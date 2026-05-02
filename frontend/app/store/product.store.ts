@@ -1,4 +1,4 @@
-"use client";
+
 import { create } from "zustand";
 import { Product } from "@/types/product";
 import { productService } from "@/services/product.service";
@@ -8,27 +8,38 @@ interface ProductStore {
   selectedProduct: Product | null;
   isLoading: boolean;
   error: string | null;
-
-  fetchProducts: () => Promise<void>;
+  pagination: Pagination | null;
+  fetchProducts: (page?: number, limit?: number) => Promise<void>;
   fetchProductById: (id: string) => Promise<void>;
   clearError: () => void;
 }
 
+interface Pagination {
+  currentPage: number;
+  limit: number;
+  totalProducts: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
 export const useProductStore = create<ProductStore>((set) => ({
   products: [],
+   pagination: null,
   selectedProduct: null,
   isLoading: false,
   error: null,
 
-  fetchProducts: async () => {
+  fetchProducts: async (page = 1, limit = 10) => {
     try {
       set({ isLoading: true, error: null });
 
-      const products = await productService.getAllProducts();
+      const data = await productService.getAllProducts(page, limit);
 
       set({
-        products,
+        products: data.products,
         isLoading: false,
+        pagination: data.pagination,
       });
     } catch (error: any) {
       set({

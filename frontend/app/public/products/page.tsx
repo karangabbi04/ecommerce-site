@@ -3,6 +3,8 @@
 import { use, useMemo, useState } from "react";
 import { useEffect } from "react";
 import { useProductStore } from "@/app/store/product.store";
+import Link from "next/link";
+import type { Route } from "next";
 
 import type { SVGProps } from "react";
 
@@ -97,6 +99,7 @@ export default function Page() {
 
   const products = useProductStore((state) => state.products);
     const fetchProducts = useProductStore((state) => state.fetchProducts);
+     const pagination = useProductStore((state) => state.pagination);
 
 
 
@@ -129,6 +132,11 @@ export default function Page() {
     }, [fetchProducts]); 
 
     console.log("Products in store:", products);
+
+
+    const goToPage = (page: number) => {
+    fetchProducts(page, pagination?.limit || 10);
+  };
 
   return (
     <main className="min-h-screen overflow-hidden bg-gradient-to-b from-[#f5f5f7] via-white to-[#f5f5f7] text-zinc-950">
@@ -209,16 +217,14 @@ export default function Page() {
                 key={product.id}
                 className="group relative overflow-hidden rounded-[2rem] border border-zinc-200/80 bg-white/80 p-4 shadow-sm backdrop-blur-xl transition duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-zinc-900/10 before:pointer-events-none before:absolute before:inset-y-0 before:left-[-120%] before:z-20 before:w-1/2 before:skew-x-[-18deg] before:bg-gradient-to-r before:from-transparent before:via-white/70 before:to-transparent before:transition-all before:duration-700 hover:before:left-[140%]"
               >
-                <div className={`relative flex h-64 items-center justify-center overflow-hidden rounded-[1.5rem] bg-gradient-to-br `}>
-                  <div className="absolute inset-6 rounded-[1.5rem] border border-white/70 bg-white/35 backdrop-blur-xl" />
-                  <div className="absolute left-5 top-5 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-zinc-700 shadow-sm backdrop-blur-xl">
-                   
-                  </div>
-
-                  <div className="relative h-36 w-20 rounded-b-[2.25rem] rounded-t-2xl border border-white/90 bg-white/45 shadow-2xl backdrop-blur-md transition duration-300 group-hover:scale-105">
-                    <div className="absolute left-1/2 top-[-2.2rem] h-11 w-9 -translate-x-1/2 rounded-t-xl border border-white/90 bg-white/60" />
-                    <div className="absolute left-4 top-6 h-20 w-3 rounded-full bg-white/70 blur-sm" />
-                  </div>
+                <Link href={`/public/products/${product.id}` as Route} className="relative z-10">
+                <div className={`relative flex h-64 items-center justify-center overflow-hidden rounded-[1.5rem] bg-linear-to-br `}>
+                  <img
+                    src={product.images[1]?.url || "/placeholder.png"}
+                    alt={product.name}
+                    className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                  />
+                 
                 </div>
 
                 <div className="px-2 pt-5">
@@ -252,11 +258,12 @@ export default function Page() {
                     </button>
                   </div>
                 </div>
+                </Link>
               </article>
             ))}
           </div>
 
-          {filteredProducts.length === 0 ? (
+          {products.length === 0 ? (
             <div className="mt-16 rounded-[2rem] border border-zinc-200 bg-white/70 p-10 text-center shadow-sm backdrop-blur-xl">
               <ShoppingBagIcon className="mx-auto h-10 w-10 text-zinc-400" />
               <h3 className="mt-4 text-xl font-semibold">No products found</h3>
@@ -264,6 +271,46 @@ export default function Page() {
             </div>
           ) : null}
         </div>
+        
+             {/* Pagination UI */}
+          {pagination && (
+            <div className="flex justify-center items-center gap-2 mt-8">
+              <button
+                disabled={!pagination.hasPrevPage}
+                onClick={() => goToPage(pagination.currentPage - 1)}
+                className="px-4 py-2 border rounded-lg disabled:opacity-40"
+              >
+                Prev
+              </button>
+
+              {Array.from({ length: pagination.totalPages }, (_, index) => {
+                const page = index + 1;
+
+                return (
+                  <button
+                    key={page}
+                    onClick={() => goToPage(page)}
+                    className={`px-4 py-2 border rounded-lg ${
+                      pagination.currentPage === page
+                        ? "bg-black text-white"
+                        : "bg-white text-black"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
+
+              <button
+                disabled={!pagination.hasNextPage}
+                onClick={() => goToPage(pagination.currentPage + 1)}
+                className="px-4 py-2 border rounded-lg disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          )}
+
       </section>
     </main>
   );
