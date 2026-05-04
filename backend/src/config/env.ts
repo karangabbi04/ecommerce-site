@@ -5,8 +5,8 @@ dotenv.config();
 const requiredEnvVars = [
   "JWT_ACCESS_SECRET",
   "JWT_REFRESH_SECRET",
-  "JWT_ACCESS_EXPIRES_IN",
-  "JWT_REFRESH_EXPIRES_IN",
+  "ACCESS_TOKEN_EXPIRES_IN",
+  "REFRESH_TOKEN_EXPIRES_IN",
 ] as const;
 
 for (const envVar of requiredEnvVars) {
@@ -22,8 +22,8 @@ export const env = {
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET as string,
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET as string,
 
-  jwtAccessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN as string,
-  jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN as string,
+  jwtAccessExpiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN as string,
+  jwtRefreshExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN as string,
 
 
 };
