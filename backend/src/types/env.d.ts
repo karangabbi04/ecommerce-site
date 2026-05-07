@@ -3,6 +3,8 @@ declare namespace NodeJS {
     PORT?: string;
     NODE_ENV?: "development" | "production" | "test";
 
+    GEMINI_API_KEY: string;
+
     JWT_ACCESS_SECRET: string;
     JWT_REFRESH_SECRET: string;
 

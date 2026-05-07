@@ -1,5 +1,5 @@
 
-import { Request, Response } from "express";
+import { Request, Response, urlencoded } from "express";
 import { ApiResponse } from "../utils/apiResponse";
 import { hashPassword, comparePassword } from "../utils/password";
 import { asyncHandler } from "../utils/asyncHandler";
@@ -7,8 +7,7 @@ import { ApiError } from "../utils/ApiError";
 import { generateAccessToken, generateRefreshToken } from "../utils/token";
 import { prisma } from "../lib/prisma.js";
 import z from "zod";
-import { ImportFileOperation } from "@google/genai";
-import tr from "zod/v4/locales/tr.js";
+
 
 
     const signUpSchema = z.object({
@@ -97,4 +96,34 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
 
 });
 
-export { registerUser, loginUser };
+const  getCurrentUser  = asyncHandler( async (req: Request, res: Response) => {
+
+   if(!req.user?.id){
+    throw new ApiError(401,"unauthorized request")
+   }
+
+   const user = await prisma.user.findUnique({
+    where:{
+      id:req.user?.id,
+    },
+    select:{
+      id:true,
+      name:true,
+      email:true,
+      role: true,
+        emailVerified: true,
+        createdAt: true,
+        updatedAt: true,
+    }
+   })
+   if(!user){
+    throw new ApiError(404,"user not found");
+   }
+
+   return res.status(200).json(
+    new ApiResponse(200,{user},"currunt user fetched succesulf")
+   )
+
+});
+
+export { registerUser, loginUser ,getCurrentUser };
