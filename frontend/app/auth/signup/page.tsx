@@ -1,8 +1,13 @@
 "use client";
 
+import { signupService } from "@/services/signup.service";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAuthStore } from "@/app/store/auth.store";
+import { useMutation } from "@tanstack/react-query";
 
 type SignupForm = {
+  name: string;
   email: string;
   otp: string;
   password: string;
@@ -69,7 +74,11 @@ function SparkIcon() {
 }
 
 export default function CustomerSignupPage() {
+  const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
+
   const [form, setForm] = useState<SignupForm>({
+    name: "",
     email: "",
     otp: "",
     password: "",
@@ -77,11 +86,93 @@ export default function CustomerSignupPage() {
     agree: false,
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [isOtpSent, setIsOtpSent] = useState(false);
-  const [isOtpVerified, setIsOtpVerified] = useState(false);
-  const [demoOtp, setDemoOtp] = useState("");
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const getErrorMessage = (error: unknown, fallback: string) => {
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    return fallback;
+  };
+
+  const getNormalizedEmail = () => {
+    return form.email.toLowerCase().trim();
+  };
+
+  const createAccountMutation = useMutation({
+    mutationFn: signupService.createAccount,
+
+    onError: (error) => {
+      console.error("Account creation error:", error);
+      alert(getErrorMessage(error, "Account creation failed. Please try again."));
+    },
+  });
+
+  const sendOtpMutation = useMutation({
+    mutationFn: signupService.sendOTP,
+
+    onSuccess: () => {
+      setForm((prev) => ({
+        ...prev,
+        otp: "",
+      }));
+
+      setShowOtpModal(true);
+      setSuccessMessage("Account created successfully. OTP sent to your email.");
+    },
+
+    onError: (error) => {
+      console.error("Send OTP error:", error);
+      alert(getErrorMessage(error, "Failed to send OTP. Please try again."));
+    },
+  });
+
+  const verifyOtpMutation = useMutation({
+    mutationFn: signupService.verifyOTP,
+
+    onError: (error) => {
+      console.error("OTP verification error:", error);
+      setOtpError(getErrorMessage(error, "OTP verification failed. Please try again."));
+    },
+  });
+
+  const loginMutation = useMutation({
+    mutationFn: signupService.LogIn,
+
+    onSuccess: (loginResponse: any) => {
+      console.log("Login response:", loginResponse);
+
+      const user =
+        loginResponse?.data?.user ||
+        loginResponse?.user ||
+        loginResponse?.data;
+
+      if (!user) {
+        throw new Error("Login successful but user data missing in response");
+      }
+
+      setUser(user);
+
+      setShowOtpModal(false);
+      setSuccessMessage("Congratulations! Your account has been verified successfully.");
+
+      router.push("/");
+    },
+
+    onError: (error) => {
+      console.error("Login error:", error);
+      setOtpError(getErrorMessage(error, "OTP verified but login failed. Please login manually."));
+    },
+  });
+
+  const isCreatingAccount = createAccountMutation.isPending;
+  const isSendingOtp = sendOtpMutation.isPending;
+  const isVerifyingOtp = verifyOtpMutation.isPending || loginMutation.isPending;
+
+  const isMainButtonLoading = isCreatingAccount || isSendingOtp;
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
@@ -92,102 +183,102 @@ export default function CustomerSignupPage() {
     }));
   };
 
-  const handleSendOtp = async () => {
+  const validateSignupForm = () => {
+    if (!form.name.trim()) {
+      alert("Name is required");
+      return false;
+    }
+
     if (!form.email.trim()) {
-      alert("Email is required before sending OTP");
-      return;
+      alert("Email is required");
+      return false;
     }
 
-    try {
-      setIsSendingOtp(true);
-
-      // Demo OTP for preview. In real project, backend will email this OTP.
-      const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-      setDemoOtp(generatedOtp);
-      setIsOtpSent(true);
-      setIsOtpVerified(false);
-
-      alert(`Demo OTP sent: ${generatedOtp}`);
-
-      // Real backend call later:
-      // await fetch("http://localhost:5000/api/v1/auth/send-otp", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ email: form.email }),
-      // });
-    } catch (error) {
-      console.error("Send OTP error:", error);
-      alert("Failed to send OTP");
-    } finally {
-      setIsSendingOtp(false);
+    if (form.password.length < 6) {
+      alert("Password should be at least 6 characters");
+      return false;
     }
+
+    if (form.password !== form.confirmPassword) {
+      alert("Passwords do not match");
+      return false;
+    }
+
+    if (!form.agree) {
+      alert("Please accept the terms before creating your account");
+      return false;
+    }
+
+    return true;
   };
 
-  const handleVerifyOtp = () => {
-    if (!form.otp.trim()) {
-      alert("Enter OTP first");
-      return;
-    }
+  const sendOtpAndOpenModal = async () => {
+    setOtpError("");
+    setSuccessMessage("");
 
-    if (form.otp !== demoOtp) {
-      alert("Invalid OTP");
-      return;
-    }
+    await sendOtpMutation.mutateAsync({
+      email: getNormalizedEmail(),
+    });
+  };
 
-    setIsOtpVerified(true);
-    alert("Email verified successfully");
+  const handleCreateAccount = async () => {
+    setOtpError("");
+    setSuccessMessage("");
+
+    await createAccountMutation.mutateAsync({
+      name: form.name.trim(),
+      email: getNormalizedEmail(),
+      password: form.password,
+    });
+
+    await sendOtpAndOpenModal();
   };
 
   const handleEmailSignup = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!form.email.trim()) {
-      alert("Email is required");
+    if (!validateSignupForm()) return;
+
+    try {
+      await handleCreateAccount();
+    } catch {
+        console.log("lfsdsjflksfklsfklds")
+    }
+  };
+
+  const verifyOtpAndRedirect = async () => {
+    if (!form.otp.trim()) {
+      setOtpError("Please enter OTP");
       return;
     }
 
-    if (!isOtpVerified) {
-      alert("Please verify your email OTP first");
-      return;
-    }
-
-    if (form.password.length < 6) {
-      alert("Password should be at least 6 characters");
-      return;
-    }
-
-    if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-
-    if (!form.agree) {
-      alert("Please accept the terms before creating your account");
+    if (form.otp.trim().length !== 6) {
+      setOtpError("OTP must be 6 digits");
       return;
     }
 
     try {
-      setIsSubmitting(true);
+      setOtpError("");
 
-      // Replace this with your backend signup API later.
-      console.log("Customer signup data:", {
-        email: form.email,
+      const normalizedEmail = getNormalizedEmail();
+
+      const verifyResponse = await verifyOtpMutation.mutateAsync({
+        email: normalizedEmail,
+        otp: form.otp.trim(),
+      });
+
+      console.log("OTP verify response:", verifyResponse);
+
+      await loginMutation.mutateAsync({
+        email: normalizedEmail,
         password: form.password,
-        isEmailVerified: isOtpVerified,
-        role: "customer",
-      });   
-
-      alert("Customer account created successfully");
-    } catch (error) {
-      console.error("Signup error:", error);
-      alert("Signup failed");
-    } finally {
-      setIsSubmitting(false);
+      });
+    } catch {
+      // Error already handled inside React Query onError
     }
   };
 
   const handleGoogleSignup = () => {
-    // Later: redirect to backend Google OAuth route or use NextAuth/Firebase.
     alert("Google signup will be connected later");
   };
 
@@ -198,7 +289,6 @@ export default function CustomerSignupPage() {
       <div className="absolute left-1/2 top-[-10rem] h-[30rem] w-[30rem] -translate-x-1/2 rounded-full bg-white blur-3xl" />
 
       <section className="relative mx-auto grid min-h-[calc(100vh-5rem)] max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-        {/* LEFT BRAND AREA */}
         <div className="hidden lg:block">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/60 px-4 py-2 text-sm font-semibold text-zinc-700 shadow-sm backdrop-blur-xl">
             <LeafIcon />
@@ -210,14 +300,16 @@ export default function CustomerSignupPage() {
           </h1>
 
           <p className="mt-6 max-w-xl text-lg leading-8 text-zinc-600">
-            Create your customer account to buy handcrafted recycled-glass products, save your wishlist, track orders, and access future offers.
+            Create your customer account to buy handcrafted recycled-glass products, save your wishlist,
+            track orders, and access future offers.
           </p>
 
           <div className="mt-10 grid max-w-xl gap-4 sm:grid-cols-2">
             <div className="rounded-[1.75rem] border border-white/80 bg-white/60 p-5 shadow-sm backdrop-blur-xl">
-              <p className="text-3xl font-semibold">100%</p>
-              <p className="mt-1 text-sm text-zinc-500">customer shopping account</p>
+              <p className="text-3xl font-semibold">OTP</p>
+              <p className="mt-1 text-sm text-zinc-500">email verification after account creation</p>
             </div>
+
             <div className="rounded-[1.75rem] border border-white/80 bg-white/60 p-5 shadow-sm backdrop-blur-xl">
               <p className="text-3xl font-semibold">0</p>
               <p className="mt-1 text-sm text-zinc-500">seller tools here</p>
@@ -229,17 +321,18 @@ export default function CustomerSignupPage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-950 text-white">
                 <SparkIcon />
               </div>
+
               <div>
                 <h2 className="text-2xl font-semibold tracking-tight">Built for buyers.</h2>
                 <p className="mt-2 text-sm leading-6 text-zinc-600">
-                  This signup is for users who want to purchase products, manage orders, and explore sustainable collections — not for adding or selling products.
+                  Users fill their details first, account gets created, then email verification happens
+                  through an OTP popup.
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* SIGNUP CARD */}
         <div className="mx-auto w-full max-w-md rounded-[2.25rem] border border-white/80 bg-white/70 p-6 shadow-2xl shadow-zinc-900/10 backdrop-blur-2xl md:p-8">
           <div className="text-center lg:text-left">
             <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-950 text-white lg:mx-0">
@@ -249,18 +342,27 @@ export default function CustomerSignupPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-600">
               Join VetriGlass
             </p>
+
             <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
               Create your account
             </h2>
+
             <p className="mt-3 text-sm leading-6 text-zinc-500">
-              Sign up to buy products, save your favorites, and track your orders.
+              Fill your details. OTP verification opens after your account is created.
             </p>
           </div>
+
+          {successMessage ? (
+            <p className="mt-5 rounded-2xl bg-emerald-50 p-3 text-center text-sm font-medium text-emerald-700">
+              {successMessage}
+            </p>
+          ) : null}
 
           <button
             type="button"
             onClick={handleGoogleSignup}
-            className="mt-7 flex w-full items-center justify-center gap-3 rounded-full border border-zinc-200 bg-white px-5 py-3 text-sm font-semibold text-zinc-800 shadow-sm transition hover:scale-[1.01] hover:bg-zinc-50"
+            disabled={isMainButtonLoading}
+            className="mt-7 flex w-full items-center justify-center gap-3 rounded-full border border-zinc-200 bg-white px-5 py-3 text-sm font-semibold text-zinc-800 shadow-sm transition hover:scale-[1.01] hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <GoogleIcon />
             Continue with Google
@@ -277,69 +379,33 @@ export default function CustomerSignupPage() {
           <form onSubmit={handleEmailSignup} className="space-y-4">
             <div>
               <label className="mb-2 block text-sm font-semibold text-zinc-800">
-                Email address
+                Name
               </label>
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={(event) => {
-                    handleChange(event);
-                    setIsOtpSent(false);
-                    setIsOtpVerified(false);
-                    setDemoOtp("");
-                  }}
-                  placeholder="you@example.com"
-                  className="min-w-0 flex-1 rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-950"
-                />
-                <button
-                  type="button"
-                  onClick={handleSendOtp}
-                  disabled={isSendingOtp || !form.email.trim()}
-                  className="shrink-0 rounded-2xl bg-zinc-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isSendingOtp ? "Sending" : isOtpSent ? "Resend" : "Send"}
-                </button>
-              </div>
-              {isOtpSent ? (
-                <p className="mt-2 text-xs text-emerald-600">
-                  OTP sent to {form.email}. Check your email and verify below.
-                </p>
-              ) : null}
+              <input
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Enter your name"
+                disabled={isMainButtonLoading}
+                className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-950 disabled:cursor-not-allowed disabled:opacity-60"
+              />
             </div>
 
-            {isOtpSent ? (
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-zinc-800">
-                  Enter OTP
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    name="otp"
-                    maxLength={6}
-                    value={form.otp}
-                    onChange={handleChange}
-                    placeholder="6-digit OTP"
-                    className="min-w-0 flex-1 rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-950"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleVerifyOtp}
-                    disabled={isOtpVerified}
-                    className={`shrink-0 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
-                      isOtpVerified
-                        ? "bg-emerald-600 text-white"
-                        : "bg-zinc-950 text-white hover:bg-zinc-800"
-                    }`}
-                  >
-                    {isOtpVerified ? "Verified" : "Verify"}
-                  </button>
-                </div>
-              </div>
-            ) : null}
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-zinc-800">
+                Email address
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                disabled={isMainButtonLoading}
+                className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-950 disabled:cursor-not-allowed disabled:opacity-60"
+              />
+            </div>
 
             <div>
               <label className="mb-2 block text-sm font-semibold text-zinc-800">
@@ -351,7 +417,8 @@ export default function CustomerSignupPage() {
                 value={form.password}
                 onChange={handleChange}
                 placeholder="Minimum 6 characters"
-                className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-950"
+                disabled={isMainButtonLoading}
+                className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-950 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </div>
 
@@ -365,7 +432,8 @@ export default function CustomerSignupPage() {
                 value={form.confirmPassword}
                 onChange={handleChange}
                 placeholder="Re-enter password"
-                className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-950"
+                disabled={isMainButtonLoading}
+                className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-950 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </div>
 
@@ -375,7 +443,8 @@ export default function CustomerSignupPage() {
                 name="agree"
                 checked={form.agree}
                 onChange={handleChange}
-                className="mt-1 h-4 w-4 accent-zinc-950"
+                disabled={isMainButtonLoading}
+                className="mt-1 h-4 w-4 accent-zinc-950 disabled:cursor-not-allowed disabled:opacity-60"
               />
               <span>
                 I agree to create a customer account for shopping, order tracking, and product updates.
@@ -384,21 +453,119 @@ export default function CustomerSignupPage() {
 
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isMainButtonLoading}
               className="w-full rounded-full bg-zinc-950 py-4 text-sm font-semibold text-white shadow-xl shadow-zinc-950/15 transition hover:scale-[1.01] hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? "Creating account..." : "Create customer account"}
+              {isCreatingAccount
+                ? "Creating account..."
+                : isSendingOtp
+                ? "Sending OTP..."
+                : "Create customer account"}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-zinc-500">
             Already have an account?{" "}
-            <button type="button" className="font-semibold text-zinc-950 hover:underline">
+            <button
+              type="button"
+              disabled={isMainButtonLoading}
+              // onClick={() => router.push("/login")}
+              className="font-semibold text-zinc-950 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+            >
               Sign in
             </button>
           </p>
         </div>
       </section>
+
+      {showOtpModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6 backdrop-blur-sm">
+          <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] border border-white/80 bg-white p-6 shadow-2xl md:p-8">
+            <div className="absolute right-[-6rem] top-[-6rem] h-64 w-64 rounded-full bg-emerald-200/50 blur-3xl" />
+
+            <div className="relative">
+              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-950 text-white">
+                <SparkIcon />
+              </div>
+
+              <div className="text-center">
+                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-600">
+                  Verify Email
+                </p>
+
+                <h3 className="mt-3 text-3xl font-semibold tracking-tight">
+                  Enter OTP
+                </h3>
+
+                <p className="mt-3 text-sm leading-6 text-zinc-500">
+                  We sent a 6-digit OTP to{" "}
+                  <span className="font-semibold text-zinc-950">{form.email}</span>
+                </p>
+              </div>
+
+              <input
+                type="text"
+                inputMode="numeric"
+                name="otp"
+                maxLength={6}
+                value={form.otp}
+                onChange={(event) => {
+                  setOtpError("");
+
+                  const onlyNumbers = event.target.value.replace(/\D/g, "");
+
+                  setForm((prev) => ({
+                    ...prev,
+                    otp: onlyNumbers,
+                  }));
+                }}
+                placeholder="000000"
+                disabled={isVerifyingOtp}
+                className="mt-6 w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-4 text-center text-2xl font-semibold tracking-[0.5em] outline-none transition focus:border-zinc-950 disabled:cursor-not-allowed disabled:opacity-60"
+              />
+
+              {otpError ? (
+                <p className="mt-3 text-center text-sm font-medium text-red-500">
+                  {otpError}
+                </p>
+              ) : null}
+
+              <button
+                type="button"
+                onClick={verifyOtpAndRedirect}
+                disabled={isVerifyingOtp}
+                className="mt-5 w-full rounded-full bg-zinc-950 py-4 text-sm font-semibold text-white shadow-xl shadow-zinc-950/15 transition hover:scale-[1.01] hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isVerifyingOtp ? "Verifying OTP..." : "Verify OTP"}
+              </button>
+
+              <div className="mt-4 flex items-center justify-between text-sm">
+                <button
+                  type="button"
+                  onClick={sendOtpAndOpenModal}
+                  disabled={isSendingOtp || isVerifyingOtp}
+                  className="font-semibold text-zinc-950 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isSendingOtp ? "Sending..." : "Resend OTP"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowOtpModal(false)}
+                  disabled={isVerifyingOtp}
+                  className="text-zinc-500 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Change details
+                </button>
+              </div>
+
+              <p className="mt-5 rounded-2xl bg-emerald-50 p-3 text-center text-xs text-emerald-700">
+                Enter the OTP sent to your email. Do not share this code with anyone.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }
