@@ -1,5 +1,6 @@
-import { error } from "console";
+
 import { Resend } from "resend";
+
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -26,9 +27,12 @@ export async function sendSignupOTPEmail({
       </div>
     `,
   });
-   if (Error) {
+   if (error) {
     console.error("Resend email error:", error);
     throw new Error("Failed to send OTP email");
+  }
+  if(!error){
+    console.log("Email sent successfully:", data);
   }
 
   console.log("Email sent successfully:", data);
