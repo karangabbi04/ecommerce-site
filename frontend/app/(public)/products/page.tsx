@@ -217,10 +217,10 @@ export default function Page() {
                 key={product.id}
                 className="group relative overflow-hidden rounded-[2rem] border border-zinc-200/80 bg-white/80 p-4 shadow-sm backdrop-blur-xl transition duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-zinc-900/10 before:pointer-events-none before:absolute before:inset-y-0 before:left-[-120%] before:z-20 before:w-1/2 before:skew-x-[-18deg] before:bg-gradient-to-r before:from-transparent before:via-white/70 before:to-transparent before:transition-all before:duration-700 hover:before:left-[140%]"
               >
-                <Link href={`/public/products/${product.id}` as Route} className="relative z-10">
+                <Link href={`/products/${product.id}` as Route} className="relative z-10">
                 <div className={`relative flex h-64 items-center justify-center overflow-hidden rounded-[1.5rem] bg-linear-to-br `}>
                   <img
-                    src={product.images[1]?.url || "/placeholder.png"}
+                    src={product.images[0]?.url}
                     alt={product.name}
                     className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                   />
