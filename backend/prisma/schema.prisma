@@ -89,8 +89,9 @@ model EmailOTP{
 
 model Cart {
     id                 String            @id @default(uuid())
-    userId             String            @unique
-    user               User              @relation(fields: [userId], references : [id], onDelete: Cascade)
+    guestId            String?           @unique
+    userId             String?           @unique
+    user               User?             @relation(fields: [userId], references : [id], onDelete: Cascade)
     items              CartItem[]
     createdAt          DateTime          @default(now())
     updatedAt          DateTime          @updatedAt
