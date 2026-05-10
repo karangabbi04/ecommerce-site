@@ -138,4 +138,167 @@ export const addToCart = asyncHandler(async (req: Request, res: Response) => {
 
 });
 
+const emptyCartPayload = {
+  cart: null,
+  items: [],
+  totalItems: 0,
+  subtotal: 0,
+};
+
+const cartInclude = {
+  items: {
+    include: {
+      product: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          price: true,
+          stock: true,
+          isFeatured: true,
+          images: {
+            select: {
+              id: true,
+              url: true,
+            },
+            orderBy: {
+              createdAt: "asc",
+            },
+            take: 1, // Cart page ke liye usually ek thumbnail enough hota hai
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  },
+} satisfies Prisma.CartInclude;
+
+const getCartWhereClause = ({
+  userId,
+  guestId,
+}: {
+  userId?: string;
+  guestId?: string;
+}): Prisma.CartWhereUniqueInput | null => {
+  if (userId) {
+    return { userId };
+  }
+
+  if (guestId) {
+    return { guestId };
+  }
+
+  return null;
+};
+
+type CartWithItems = Prisma.CartGetPayload<{
+  include: typeof cartInclude;
+}>;
+
+const calculateCartSummary = (cart: CartWithItems) => {
+  const totalItems = cart.items.reduce((total, item) => {
+    return total + item.quantity;
+  }, 0);
+
+  const subtotal = cart.items.reduce((total, item) => {
+    const productPrice = Number(item.product.price);
+    return total + productPrice * item.quantity;
+  }, 0);
+  return {
+    totalItems,
+    subtotal,
+  };
+};
+
+const formatCartResponse = (cart: CartWithItems) => {
+  const { totalItems, subtotal } = calculateCartSummary(cart);
+
+  const items = cart.items.map((item) => {
+    const product = item.product;
+
+    return {
+      id: item.id,
+      productId: item.productId,
+      quantity: item.quantity,
+
+      product: {
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: product.price,
+        stock: product.stock,
+        isFeatured: product.isFeatured,
+        thumbnail: product.images[0]?.url ?? null,
+      },
+
+      itemTotal: Number(product.price) * item.quantity,
+
+      availability: {
+        inStock: product.stock > 0,
+        hasEnoughStock: product.stock >= item.quantity,
+        isFeatured: product.isFeatured,
+      },
+
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+    };
+  });
+
+  return {
+    cart: {
+      id: cart.id,
+      userId: cart.userId,
+      guestId: cart.guestId,
+      createdAt: cart.createdAt,
+      updatedAt: cart.updatedAt,
+    },
+    items,
+    totalItems,
+    subtotal,
+  };
+};
+
+
+export const getCart =asyncHandler(async(req:Request,res:Response)=>{
+
+  const userId = req.user?.id;
+  const guestId = req.cookies?.guest_cart_id;
+
+  if (!userId && !guestId) {
+    return res.status(200).json(
+      new ApiResponse(200, emptyCartPayload, "Cart is empty")
+    );
+  }
+
+  const cart = userId
+    ? await prisma.cart.findUnique({
+        where: {
+          userId,
+        },
+        include: cartInclude,
+      })
+    : await prisma.cart.findUnique({
+        where: {
+          guestId,
+        },
+        include: cartInclude,
+      });
+
+  if (!cart) {
+    return res.status(200).json(
+      new ApiResponse(200, emptyCartPayload, "Cart is empty")
+    );
+  }
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      formatCartResponse(cart),
+      "Cart fetched successfully"
+    )
+  );
+
+});
 
