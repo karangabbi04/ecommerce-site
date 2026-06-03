@@ -53,6 +53,7 @@ const cartWithItemsInclude = {
 
 export const addToCart = asyncHandler(async (req: Request, res: Response) => {
   const parsedBody = addToCartSchema.safeParse(req.body);
+  console.log(req.body)
 
   if (!parsedBody.success) {
     throw new ApiError(
@@ -566,4 +567,80 @@ export const updateCartItemQuantity = asyncHandler(
 
 
 // update item cart quantity controller end
+
+// remove item from cart controller start 
+
+type RemoveCartItemParams = {
+  itemId: string;
+};
+
+export const removeCartItem = asyncHandler(
+  async (req: Request<RemoveCartItemParams>, res: Response) => {
+    const userId = req.user?.id;
+    const guestId = req.cookies?.guest_cart_id;
+    const { itemId } = req.params;
+
+    if (!itemId) {
+      throw new ApiError(400, "Cart item id is required");
+    }
+
+    if (!userId && !guestId) {
+      throw new ApiError(401, "Cart session not found");
+    }
+
+    const cartItem = await prisma.cartItem.findUnique({
+      where: {
+        id: itemId,
+      },
+      select: cartItemOwnershipSelect,
+    });
+
+    if (!cartItem) {
+      throw new ApiError(404, "Cart item not found");
+    }
+
+    const isOwner = isCartItemOwner({
+      userId,
+      guestId,
+      cartUserId: cartItem.cart.userId,
+      cartGuestId: cartItem.cart.guestId,
+    });
+
+    if (!isOwner) {
+      throw new ApiError(403, "You are not allowed to remove this cart item");
+    }
+
+    
+    const updatedCart = await prisma.$transaction(async (tx) => {
+      await tx.cartItem.delete({
+        where: {
+          id: itemId,
+        },
+      });
+
+      const cart = await tx.cart.findUnique({
+        where: {
+          id: cartItem.cart.id,
+        },
+        include: updatedCartInclude,
+      });
+
+      if (!cart) {
+        throw new ApiError(404, "Cart not found");
+      }
+
+      return cart;
+    });
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        formatCartResponse(updatedCart),
+        "Cart item removed successfully"
+      )
+    );
+  }
+);
+
+// remove item from cart controller end
 
