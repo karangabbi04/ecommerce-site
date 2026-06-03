@@ -37,3 +37,21 @@ export const useUpdateCartItemQuantity =() =>{
     },
     })
 }
+
+export const useRemoveCartItem =() =>{
+
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn:(itemId:string)=>{
+            return cartService.removeCartItem(itemId)
+        },
+         onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+
+    onError: (error) => {
+      console.log("Remove cart item error:", error);
+    },
+    })
+}

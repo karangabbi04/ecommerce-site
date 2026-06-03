@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useCart, useUpdateCartQuantity } from "@/app/hooks/queries/cart";
+import { useCart, useUpdateCartQuantity,  } from "@/app/hooks/queries/cart";
+import {useRemoveCartItem} from "@/app/hooks/mutations/usecart";
 import { it } from "node:test";
 
 type CartItem = {
@@ -76,6 +77,7 @@ export default function CartDropdown() {
     const { data: cartData } = useCart();
 
     const updateCartQuantity = useUpdateCartQuantity();
+    const removeCartItem = useRemoveCartItem();
 
  const totalItems = cartData?.totalItems || 0;
  const cartItems = cartData?.items || [];
@@ -191,7 +193,7 @@ export default function CartDropdown() {
 
                           <button
                             type="button"
-                            onClick={() => {}}
+                            onClick={() => removeCartItem.mutate(item.id)}
                             className="rounded-full p-1 text-zinc-400 transition hover:bg-zinc-100 hover:text-red-500"
                             aria-label={`Remove ${item.product.name}`}
                           >

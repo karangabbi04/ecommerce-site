@@ -52,6 +52,17 @@ export const cartService ={
 
         return response.data.data ;
 
-        console.log("update cart item quantity respoc",response)
-    }   
+    },
+    async removeCartItem(itemId : string){
+        console.log("remove cart item api is called")
+        const response = await api.delete(`/cart/items/${itemId}`)
+    
+        if(!response){
+
+            console.log ("remove cart item api not working ");
+        }
+        console.log("remove cart item respoc",response)
+
+        return response.data.data ;
+    }
 };
