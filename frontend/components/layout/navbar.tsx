@@ -1,17 +1,23 @@
 "use client";
 
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import { useAuthStore } from "@/app/store/auth.store";
+import CartDropdown from "../cart/CartDropdown";
+import { useCart } from "@/app/hooks/queries/cart";
 export default function NavbarPreview() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const user =useAuthStore((state)=>state.user)
 
-  const user = {
-    name: "Karan",
-    isLoggedIn: true,
-  };
 
   const userLocation = "Ludhiana, PB";
   const cartCount = 3;
+
+  useEffect(()=>
+    {
+
+
+    },[])
+
 
   return (
    
@@ -31,7 +37,7 @@ export default function NavbarPreview() {
             </div>
           </a>
 
-          {/* DESKTOP LINKS */}
+     
          
 
           {/* RIGHT SIDE */}
@@ -44,19 +50,8 @@ export default function NavbarPreview() {
               <span>{userLocation}</span>
             </button>
 
-            <a
-              href="#"
-              className="relative flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white/70 text-lg shadow-sm transition hover:scale-105 hover:bg-white"
-            >
-              🛒
-              {cartCount > 0 ? (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-zinc-950 px-1 text-xs font-semibold text-white">
-                  {cartCount}
-                </span>
-              ) : null}
-            </a>
-
-            {user.isLoggedIn ? (
+           
+            {user ? (
               <a
                 href="#"
                 className="flex items-center gap-2 rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-zinc-950/15 transition hover:scale-105 hover:bg-zinc-800"
@@ -74,6 +69,11 @@ export default function NavbarPreview() {
                 Login
               </a>
             )}
+
+            <div>
+               <CartDropdown/>
+           </div>
+
           </div>
 
           {/* MOBILE BUTTON */}
@@ -105,7 +105,7 @@ export default function NavbarPreview() {
               </a>
 
               <a href="#" className="block rounded-full bg-zinc-950 px-5 py-3 text-center text-sm font-semibold text-white">
-                Account: {user.name}
+                Account: {user?.name}
               </a>
             </div>
           </div>
