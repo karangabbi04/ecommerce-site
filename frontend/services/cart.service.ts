@@ -9,6 +9,11 @@ export type addToCartPayload = {
 
 };
 
+export type checkoutpayload = {
+    userId? : string,
+    guestId? : string
+};
+
 
 export const cartService ={
 
@@ -62,6 +67,19 @@ export const cartService ={
             console.log ("remove cart item api not working ");
         }
         console.log("remove cart item respoc",response)
+
+        return response.data.data ;
+    },
+
+    async checkout (checkoutData : checkoutpayload){
+        console.log("checkout api is called")
+        const response = await api.post(`/checkout/create-session`)
+    
+        if(!response){
+
+            console.log ("checkout api not working ");
+        }
+        console.log("checkout respoc",response)
 
         return response.data.data ;
     }

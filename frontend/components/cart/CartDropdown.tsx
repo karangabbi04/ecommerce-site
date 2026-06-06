@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useCart, useUpdateCartQuantity,  } from "@/app/hooks/queries/cart";
-import {useRemoveCartItem} from "@/app/hooks/mutations/usecart";
-import { it } from "node:test";
+import { useCart, useUpdateCartQuantity, useCheckout } from "@/app/hooks/queries/cart";
+import {useRemoveCartItem, } from "@/app/hooks/mutations/usecart";
 
 type CartItem = {
   id: string;
@@ -12,6 +11,7 @@ type CartItem = {
   quantity: number;
   image?: string;
 };
+
 
 
 
@@ -73,16 +73,18 @@ function EmptyCartIcon() {
 
 export default function CartDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  // const [cartItems, setCartItems] = useState<CartItem[]>(demoCartItems);
+
     const { data: cartData } = useCart();
 
     const updateCartQuantity = useUpdateCartQuantity();
     const removeCartItem = useRemoveCartItem();
+    const checkout = useCheckout();
 
  const totalItems = cartData?.totalItems || 0;
  const cartItems = cartData?.items || [];
 
-  // console.log("cart data in cart dropdown",cartData.items[0].id);
+
+
 
 
 
@@ -96,35 +98,10 @@ export default function CartDropdown() {
       updateCartQuantity.mutate({ itemId, quantity: currentQuantity - 1 });
     }
   };
- 
 
-  // const subtotal = useMemo(() => {
-  //   return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-  // }, [cartItems]);
-
-  // const increaseQuantity = (id: string) => {
-  //   setCartItems((prev) =>
-  //     prev.map((item) =>
-  //       item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-  //     )
-  //   );
-  // };
-
-  // const decreaseQuantity = (id: string) => {
-  //   setCartItems((prev) =>
-  //     prev
-  //       .map((item) =>
-  //         item.id === id
-  //           ? { ...item, quantity: Math.max(1, item.quantity - 1) }
-  //           : item
-  //       )
-  //       .filter((item) => item.quantity > 0)
-  //   );
-  // };
-
-  // const removeItem = (id: string) => {
-  //   setCartItems((prev) => prev.filter((item) => item.id !== id));
-  // };
+  const handleCheckout = (userId: string, guestId: string) => {
+    checkout.mutate({ userId, guestId });
+  }
 
   return (
     <div className="relative">
@@ -242,6 +219,7 @@ export default function CartDropdown() {
 
                 <button
                   type="button"
+                  onClick={() => handleCheckout(cartData?.userId || "", cartData?.guestId || "")}
                   className="w-full rounded-full bg-zinc-950 py-3 text-sm font-semibold text-white shadow-xl shadow-zinc-950/15 transition hover:scale-[1.01] hover:bg-zinc-800"
                 >
                   Checkout
