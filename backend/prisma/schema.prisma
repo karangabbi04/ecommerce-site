@@ -116,3 +116,55 @@ model CartItem{
   @@unique([cartId, productId])
 
 }
+
+
+model CheckoutSession {
+  id              String          @id @default(cuid())
+  userId          String?
+  guestId         String?
+
+  status          CheckoutStatus  @default(ACTIVE)
+
+  subtotal        Decimal         @db.Decimal(10,2)
+  shipping        Decimal         @db.Decimal(10,2)
+  total           Decimal         @db.Decimal(10,2)
+  tax             Decimal         @db.Decimal(10,2)
+
+  expiresAt       DateTime
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  items           CheckoutItem[]
+
+  @@index([userId])
+}
+
+enum CheckoutStatus {
+  ACTIVE
+  PAYMENT_PENDING
+  PAID
+  EXPIRED
+  CANCELLED
+}
+
+
+
+model CheckoutItem {
+  id                String              @id @default(cuid())
+
+  checkoutSessionId String
+  checkoutSession   CheckoutSession     @relation(fields: [checkoutSessionId], references: [id])
+
+  productId         String
+
+  productName       String
+
+  quantity          Int
+
+  unitPrice         Decimal             @db.Decimal(10,2)
+
+  createdAt         DateTime            @default(now())
+
+  @@index([checkoutSessionId])
+}

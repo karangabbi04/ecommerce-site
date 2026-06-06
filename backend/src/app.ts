@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.routes.js";
 import otpRouter from "./routes/auth.routes.js";
 import cartRouter from "./routes/cart.routes.js"
+import checkoutRouter from "./routes/checkout.routes.js";
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use("/api/v1/ai", aiRoutes);
 app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/otp", otpRouter);
 app.use("/api/v1/cart", cartRouter);
+app.use("/api/v1/checkout",checkoutRouter);
 
 
 
