@@ -5,6 +5,17 @@ import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useProductStore } from "@/app/store/product.store";
 import Link from "next/link";
+import { useAddToCart } from "@/app/hooks/mutations/usecart";
+
+
+type ProductCardProps = {
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    image?: string;
+  };
+};
 
 
 export default function ProductDetailPage() {
@@ -18,10 +29,11 @@ export default function ProductDetailPage() {
   const fetchProductById = useProductStore((state) => state.fetchProductById);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
-  const [selectedProductIndex, setSelectedProductIndex] = useState(0);
   const [showAR, setShowAR] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "details">("overview");
   const [quantity, setQuantity] = useState(1);
+
+  const {mutate:addToCart, isPending}= useAddToCart();
 
 const activeImage =
   selectedProduct?.images?.[selectedImageIndex]?.url || "/placeholder.png";
@@ -35,12 +47,25 @@ const discount = selectedProduct?.oldPrice
   : 0;
 
 
+
+
+
+  const handelAddToCart =()=>{
+
+    addToCart({
+      productId:id,
+      quantity:quantity,
+    });
+
+  }
+
+
 useEffect(() => {
     if (id) {
       fetchProductById(id);
     }
   }, [id, fetchProductById]);
-  console.log("Selected Product:", selectedProduct);
+
 
   if (isLoading) return <p>Loading product...</p>;
   if (error) return <p>{error}</p>;
@@ -54,7 +79,7 @@ useEffect(() => {
         <div className="absolute right-[-10rem] top-36 h-96 w-96 rounded-full bg-sky-200/40 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl">
-            <Link href="/public/products" className="relative z-10">
+            <Link href="/products" className="relative z-10">
           <button
 
             type="button"
@@ -98,7 +123,7 @@ useEffect(() => {
                 >
                   <div className="absolute inset-8 rounded-[2rem] border border-white/70 bg-white/30 backdrop-blur-xl" />
                   <div className="absolute left-6 top-6 z-10 rounded-full bg-white/75  text-sm font-semibold text-zinc-700 shadow-sm backdrop-blur-xl">
-                    {selectedProduct.tag}
+                    {selectedProduct.tag  }
                   </div>
                   
 
@@ -216,6 +241,7 @@ useEffect(() => {
 
                   <button
                     type="button"
+                    onClick={handelAddToCart}
                     className="flex-1 rounded-full bg-zinc-950 px-7 py-4 text-sm font-semibold text-white shadow-xl shadow-zinc-950/15 transition hover:scale-[1.02] hover:bg-zinc-800"
                   >
                     Add to Cart

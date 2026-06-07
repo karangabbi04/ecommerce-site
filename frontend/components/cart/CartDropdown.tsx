@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useCart, useUpdateCartQuantity, useCheckout } from "@/app/hooks/queries/cart";
 import {useRemoveCartItem, } from "@/app/hooks/mutations/usecart";
+import { useRouter } from "next/navigation";
 
 type CartItem = {
   id: string;
@@ -72,6 +73,8 @@ function EmptyCartIcon() {
 }
 
 export default function CartDropdown() {
+
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
     const { data: cartData } = useCart();
@@ -84,7 +87,9 @@ export default function CartDropdown() {
  const cartItems = cartData?.items || [];
 
 
-
+const checkoutpage = () => {
+  router.push("/checkout");
+}
 
 
 
@@ -219,7 +224,7 @@ export default function CartDropdown() {
 
                 <button
                   type="button"
-                  onClick={() => handleCheckout(cartData?.userId || "", cartData?.guestId || "")}
+                  onClick={() => checkoutpage()}
                   className="w-full rounded-full bg-zinc-950 py-3 text-sm font-semibold text-white shadow-xl shadow-zinc-950/15 transition hover:scale-[1.01] hover:bg-zinc-800"
                 >
                   Checkout

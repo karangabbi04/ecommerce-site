@@ -1,8 +1,8 @@
 import { asyncHandler } from "../utils/asyncHandler";
 import e, { Request, Response } from "express";
 import { ApiResponse } from "../utils/apiResponse";
-import { generateOTP, hashOTP, getOTPExpiryTime } from "../utils/otp";
-import { sendSignupOTPEmail } from "../lib/email";
+import { generateOTP, hashOTP, getOTPExpiryTime, verifyOTP } from "../utils/otp";
+import { sendOTPEmail } from "../lib/email";
 import { ApiError } from "../utils/ApiError";
 import {prisma} from "../lib/prisma"; 
 import { z } from "zod";
@@ -16,13 +16,15 @@ const verifySignupOTPSchema = z.object({
 
 const verifySignupOTP = asyncHandler(async (req: Request, res: Response) => {
 
-    const { email, otp } = req.body;
+    const validatedData = verifySignupOTPSchema.parse(req.body);
 
-    const norrmalizedEmail = email.toLowerCase().trim();
+    const { email, otp } = validatedData;
+
+    const normalizedEmail = email.toLowerCase().trim();
 
     const existingUser = await prisma.user.findUnique({
         where: {
-            email: norrmalizedEmail,
+            email: normalizedEmail,
         },
     });
 
@@ -34,7 +36,7 @@ const verifySignupOTP = asyncHandler(async (req: Request, res: Response) => {
 
      const existingOTP = await prisma.emailOTP.findFirst({
         where: {
-            email: norrmalizedEmail,
+            email: normalizedEmail,
             purpose: "SIGNUP",
         },
         orderBy: {
@@ -47,6 +49,12 @@ const verifySignupOTP = asyncHandler(async (req: Request, res: Response) => {
         return res.status(400)
         .json(new ApiResponse(400, null, "No OTP found for this email. Please request a new one"));
      }
+
+     if (existingOTP.verified) {
+  throw new ApiError(
+    400,
+    "OTP already verified"
+  )}
 
      if (existingOTP.expiresAt < new Date()) {
 
@@ -73,7 +81,10 @@ const verifySignupOTP = asyncHandler(async (req: Request, res: Response) => {
 
      }
 
-     const isOTPValid =  compare(otp, existingOTP.otpHash);
+        const isOTPValid = verifyOTP(
+            otp,
+            existingOTP.otpHash
+            );
 
      if (!isOTPValid) {
 
@@ -89,43 +100,20 @@ const verifySignupOTP = asyncHandler(async (req: Request, res: Response) => {
         return res.status(400)
         .json(new ApiResponse(400, null, "Invalid OTP. Please try again"));
      }
-
-     const user =  await prisma.$transaction(async (tx) => {
-
-        const createdUser = await tx.user.upsert({
-            where: {
-                email: norrmalizedEmail,
-            },
-            update: {
-                emailVerified: true,
-                name: existingUser?.name,
-            },
-            create:{
-                email: norrmalizedEmail,
-                emailVerified: true,
-                name: existingUser?.name,
-            },
-            select: {
-                id: true,
-                email: true,
-                name: true,
-                emailVerified: true,
-                createdAt: true,
-            },
+        
+        await prisma.emailOTP.update({
+        where: {
+            id: existingOTP.id
+        },
+        data: {
+            verified: true,
+            varifiedAt: new Date()
+        }
         });
-
-        await tx.emailOTP.deleteMany({
-            where: {
-                email: norrmalizedEmail,
-                purpose: "SIGNUP",
-            },
-        });
-
-        return createdUser;
-     });
+    
 
      return res.status(200)
-     .json(new ApiResponse(200, user, "Email verified successfully"));
+     .json(new ApiResponse(200, "Email verified successfully"));
          
 
   }); 
