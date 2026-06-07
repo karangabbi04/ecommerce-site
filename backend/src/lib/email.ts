@@ -7,9 +7,10 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 type SendSignupOTPEmailParams = {
   to: string;
   otp: string;
+  purpose?: "SIGNUP" | "PASSWORD_RESET";
 };
 
-export async function sendSignupOTPEmail({
+export async function sendOTPEmail({
   to,
   otp,
 }: SendSignupOTPEmailParams) {

@@ -50,7 +50,7 @@ export default function HeroSection() {
             className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row"
           >
            
-              <Link href="/public/products">
+              <Link href="/products">
                <button
               type="button"
               className="group inline-flex items-center gap-2 rounded-full bg-zinc-950 px-7 py-3 text-sm font-semibold text-white shadow-xl shadow-zinc-950/15 transition hover:scale-105 hover:bg-zinc-800"
@@ -92,18 +92,9 @@ export default function HeroSection() {
                   </p>
                 </div>
 
-                <motion.div
-                  animate={{ y: [0, -14, 0], rotate: [0, 1.5, 0] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  className="relative mx-auto flex h-72 w-72 items-center justify-center rounded-[2rem] bg-gradient-to-br from-white via-emerald-50 to-zinc-100 shadow-2xl shadow-emerald-900/10 md:h-96 md:w-96"
-                >
-                  <div className="absolute inset-8 rounded-[2rem] border border-white/70 bg-white/35 backdrop-blur-xl" />
-
-                  <div className="relative h-56 w-28 rounded-b-[3rem] rounded-t-2xl border border-white/90 bg-gradient-to-br from-emerald-200/50 via-white/50 to-cyan-200/50 shadow-2xl backdrop-blur-md md:h-72 md:w-36">
-                    <div className="absolute left-1/2 top-[-3.5rem] h-16 w-14 -translate-x-1/2 rounded-t-xl border border-white/90 bg-emerald-100/60 backdrop-blur-md" />
-                    <div className="absolute left-5 top-8 h-32 w-4 rounded-full bg-white/60 blur-sm" />
-                  </div>
-                </motion.div>
+                <div className=" w-96">
+                    <img className=" rounded-2xl" src="https://res.cloudinary.com/dug5p4xso/image/upload/v1778236802/main_kidr1b.jpg" alt="" />
+                </div>
               </div>
             </div>
           </motion.div>
