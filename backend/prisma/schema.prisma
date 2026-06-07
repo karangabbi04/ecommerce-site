@@ -54,12 +54,14 @@ model User {
   email            String    @unique
   name             String?
   password         String?
+  phone            String?    @unique
   emailVerified    Boolean    @default(false)
-
+  addresses        Address[]
   role             Role     @default(USER)
   cart             Cart?
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
+  orders           Order[]
 }
 
 //email otp table 
@@ -68,6 +70,7 @@ enum OtpPurpose {
   SIGNUP
   LOGIN
   PASSWORD_RESET
+  ORDER_CONFIRMATION
 }
 
 model EmailOTP{
@@ -75,12 +78,14 @@ model EmailOTP{
   email            String    
   otpHash          String
   purpose          OtpPurpose @default(SIGNUP)
+  verified         Boolean   @default(false)
 
   expiresAt        DateTime
   attempts         Int      @default(0)
   maxAttempts      Int      @default(5)
-
+  varifiedAt       DateTime?
   createdAt        DateTime   @default(now())
+  metadata         Json?
    @@index([email])
   @@index([email, purpose])
 }
@@ -167,4 +172,139 @@ model CheckoutItem {
   createdAt         DateTime            @default(now())
 
   @@index([checkoutSessionId])
+}
+
+//address table 
+
+model Address {
+  id            String   @id @default(uuid())
+
+  userId        String?
+  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fullName      String
+  phone         String
+
+  addressLine1  String
+  addressLine2  String?
+
+  city          String
+  state         String
+  country       String
+  postalCode    String
+  orders        Order[]
+  isDefault     Boolean  @default(false)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+//order table 
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Order {
+  id              String        @id @default(uuid())
+
+  orderNumber     String        @unique
+
+  userId          String?
+  user            User?         @relation(fields: [userId], references: [id])
+
+  guestId         String?
+
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+
+  addressId       String
+  address         Address       @relation(fields: [addressId], references: [id])
+
+  status          OrderStatus   @default(PENDING)
+
+  paymentStatus   PaymentStatus @default(PENDING)
+
+  subtotal        Decimal       @db.Decimal(10,2)
+  tax             Decimal       @db.Decimal(10,2)
+  shipping        Decimal       @db.Decimal(10,2)
+  discount        Decimal       @default(0) @db.Decimal(10,2)
+
+  total           Decimal       @db.Decimal(10,2)
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  items           OrderItem[]
+  payment         Payment?
+
+  @@index([guestId])
+}
+
+//oder item 
+
+model OrderItem {
+  id            String   @id @default(uuid())
+
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId     String
+
+  productName   String
+
+  quantity      Int
+
+  unitPrice     Decimal  @db.Decimal(10,2)
+
+  totalPrice    Decimal  @db.Decimal(10,2)
+
+  createdAt     DateTime @default(now())
+}
+
+//payment table 
+
+enum PaymentGateway {
+  RAZORPAY
+}
+
+enum PaymentRecordStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+model Payment {
+  id                    String               @id @default(uuid())
+
+  orderId               String               @unique
+  order                 Order                @relation(fields: [orderId], references: [id])
+
+  gateway               PaymentGateway
+
+  razorpayOrderId       String?              @unique
+  razorpayPaymentId     String?              @unique
+  razorpaySignature     String?
+
+  amount                Decimal              @db.Decimal(10,2)
+
+  status                PaymentRecordStatus  @default(PENDING)
+
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
 }
