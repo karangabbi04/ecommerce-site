@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import e, { Request, Response } from "express";
 import { ApiResponse } from "../utils/apiResponse";
 import { generateOTP, hashOTP, getOTPExpiryTime } from "../utils/otp";
-import { sendSignupOTPEmail } from "../lib/email";
+import { sendOTPEmail } from "../lib/email";
 import { ApiError } from "../utils/ApiError";
 import {prisma} from "../lib/prisma"; 
 import { z } from "zod";
@@ -14,13 +14,16 @@ const requestSignupOTPSchema = z.object({
 
  export const requestSignupOTP= asyncHandler(async (req: Request, res: Response) => {
 
-    const { email } = req.body;
+    const validatedData = requestSignupOTPSchema.parse(req.body);
 
-    const norrmalizedEmail = email.toLowerCase().trim();
+    const { email } = validatedData;
+
+
+    const normalizedEmail = email.toLowerCase().trim();
     
     const existingUser = await prisma.user.findUnique({
         where: {
-            email: norrmalizedEmail,
+            email: normalizedEmail,
         },
     });
 
@@ -28,16 +31,16 @@ const requestSignupOTPSchema = z.object({
     if (existingUser?.emailVerified) {
 
         return res.status(400)
-        .json(new ApiResponse(400, null, "Email is already registered and verified"));
+        .json(new ApiResponse(400, null, "Email is already registered "));
      }
     
 
      const recentOTP = await prisma.emailOTP.findFirst({
         where: {
-            email: norrmalizedEmail,
+            email: normalizedEmail,
             purpose: "SIGNUP",
             createdAt: {
-                gt: new Date(Date.now() - 10 * 60 * 1000), // check for OTPs created in the last 10 minutes
+                gt: new Date(Date.now() -  60 * 1000), // check for OTPs created in the last 10 minutes
             },
         },
      });
@@ -50,7 +53,7 @@ const requestSignupOTPSchema = z.object({
 
       await prisma.emailOTP.deleteMany({
       where: {
-        email: norrmalizedEmail,
+        email: normalizedEmail,
         purpose: "SIGNUP",
       },
     });
@@ -58,21 +61,22 @@ const requestSignupOTPSchema = z.object({
     //generate and hash OTP
     const otp = generateOTP();
     const hashedOTP = hashOTP(otp);
-        const expiresMinutes = Number((process.env.OTP_EXPIRES_IN ));
+        const expiresMinutes = Number((process.env.OTP_EXPIRES_IN ?? 10 ));
         const expiresAt = new Date(Date.now() + expiresMinutes * 60 * 1000);
 
     await prisma.emailOTP.create({
         data: {
-            email: norrmalizedEmail,
+            email: normalizedEmail,
             otpHash: hashedOTP,
             purpose: "SIGNUP",
             expiresAt: expiresAt,
         },
     });
 
-        await sendSignupOTPEmail({
-            to: norrmalizedEmail,
-             otp
+        await sendOTPEmail({
+            to: normalizedEmail,
+             otp,
+             purpose: "SIGNUP",
             });
 
         return res.status(200)
