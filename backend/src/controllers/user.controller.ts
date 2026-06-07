@@ -18,14 +18,46 @@ import z from "zod";
 
 
 const registerUser = asyncHandler(async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
+  
+  const validatedData = signUpSchema.parse(req.body);
+
+const { name, email, password } = validatedData;
+
+
+const normalizedEmail = email.toLowerCase().trim();
+
 
   const existingUser = await prisma.user.findUnique(
-    { where: { email } });
+    { where: { email:normalizedEmail } });
 
     if (existingUser) {
       throw new ApiError(400, "User with this email already exists");
     }
+
+
+//// check otp is verified or not
+
+const verifiedOTP =
+ await prisma.emailOTP.findFirst({
+   where: {
+      email: normalizedEmail,
+      purpose: "SIGNUP",
+      verified: true,
+   },
+   orderBy: {
+      createdAt: "desc",
+   },
+ });
+
+
+if (!verifiedOTP) {
+  throw new ApiError(400, "Email not verified. Please verify your email before registering");
+}
+
+
+
+
+
 
     const hashedPassword = await hashPassword(password);
 
@@ -44,7 +76,14 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
         createdAt: true,
       },
     });
-    console.log("New user created:", newUser);
+
+    await prisma.emailOTP.deleteMany({
+   where: {
+      email: normalizedEmail,
+      purpose: "SIGNUP",
+   },
+});
+
     return res.status(201).json(new ApiResponse(201, newUser, "User registered successfully")); 
 
 
@@ -123,6 +162,56 @@ const  getCurrentUser  = asyncHandler( async (req: Request, res: Response) => {
    return res.status(200).json(
     new ApiResponse(200,{user},"currunt user fetched succesulf")
    )
+
+});
+
+
+  const registerDuringCheckoutSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    email: z.string().email("Invalid email address"),
+    phone: z.string().min(10, "plese ender a valid phone number"),
+  });
+
+const registerDuringCheckout = asyncHandler(async (req: Request, res: Response) => {
+
+  const validateData = registerDuringCheckoutSchema.safeParse(req.body);
+  
+  if(!validateData.success){
+    const errors = validateData.error.issues.map((err: any) => err.message);
+    throw new ApiError(400,"validation error",errors);
+  }
+
+  const { name, email, phone } = req.body;
+
+  const existingUser = await prisma.user.findUnique(
+    { where: { email } });
+
+    if (existingUser) {
+      throw new ApiError(400, "User with this email already exists");
+    }
+
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        phone,
+        emailVerified: false,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        emailVerified: true,
+        createdAt: true,
+      },
+    });
+    console.log("New user created during checkout:", newUser);
+    return res.status(201).json(new ApiResponse(201, newUser, "User registered successfully during checkout"));
+
+ 
+
+
 
 });
 
