@@ -141,6 +141,8 @@ model CheckoutSession {
   updatedAt       DateTime        @updatedAt
 
   items           CheckoutItem[]
+  addressId       String?
+  address         Address?        @relation(fields: [addressId] , references:[id])
 
   @@index([userId])
 }
@@ -177,26 +179,31 @@ model CheckoutItem {
 //address table 
 
 model Address {
-  id            String   @id @default(uuid())
+  id                String   @id @default(uuid())
 
-  userId        String?
-  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             String?
+  user              User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  fullName      String
-  phone         String
+  fullName            String
+  phone               String
+  guestId            String?
 
-  addressLine1  String
-  addressLine2  String?
+  addressLine1        String
+  addressLine2       String?
 
-  city          String
-  state         String
-  country       String
-  postalCode    String
-  orders        Order[]
-  isDefault     Boolean  @default(false)
+  city               String
+  state              String
+  country            String
+  postalCode          String
+  orders               Order[]
+  isDefault           Boolean       @default(false)
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  latitude             Decimal?      @db.Decimal(10,7)
+  longitude            Decimal?     @db.Decimal(10,7)
+  checkoutSessions    CheckoutSession[]
+
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 }
 
 //order table 
