@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma";
 import { ApiError } from "../utils/ApiError";
+import { env } from "../config/env";
 
 
 type CheckoutInput = {
@@ -7,7 +8,13 @@ type CheckoutInput = {
   guestId?: string;
 };
 
+const GST_RATE = Number(process.env.GST_RATE) || 18;
+const CHECKOUT_EXPIRY_MINUTES = Number(process.env.CHECKOUT_EXPIRY_MINUTES) || 15;
+
 export const createcheckoutsession = async (input:CheckoutInput) => {
+
+
+
     const cart = await prisma.cart.findUnique({
         where: input.userId ? { userId: input.userId } : { guestId: input.guestId! },
         include: {
@@ -23,23 +30,22 @@ export const createcheckoutsession = async (input:CheckoutInput) => {
         throw new ApiError(400, "Cart is empty");
     }
 
-    const products = await prisma.product.findMany({
-        where: {
-            id: {
-                in: cart.items.map((item) => item.productId),
-            },
-        },
-    });
+   
 
     let subtotal = 0;
 
     const lineItems = cart.items.map((item) => {
-        const product = products.find((p) => p.id === item.productId);
-        if (!product) {
-            throw new ApiError(404, `Product with ID ${item.productId} not found`);
+        const product = item.product;
+        if (item.quantity > product.stock) {
+        throw new ApiError(
+            400,
+            `${product.name} is out of stock`
+        );
         }
 
-        subtotal += Number(product.price) * item.quantity;
+       const  itemTotal = Number(product.price) * item.quantity;
+
+        subtotal += itemTotal;
 
         return {
             productId: product.id,
@@ -48,10 +54,14 @@ export const createcheckoutsession = async (input:CheckoutInput) => {
         };
     });
 
-    const shipping = 100;
-    const tax = Number((subtotal * 0.18).toFixed(2));
+    const shipping = subtotal > 1000 ? 0 : 100;
+
+    const tax = Number((subtotal * GST_RATE/100).toFixed(2));
+
     const total = subtotal + shipping + tax;
-        console.log("Creating checkout session with input:");
+       
+
+
 
     const session = await prisma.$transaction(async (tx) => {
         const checkoutSession = await tx.checkoutSession.create({
@@ -65,7 +75,7 @@ export const createcheckoutsession = async (input:CheckoutInput) => {
                 shipping,
                 tax,
                 total,
-                expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+                expiresAt: new Date(Date.now() + CHECKOUT_EXPIRY_MINUTES * 60 * 1000),
             },
         });
         await tx.checkoutItem.createMany({
@@ -79,7 +89,12 @@ export const createcheckoutsession = async (input:CheckoutInput) => {
                 })),
          });
 
-        return checkoutSession;
+          const completeSession = await tx.checkoutSession.findUnique({
+            where: { id: checkoutSession.id },
+            include: { items: true },
+        });
+
+        return completeSession!;
 
     });
     return session; 
