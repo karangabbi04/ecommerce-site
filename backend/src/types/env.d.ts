@@ -15,5 +15,7 @@ declare namespace NodeJS {
     EMAIL_FORM: string;
     OTP_EXPIRES_IN: string;
     OTP_SECRET: string;
+    GST_RATE: number;
+    CHECKOUT_EXPIRY_MINUTES: number;
   }
 }
