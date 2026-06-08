@@ -81,14 +81,17 @@ export default function CartDropdown() {
 
     const updateCartQuantity = useUpdateCartQuantity();
     const removeCartItem = useRemoveCartItem();
-    const checkout = useCheckout();
+
+    const id =  cartData?.cart.guestId || cartData?.cart.userId ;
 
  const totalItems = cartData?.totalItems || 0;
  const cartItems = cartData?.items || [];
 
+ console.log("cart data in cart dropdown",cartData)
+
 
 const checkoutpage = () => {
-  router.push("/checkout");
+  router.push(`/checkout?id=${id}`);
 }
 
 
@@ -104,9 +107,7 @@ const checkoutpage = () => {
     }
   };
 
-  const handleCheckout = (userId: string, guestId: string) => {
-    checkout.mutate({ userId, guestId });
-  }
+
 
   return (
     <div className="relative">
@@ -224,7 +225,7 @@ const checkoutpage = () => {
 
                 <button
                   type="button"
-                  onClick={() => checkoutpage()}
+                  onClick={checkoutpage}
                   className="w-full rounded-full bg-zinc-950 py-3 text-sm font-semibold text-white shadow-xl shadow-zinc-950/15 transition hover:scale-[1.01] hover:bg-zinc-800"
                 >
                   Checkout
