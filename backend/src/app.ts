@@ -9,6 +9,7 @@ import userRoutes from "./routes/user.routes.js";
 import otpRouter from "./routes/auth.routes.js";
 import cartRouter from "./routes/cart.routes.js"
 import checkoutRouter from "./routes/checkout.routes.js";
+import addressRouter from "./routes/address.routes.js"
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/otp", otpRouter);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/checkout",checkoutRouter);
+app.use("/api/v1/addresses",addressRouter);
 
 
 
