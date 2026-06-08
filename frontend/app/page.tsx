@@ -3,8 +3,6 @@ import FeaturedProducts from "@/components/section/FeaturedProducts";
 import WhyChooseUs from "@/components/section/WhyChooseUs";
 import Testimonial from "@/components/section/Testimonial";
 import Footer from "@/components/section/Footer";
-import { Feature } from "framer-motion";
-import Image from "next/image";
 
 export default function Home() {
   return (

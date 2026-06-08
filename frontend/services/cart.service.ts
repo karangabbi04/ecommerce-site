@@ -71,7 +71,7 @@ export const cartService ={
         return response.data.data ;
     },
 
-    async checkout (checkoutData : checkoutpayload){
+    async checkout (){
         console.log("checkout api is called")
         const response = await api.post(`/checkout/create-session`)
     
@@ -79,7 +79,7 @@ export const cartService ={
 
             console.log ("checkout api not working ");
         }
-        console.log("checkout respoc",response)
+        
 
         return response.data.data ;
     }

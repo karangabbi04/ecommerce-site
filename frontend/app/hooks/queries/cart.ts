@@ -24,7 +24,7 @@ export const useUpdateCartQuantity = () => {
 
 export const useCheckout = () => {
   return useMutation({
-    mutationFn: (checkoutData : checkoutpayload) => cartService.checkout(checkoutData),
+    mutationFn: () => cartService.checkout(),
 
 
 
