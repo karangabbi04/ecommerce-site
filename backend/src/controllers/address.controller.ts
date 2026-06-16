@@ -90,7 +90,8 @@ const searchAddressSchema = z.object({
 
 
 export const getAddressSuggestions = asyncHandler(async (req: Request, res: Response) => {
-  const validation = searchAddressSchema.safeParse(req.body);
+
+  const validation = searchAddressSchema.safeParse(req.query);
 
   if (!validation.success) {
     throw new ApiError(400, validation.error.message);
@@ -110,3 +111,5 @@ export const getAddressSuggestions = asyncHandler(async (req: Request, res: Resp
 
   res.status(200).json(new ApiResponse(200, suggestions, "suggestion successful"));
 });
+
+

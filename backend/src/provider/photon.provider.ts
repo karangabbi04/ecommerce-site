@@ -1,12 +1,36 @@
 import axios from "axios";
 import { asyncHandler } from "../utils/asyncHandler";
+import { getCache,setCache } from "../services/cache.service";
 
+
+const PHOTON_URL =
+  "https://photon.komoot.io/api";
+
+  const CACHE_TTL = 60 * 60 * 24;
 
 export const searchAddress = async(query:string)=>{
 
+ const normalizedQuery =
+      query.trim().toLowerCase();
 
-    const response = await axios.get(
-         "https://photon.komoot.io/api",
+
+      const cacheKey =
+      `address-search:${normalizedQuery}`;
+
+    const cachedData =
+      await getCache(cacheKey);
+
+
+
+      if (cachedData) {
+      return{
+        data: cachedData,
+        source:"radis",
+      };
+    }
+
+
+    const response = await axios.get(`${PHOTON_URL}`,
       {
         params: {
           q: query,
@@ -26,7 +50,18 @@ export const searchAddress = async(query:string)=>{
   lng: item.geometry.coordinates[0]
 }));
 
-    return results
+
+
+await setCache(
+      cacheKey,
+      results,
+      CACHE_TTL
+    );
+
+    return {
+    source: "photon",
+    data: results,
+  };
 
 
 
