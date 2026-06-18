@@ -5,6 +5,8 @@ import { useState } from "react";
 import { useSuggestions } from "@/app/hooks/queries/address";
 import { useDebounce } from "@/app/hooks/useDebounce";
 import { AddressAutocomplete } from "./AddressAutocomplete";
+import { usecurrentlocation } from "@/app/hooks/mutations/use-address";
+
 
 export interface CheckoutFormValues {
   fullName: string;
@@ -50,6 +52,11 @@ export default function AddressForm({
     data ?? [];
     console.log(suggestions)
 
+
+  const locationMutation = usecurrentlocation();
+
+
+
   const handleSelectAddress = (
     address: AddressSuggestion
   ) => {
@@ -73,13 +80,56 @@ export default function AddressForm({
     setShowSuggestions(false);
   };
 
+ const [userlocation, setLocation] = useState({
+  latitude: 0,
+  longitude: 0,
+});
+
+
+  const getCurrentLocation = async () => {
+  if (!navigator.geolocation) {
+    alert("Geolocation not supported");
+    return;
+  }
+
+  
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      try {
+        const data = await locationMutation.mutateAsync({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+
+        console.log(data);
+
+        setValue("city", data.city);
+        setValue("state", data.state);
+        setValue("pincode", data.pincode);
+        setValue("addressLine1", data.displayName);
+
+
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  );
+};
+
+
+
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-sm">
-      <h2 className="mb-5 text-xl font-semibold">
+      <div className=" w-full bg-red-400 flex justify-between ">
+        <h2 className="mb-5 text-xl font-semibold">
         Delivery Address
       </h2>
+      <button type="button"
+              onClick={getCurrentLocation}
+                className=" px-3 py-2 bg-green-300 rounded-xl text-l text-white "> use current location</button>
+      </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 pt-5 md:grid-cols-2">
 
         <input
           {...register("fullName")}
