@@ -6,6 +6,7 @@ import { createAddressSchema } from "../validations/address.schema";
 import { ApiError } from "../utils/ApiError";
 import { searchAddress } from "../provider/photon.provider";
 import z from "zod";
+import { getLocationwithNomination } from "../provider/nomination.provider";
 
 
 export const createAddress = asyncHandler( async (req:Request, res:Response)=>{
@@ -111,5 +112,27 @@ export const getAddressSuggestions = asyncHandler(async (req: Request, res: Resp
 
   res.status(200).json(new ApiResponse(200, suggestions, "suggestion successful"));
 });
+
+
+export const getcurrentLocation = asyncHandler(async(req: Request, res: Response)=>{
+
+  const latitude = Number(req.query.lat);
+const longitude = Number(req.query.lon);
+
+   if(!latitude && !longitude){
+
+    throw new ApiError(400,"please enter lat or lon")
+   }
+
+
+    const result = await getLocationwithNomination(latitude,longitude)
+
+     if (!result) {
+    throw new ApiError(400, "some issue in suggestion");
+  }
+
+  res.status(200).json(new ApiResponse(200, result, " convert  successful"));
+});
+
 
 
