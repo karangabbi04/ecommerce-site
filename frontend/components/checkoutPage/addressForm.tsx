@@ -1,22 +1,19 @@
 "use client";
 
-import { UseFormRegister, UseFormSetValue } from "react-hook-form";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
+import {
+  type FieldErrors,
+  type UseFormRegister,
+  type UseFormSetValue,
+  type UseFormWatch,
+} from "react-hook-form";
+
+import { usecurrentlocation } from "@/app/hooks/mutations/use-address";
 import { useSuggestions } from "@/app/hooks/queries/address";
 import { useDebounce } from "@/app/hooks/useDebounce";
+
 import { AddressAutocomplete } from "./AddressAutocomplete";
-import { usecurrentlocation } from "@/app/hooks/mutations/use-address";
-
-
-export interface CheckoutFormValues {
-  fullName: string;
-  phone: string;
-  addressLine1: string;
-  city: string;
-  state: string;
-  pincode: string;
-  landmark?: string;
-}
+import { type CheckoutFormValues } from "./checkout.schema";
 
 interface AddressSuggestion {
   id: string;
@@ -26,177 +23,201 @@ interface AddressSuggestion {
   pincode: string;
 }
 
-interface Props {
+interface AddressFormProps {
   register: UseFormRegister<CheckoutFormValues>;
-  watch: any;
+  watch: UseFormWatch<CheckoutFormValues>;
   setValue: UseFormSetValue<CheckoutFormValues>;
+  errors: FieldErrors<CheckoutFormValues>;
+  onSubmit: () => void;
+  isSubmitting?: boolean;
 }
+
+interface FormFieldProps {
+  label: string;
+  error?: string;
+  className?: string;
+  children: ReactNode;
+}
+
+function FormField({ label, error, className, children }: FormFieldProps) {
+  return (
+    <div className={className}>
+      <label className="mb-1.5 block text-sm font-medium text-zinc-700">
+        {label}
+      </label>
+
+      {children}
+
+      {error && (
+        <p className="mt-1 text-sm text-red-600" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+const inputClassName =
+  "w-full rounded-xl border border-zinc-200 px-4 py-3 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200";
 
 export default function AddressForm({
   register,
   watch,
   setValue,
-}: Props) {
-  const [showSuggestions, setShowSuggestions] =
-    useState(false);
+  errors,
+  onSubmit,
+  isSubmitting = false,
+}: AddressFormProps) {
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const city = watch("city", "");
+  const debouncedCity = useDebounce(city, 500);
 
-  const debouncedCity =
-    useDebounce(city, 500);
-
-  const { data, isLoading } =
+  const { data: suggestions = [], isLoading: isSearching } =
     useSuggestions(debouncedCity);
-
-  const suggestions =
-    data ?? [];
-    console.log(suggestions)
-
 
   const locationMutation = usecurrentlocation();
 
-
-
-  const handleSelectAddress = (
-    address: AddressSuggestion
-  ) => {
-  
-
-    setValue(
-      "city",
-      address.name
-    );
-
-    setValue(
-      "state",
-      address.state
-    );
-
-    setValue(
-      "pincode",
-      address.pincode
-    );
-
+  const handleSelectAddress = (address: AddressSuggestion) => {
+    setValue("city", address.name, { shouldValidate: true });
+    setValue("state", address.state, { shouldValidate: true });
+    setValue("pincode", address.pincode, { shouldValidate: true });
     setShowSuggestions(false);
   };
 
- const [userlocation, setLocation] = useState({
-  latitude: 0,
-  longitude: 0,
-});
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported on this device.");
+      return;
+    }
 
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      const { latitude, longitude } = position.coords;
 
-  const getCurrentLocation = async () => {
-  if (!navigator.geolocation) {
-    alert("Geolocation not supported");
-    return;
-  }
+      setValue("latitude", latitude);
+      setValue("longitude", longitude);
 
-  
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
       try {
-        const data = await locationMutation.mutateAsync({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
+        const location = await locationMutation.mutateAsync({
+          latitude,
+          longitude,
         });
 
-        console.log(data);
-
-        setValue("city", data.city);
-        setValue("state", data.state);
-        setValue("pincode", data.pincode);
-        setValue("addressLine1", data.displayName);
-
-
+        setValue("city", location.city, { shouldValidate: true });
+        setValue("state", location.state, { shouldValidate: true });
+        setValue("pincode", location.pincode, { shouldValidate: true });
+        setValue("addressLine1", location.displayName, {
+          shouldValidate: true,
+        });
       } catch (error) {
-        console.error(error);
+        console.error("Failed to resolve current location:", error);
       }
-    }
-  );
-};
-
-
+    });
+  };
 
   return (
-    <div className="rounded-2xl border bg-white p-6 shadow-sm">
-      <div className=" w-full bg-red-400 flex justify-between ">
-        <h2 className="mb-5 text-xl font-semibold">
-        Delivery Address
-      </h2>
-      <button type="button"
-              onClick={getCurrentLocation}
-                className=" px-3 py-2 bg-green-300 rounded-xl text-l text-white "> use current location</button>
+    <form
+      onSubmit={onSubmit}
+      noValidate
+      className="rounded-2xl border bg-white p-6 shadow-sm sticky top-6 "
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-xl font-semibold">Delivery Address</h2>
+
+        <button
+          type="button"
+          onClick={handleUseCurrentLocation}
+          disabled={locationMutation.isPending}
+          className="rounded-xl border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {locationMutation.isPending ? "Detecting..." : "Use current location"}
+        </button>
       </div>
 
-      <div className="grid gap-4 pt-5 md:grid-cols-2">
+      <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <FormField label="Full Name" error={errors.fullName?.message}>
+          <input
+            {...register("fullName")}
+            placeholder="John Doe"
+            className={inputClassName}
+          />
+        </FormField>
 
-        <input
-          {...register("fullName")}
-          placeholder="Full Name"
-          className="rounded-xl border px-4 py-3"
-        />
+        <FormField label="Phone Number" error={errors.phone?.message}>
+          <input
+            {...register("phone")}
+            placeholder="9876543210"
+            inputMode="numeric"
+            className={inputClassName}
+          />
+        </FormField>
 
-        <input
-          {...register("phone")}
-          placeholder="Phone Number"
-          className="rounded-xl border px-4 py-3"
-        />
+        <FormField label="City" error={errors.city?.message} className="relative">
+          <input
+            {...register("city")}
+            placeholder="Mumbai"
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+            className={inputClassName}
+          />
 
-        <div className="relative">
-         <div className="relative">
-              <input
-                {...register("city")}
-                placeholder="City"
-                onFocus={() => setShowSuggestions(true)}
-                className="w-full rounded-xl border px-4 py-3"
-              />
+          <AddressAutocomplete
+            suggestions={suggestions}
+            visible={showSuggestions}
+            onSelect={handleSelectAddress}
+          />
 
-              <AddressAutocomplete
-                suggestions={suggestions}
-                visible={showSuggestions}
-                onSelect={handleSelectAddress}
-              />
-
-              {isLoading && (
-                <div className="absolute top-full mt-1 rounded-lg border bg-white p-3 shadow">
-                  Searching...
-                </div>
-              )}
-            </div>
-
-          {isLoading && (
-            <div className="absolute top-full mt-1 rounded-lg border bg-white p-3 shadow">
-              Searching...
-            </div>
+          {isSearching && (
+            <p className="mt-1 text-sm text-zinc-500">Searching cities...</p>
           )}
-        </div>
+        </FormField>
 
-        <input
-          {...register("state")}
-          placeholder="State"
-          className="rounded-xl border px-4 py-3"
-        />
+        <FormField label="State" error={errors.state?.message}>
+          <input
+            {...register("state")}
+            placeholder="Maharashtra"
+            className={inputClassName}
+          />
+        </FormField>
 
-        <input
-          {...register("pincode")}
-          placeholder="Pincode"
-          className="rounded-xl border px-4 py-3"
-        />
+        <FormField label="Pincode" error={errors.pincode?.message}>
+          <input
+            {...register("pincode")}
+            placeholder="400001"
+            inputMode="numeric"
+            className={inputClassName}
+          />
+        </FormField>
 
-        <input
-          {...register("landmark")}
-          placeholder="Landmark"
-          className="rounded-xl border px-4 py-3"
-        />
+        <FormField label="Landmark (optional)" error={errors.landmark?.message}>
+          <input
+            {...register("landmark")}
+            placeholder="Near metro station"
+            className={inputClassName}
+          />
+        </FormField>
       </div>
 
-      <textarea
-        {...register("addressLine1")}
-        rows={4}
-        placeholder="Complete Address"
-        className="mt-4 w-full rounded-xl border px-4 py-3"
-      />
-    </div>
+      <FormField
+        label="Complete Address"
+        error={errors.addressLine1?.message}
+        className="mt-4"
+      >
+        <textarea
+          {...register("addressLine1")}
+          rows={4}
+          placeholder="House no., street, area"
+          className={inputClassName}
+        />
+      </FormField>
+
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="mt-6 w-full rounded-xl bg-black py-3.5 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {isSubmitting ? "Saving..." : "Save Delivery Address"}
+      </button>
+    </form>
   );
 }
