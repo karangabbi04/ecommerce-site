@@ -34,8 +34,8 @@ export const createAddressService =
         addressLine1:
           data.addressLine1,
 
-        addressLine2:
-          data.addressLine2,
+        landmark:
+          data.landmark,
 
         city:
           data.city,

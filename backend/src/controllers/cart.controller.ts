@@ -53,7 +53,6 @@ const cartWithItemsInclude = {
 
 export const addToCart = asyncHandler(async (req: Request, res: Response) => {
   const parsedBody = addToCartSchema.safeParse(req.body);
-  console.log(req.body)
 
   if (!parsedBody.success) {
     throw new ApiError(

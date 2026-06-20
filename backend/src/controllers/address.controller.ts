@@ -16,6 +16,8 @@ export const createAddress = asyncHandler( async (req:Request, res:Response)=>{
      const userId = req.user?.id;
     const guestId = req.cookies.guest_cart_id;
 
+    console.log( parsed)
+
 
 
     if(!userId && !guestId ){

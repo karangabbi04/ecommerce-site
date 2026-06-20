@@ -14,7 +14,7 @@ export const createAddressSchema = z.object({
     .string()
     .min(5),
 
-  addressLine2: z
+  landmark: z
     .string()
     .optional(),
 
