@@ -14,7 +14,7 @@ export default function OrderSummary({
   total,
 }: OrderSummaryProps) {
   return (
-    <div className="sticky top-6 rounded-2xl border bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border bg-white p-6 shadow-sm">
       <h2 className="text-xl font-semibold">
         Order Summary
       </h2>
@@ -80,21 +80,7 @@ export default function OrderSummary({
         </button>
       </div>
 
-      <button
-        className="
-          mt-5
-          w-full
-          rounded-xl
-          bg-black
-          py-4
-          font-semibold
-          text-white
-          transition
-          hover:opacity-90
-        "
-      >
-        Proceed To Payment
-      </button>
+    
 
       <div className="mt-6 border-t pt-4 text-sm text-zinc-500">
         <p>✓ Secure Checkout</p>
