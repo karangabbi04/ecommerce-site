@@ -62,6 +62,7 @@ model User {
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
   orders           Order[]
+  checkoutSessions CheckoutSession[]
 }
 
 //email otp table 
@@ -126,6 +127,7 @@ model CartItem{
 model CheckoutSession {
   id              String          @id @default(cuid())
   userId          String?
+  user            User?             @relation(fields: [userId], references: [id] )
   guestId         String?
 
   status          CheckoutStatus  @default(ACTIVE)
@@ -189,7 +191,7 @@ model Address {
   guestId            String?
 
   addressLine1        String
-  addressLine2       String?
+  landmark             String?
 
   city               String
   state              String
@@ -241,7 +243,7 @@ model Order {
 
   addressId       String
   address         Address       @relation(fields: [addressId], references: [id])
-
+  addressSnapshot Json?
   status          OrderStatus   @default(PENDING)
 
   paymentStatus   PaymentStatus @default(PENDING)
