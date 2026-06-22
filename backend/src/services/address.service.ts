@@ -87,6 +87,8 @@ export async function attachAddressToCheckout(
   addressId: string
 ) {
 
+
+
   const checkout =
     await prisma.checkoutSession.update({
       where: {
@@ -96,7 +98,17 @@ export async function attachAddressToCheckout(
       data: {
         addressId,
       },
+        select: {
+        userId:true,
+        guestId:true,
+        status:true,
+        expiresAt: true,
+        createdAt: true,
+      },
+
     });
+
+   
 
   return checkout;
 }
