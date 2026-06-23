@@ -8,6 +8,13 @@ export const useCart = () => {
   });
 };
 
+export const useCheckoutQuery = () => {
+  return useQuery<CheckoutType>({
+    queryKey: ["checkout"],
+    enabled:false,
+  });
+};
+
 export const useUpdateCartQuantity = () => {
   const queryClient = useQueryClient();
 
@@ -22,11 +29,29 @@ export const useUpdateCartQuantity = () => {
 };
 
 
+
+export interface CheckoutType {
+  id: string;
+  subtotal: string;
+  tax: string;
+  shipping: string;
+  total: string;
+  addressId: string | null;
+  guestId: string;
+  status: string;
+}
+
 export const useCheckout = () => {
+
+  const queryClient = useQueryClient();
+
+
   return useMutation({
     mutationFn: () => cartService.checkout(),
 
-
+onSuccess: (data) => {
+      queryClient.setQueryData(["checkout"], data);
+    },
 
   });
 };

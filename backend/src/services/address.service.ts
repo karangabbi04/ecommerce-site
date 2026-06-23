@@ -89,24 +89,48 @@ export async function attachAddressToCheckout(
 
 
 
-  const checkout =
-    await prisma.checkoutSession.update({
-      where: {
-        id: checkoutId,
-      },
+  // const checkout =
+  //   await prisma.checkoutSession.update({
+  //     where: {
+  //       id: checkoutId,
+  //     },
 
-      data: {
-        addressId,
-      },
-        select: {
-        userId:true,
-        guestId:true,
-        status:true,
-        expiresAt: true,
-        createdAt: true,
-      },
+  //     data: {
+  //       addressId,
+  //     },
+    
+  //   });
 
-    });
+
+ const checkout =   await prisma.$transaction(
+        async (tx) => {
+
+          const attechAddress = await tx.checkoutSession.update({
+            where: {
+              id: checkoutId,
+            },
+
+            data: {
+              addressId,
+            },
+          
+          });
+
+           const getData = await tx.checkoutSession.findUnique({
+             where: {
+              id: checkoutId,
+            },
+            include:{
+              address:true,
+            }
+          })
+
+          return getData
+          
+
+
+        })
+  
 
    
 

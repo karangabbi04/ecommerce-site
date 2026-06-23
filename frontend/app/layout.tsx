@@ -6,6 +6,7 @@ import { Providers } from "@/lib/reactquery.provider";
 import ReactQueryProvider from "@/app/providers/react-quary-provider";
 import React from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,7 +38,12 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ReactQueryProvider>
-          <Providers>{children}</Providers>
+          <Providers>{children}
+             <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="afterInteractive"
+        />
+          </Providers>
           <ReactQueryDevtools initialIsOpen={false} />
         </ReactQueryProvider>
         </body>

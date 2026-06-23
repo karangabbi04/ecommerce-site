@@ -82,7 +82,7 @@ export default function CartDropdown() {
     const updateCartQuantity = useUpdateCartQuantity();
     const removeCartItem = useRemoveCartItem();
 
-    const id =  cartData?.cart.guestId || cartData?.cart.userId ;
+    const id =  cartData?.cart?.guestId || cartData?.cart?.userId ;
 
  const totalItems = cartData?.totalItems || 0;
  const cartItems = cartData?.items || [];

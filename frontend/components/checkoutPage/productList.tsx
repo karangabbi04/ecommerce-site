@@ -16,7 +16,7 @@ export default function ProductList({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 mt-6">
       {items.map((item) => (
         <ProductCard
           key={item.id}

@@ -1,5 +1,6 @@
 declare namespace NodeJS {
   interface ProcessEnv {
+    RAZORPAY_SECRET: string | undefined;
     PORT?: string;
     NODE_ENV?: "development" | "production" | "test";
 
@@ -17,5 +18,8 @@ declare namespace NodeJS {
     OTP_SECRET: string;
     GST_RATE: number;
     CHECKOUT_EXPIRY_MINUTES: number;
+    REDIS_URL: string;
+    RAZORPAY_KEY_SECRET:string;
+    RAZORPAY_KEY_ID: string;
   }
 }

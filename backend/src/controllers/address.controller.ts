@@ -66,15 +66,18 @@ export const attachAddress = asyncHandler(async(req:Request, res:Response)=>{
 
     const checkoutId = req.params.checkoutId;
 
-   const { addressId, } = req.body;
+   const  {addressId} = req.body;
 
+   console.log(checkoutId,"checkoutid")
+   console.log(addressId,"checkouaadasdadatid")
 
-  
 
     const checkout = await attachAddressToCheckout(
     checkoutId as string,
      addressId
 );
+
+  console.log(checkout)
 
     res.status(201).json(
       new ApiResponse(201, checkout, "Address created successfully")

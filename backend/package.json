@@ -19,6 +19,7 @@
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@tanstack/react-query": "^5.100.9",
+    "axios": "^1.17.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
     "cookie-parser": "^1.4.7",
@@ -29,6 +30,8 @@
     "multer": "^2.1.1",
     "pg": "^8.20.0",
     "prisma": "^7.8.0",
+    "razorpay": "^2.9.6",
+    "redis": "^6.0.0",
     "resend": "^6.12.2",
     "slugify": "^1.6.9",
     "zod": "^4.3.6"

@@ -73,14 +73,15 @@ export const cartService ={
 
     async checkout (){
         console.log("checkout api is called")
-        const response = await api.post(`/checkout/create-session`)
+        const res = await api.post(`/checkout/create-session`)
     
-        if(!response){
+        if(!res){
 
             console.log ("checkout api not working ");
         }
         
+        console.log(res?.data,"sdjfklsf")
 
-        return response.data.data ;
+        return res.data.data ;
     }
 };

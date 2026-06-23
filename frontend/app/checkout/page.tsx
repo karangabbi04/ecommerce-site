@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";                   
 import { useCheckout } from "../hooks/queries/cart";
-import { useCreateAddress } from "../hooks/mutations/use-address";
+import { useCreateAddress,useAttechAddress } from "../hooks/mutations/use-address";
 import AddressForm from "@/components/checkoutPage/addressForm";
 import ProductList from "@/components/checkoutPage/productList";
 import OrderSummary from "@/components/checkoutPage/orderSummary";
@@ -14,6 +14,8 @@ import {
   checkoutAddressSchema,
   type CheckoutFormValues,
 } from "@/components/checkoutPage/checkout.schema";
+import { attechAddress } from "@/services/address.service";
+import { check, string } from "zod";
 
 export default function CheckoutPage() {
 
@@ -21,7 +23,12 @@ export default function CheckoutPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const checkout = useCheckout();
+  const[checkoutId,setcheckoutid]=useState(" ")
+  const[addressId,setaddressId]=useState(" ")
   const createAddressMutation = useCreateAddress();
+  const AttechAddressMutation = useAttechAddress();
+
+
 
   const {
     register,
@@ -33,11 +40,30 @@ export default function CheckoutPage() {
     resolver: zodResolver(checkoutAddressSchema),
   });
 
+
+  const checkoutsession = async()=>{
+     if (!id) return;
+     const res = await checkout.mutateAsync();
+
+     setcheckoutid(res.id)
+     
+    
+  }
+
+  console.log(checkoutId)
+
   useEffect(() => {
-    if (!id) return;
-    checkout.mutate();
+    
+    checkoutsession()
+   
   }, [id]);
 
+
+
+
+  if ( !checkoutId || !addressId) {
+  throw new Error("id or addressId missing");
+}
 
   const handleAddressSubmit =handleSubmit( async (data) => {
     const payload = {
@@ -58,10 +84,20 @@ export default function CheckoutPage() {
      console.log( res)
 
        if (res.success) {
-        console.log("yesssssssssssssssss")
-        router.push(
-              `/payment`
-            );
+        console.log(res.data?.id,"yeeeees")
+       
+        const newAddressId = res.data.id;
+        console.log(newAddressId)
+
+  setaddressId(newAddressId);
+
+        const attechRes = await AttechAddressMutation.mutateAsync({checkoutId,addressId:newAddressId})
+
+          if(attechRes.success){
+            console.log("adddress atteched ",attechRes)
+
+             router.push(`/payment`)
+          }
     }
 
    
