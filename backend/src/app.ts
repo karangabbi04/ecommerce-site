@@ -10,6 +10,8 @@ import otpRouter from "./routes/auth.routes.js";
 import cartRouter from "./routes/cart.routes.js"
 import checkoutRouter from "./routes/checkout.routes.js";
 import addressRouter from "./routes/address.routes.js"
+import orderRouter from "./routes/order.routes.js"
+import paymentRouter from "./routes/payment.routes.js"
 
 const app = express();
 
@@ -36,6 +38,8 @@ app.use("/api/v1/otp", otpRouter);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/checkout",checkoutRouter);
 app.use("/api/v1/addresses",addressRouter);
+app.use("/api/v1/order",orderRouter);
+app.use("/api/v1/payment",paymentRouter);
 
 
 

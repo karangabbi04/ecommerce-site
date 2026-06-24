@@ -1,7 +1,10 @@
-// import { Router } from "express";
+import { Router } from "express";
+import { createOrder } from "../controllers/order.controller";
+
+const router = Router();
 
 
-// const router = Router();
+router.post("/:id",createOrder)
 
 
-// router.post()
+export default router;
