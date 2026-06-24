@@ -25,17 +25,14 @@ const {
   } = dto;
 
 ///checkout session fetch 
+console.log(checkoutSessionId)
 
     const checkoutSession =
 await prisma.checkoutSession.findFirst({
          where: {
             id: checkoutSessionId,
 
-            ...(userId
-            ? { userId }
-            : { guestId }),
-
-            status: "ACTIVE"
+            // status: "ACTIVE"
             },
 
             include: {
