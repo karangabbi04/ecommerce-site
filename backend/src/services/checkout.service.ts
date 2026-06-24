@@ -9,7 +9,7 @@ type CheckoutInput = {
 };
 
 const GST_RATE = Number(process.env.GST_RATE) || 18;
-const CHECKOUT_EXPIRY_MINUTES = Number(process.env.CHECKOUT_EXPIRY_MINUTES) || 15;
+const CHECKOUT_EXPIRY_MINUTES = Number(process.env.CHECKOUT_EXPIRY_MINUTES) || 25;
 
 export const createcheckoutsession = async (input:CheckoutInput) => {
 
@@ -103,3 +103,25 @@ export const createcheckoutsession = async (input:CheckoutInput) => {
 
 
 };
+
+
+
+
+export const fetchCheckoutSession = async (checkoutId:string) =>{
+
+
+
+    const result = await prisma.checkoutSession.findUnique({
+
+          where: {
+              id: checkoutId,
+            },
+            include:{
+              address:true,
+            }
+    })
+
+    return result
+
+
+}
