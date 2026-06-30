@@ -116,16 +116,9 @@ export async function attachAddressToCheckout(
           
           });
 
-           const getData = await tx.checkoutSession.findUnique({
-             where: {
-              id: checkoutId,
-            },
-            include:{
-              address:true,
-            }
-          })
+         
 
-          return getData
+          return attechAddress
           
 
 
