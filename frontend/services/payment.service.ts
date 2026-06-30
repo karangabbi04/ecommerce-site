@@ -5,7 +5,7 @@ export const verifyPayment = async (
 ) => {
 
   const response = await api.post(
-    "/payments/verify",
+    "/payment/verify",
     payload
   );
 

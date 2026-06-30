@@ -7,6 +7,7 @@ declare global {
 }
 
 interface RazorpayOptions {
+  orderId:string
   razorpayOrderId: string;
   amount: number;
   key: string;
@@ -16,11 +17,11 @@ interface RazorpayOptions {
 export const openRazorpay = ({
   razorpayOrderId,
   amount,
-  key,
+      key,
   onSuccess,
 }: RazorpayOptions) => {
   const options = {
-    key,
+   key:key,
     amount,
     currency: "INR",
 
@@ -31,11 +32,15 @@ export const openRazorpay = ({
     description: "Order Payment",
 
     handler: async function (response: any) {
+
+      console.log("response this his ", response)
       await onSuccess(response);
     },
   };
 
   const razorpay = new window.Razorpay(options);
+
+  console.log(razorpay)
 
   razorpay.open();
 };

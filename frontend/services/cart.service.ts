@@ -71,17 +71,9 @@ export const cartService ={
         return response.data.data ;
     },
 
-    async checkout (){
-        console.log("checkout api is called")
-        const res = await api.post(`/checkout/create-session`)
+
+
     
-        if(!res){
 
-            console.log ("checkout api not working ");
-        }
-        
-        console.log(res?.data,"sdjfklsf")
 
-        return res.data.data ;
-    }
 };

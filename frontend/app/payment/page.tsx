@@ -1,32 +1,109 @@
 "use client"
 import { useState } from "react";
-import { useCheckoutQuery } from "../hooks/queries/cart";
+import { useSearchParams } from "next/navigation";
+import { useCheckout } from "../hooks/queries/use-checkout";
+import { string } from "zod";
+import { useCreateOrder } from "../hooks/mutations/use-CreateOrder";
+import { useVerifyPayment } from "../hooks/mutations/use-VerifyPayment";
+import { openRazorpay } from "@/utils/razorpay";
+
+
+
 
 export default function PaymentPage() {
+
+const searchPrams = useSearchParams();
+
+
+const id = searchPrams.get("id");
+const checkoutData = useCheckout(id as string)
+
+console.log(checkoutData.data)
+
+
   const [selectedMethod, setSelectedMethod] = useState("upi");
-  
-  const {data} = useCheckoutQuery()
 
-  console.log(data)
 
-  const address = {
-    name: "Karan Ramghria",
-    phone: "+91 9876543210",
-    house: "House No. 123",
-    landmark: "Near Bus Stand",
-    village: "Village XYZ",
-    city: "Ludhiana",
-    state: "Punjab",
-    pincode: "141001",
-    country: "India",
+ const { mutateAsync: createOrder } =
+    useCreateOrder();
+
+  const { mutateAsync: verifyPayment } =
+    useVerifyPayment();
+
+
+ const handlePayment = async () => {
+    try {
+
+      // Step 1
+      const order =
+        await createOrder(
+          id as string
+        );
+
+      console.log(
+        "Order Created",
+        order
+      );
+
+      // Step 2
+      openRazorpay({
+
+        orderId:order.orderId,
+
+        razorpayOrderId:
+          order.data?.razorpayOrderId,
+
+        amount:
+          order.data?.amount,
+
+        key:
+          order.data?.key,
+
+        onSuccess:
+          async (response) => {
+  console.log(response.data,"sigggg")
+
+
+  console.log(response.razorpay_signature,"siggggneatiuresfsfsdfdsf")
+
+
+            // Step 3
+            await verifyPayment({
+
+              orderId:
+                order.data?.orderId,
+
+              razorpayOrderId:
+                response.razorpay_order_id,
+
+              razorpayPaymentId:
+                response.razorpay_payment_id,
+
+              razorpaySignature:
+                response.razorpay_signature
+
+            });
+
+
+            // Step 4
+            window.location.href =
+              `/order-success/${order.orderId}`;
+          }
+
+      });
+
+    } catch (error) {
+
+      console.error(error);
+      console.log(error);
+
+      alert(
+        "Payment Failed"
+      );
+    }
   };
 
-  const subtotal = 1499;
-  const gst = 270;
-  const shipping = 50;
-  const discount = 100;
-
-  const total = subtotal + gst + shipping - discount;
+  
 
   const paymentMethods = [
     {
@@ -56,7 +133,7 @@ export default function PaymentPage() {
     <div className="min-h-screen bg-slate-100 p-6">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold mb-8">
-          Payment Checkout
+          Payment Checkout 
         </h1>
 
         <div className="grid lg:grid-cols-3 gap-6">
@@ -73,22 +150,20 @@ export default function PaymentPage() {
                   </h2>
 
                   <p className="font-semibold text-lg">
-                    {address.name}
+                    {checkoutData?.data?.address.fullName}
                   </p>
 
                   <p className="text-gray-600 mb-3">
-                    {address.phone}
+                    91+{checkoutData?.data?.address.phone}
                   </p>
 
                   <div className="text-gray-700 leading-7">
-                    <p>{address.house}</p>
-                    <p>{address.landmark}</p>
-                    <p>{address.village}</p>
+                    <p>{checkoutData?.data?.address.addressLine1}</p>
+                    <p>{checkoutData?.data?.address.postalCode}</p>
                     <p>
-                      {address.city}, {address.state}
+                      {checkoutData?.data?.address.city}, {checkoutData?.data?.address.state}
                     </p>
-                    <p>{address.pincode}</p>
-                    <p>{address.country}</p>
+                    <p>{checkoutData?.data?.address.country}</p>
                   </div>
                 </div>
 
@@ -186,22 +261,22 @@ export default function PaymentPage() {
 
                 <div className="flex justify-between">
                   <span>Product Total</span>
-                  <span>₹{data?.subtotal}</span>
+                  <span>₹{checkoutData.data?.subtotal}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span>GST (18%)</span>
-                  <span>₹{gst}</span>
+                  <span>₹{checkoutData.data?.tax}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span>Shipping Fee</span>
-                  <span>₹{shipping}</span>
+                  <span>₹{checkoutData.data?.shipping}</span>
                 </div>
 
                 <div className="flex justify-between text-green-600">
                   <span>Discount</span>
-                  <span>-₹{discount}</span>
+                  <span>-₹{checkoutData.data?.discount}</span>
                 </div>
 
               </div>
@@ -210,7 +285,7 @@ export default function PaymentPage() {
 
               <div className="flex justify-between text-xl font-bold">
                 <span>Total Amount</span>
-                <span>₹{total}</span>
+                <span>₹{checkoutData.data?.total}</span>
               </div>
 
               <div className="mt-5 p-4 rounded-2xl bg-green-50 text-green-700 text-sm">
@@ -218,10 +293,12 @@ export default function PaymentPage() {
                 Powered by Razorpay
               </div>
 
-              <button className="w-full mt-6 bg-black text-white py-4 rounded-2xl text-lg font-semibold hover:opacity-90">
+              <button 
+                onClick={handlePayment}
+              className="w-full mt-6 bg-black text-white py-4 rounded-2xl text-lg font-semibold hover:opacity-90">
                 {selectedMethod === "cod"
-                  ? `Place Order ₹${total}`
-                  : `Proceed To Pay ₹${total}`}
+                  ? `Place Order ₹${checkoutData.data?.total}`
+                  : `Proceed To Pay ₹${checkoutData.data?.total}`}
               </button>
 
             </div>

@@ -96,7 +96,7 @@ export default function CheckoutPage() {
           if(attechRes.success){
             console.log("adddress atteched ",attechRes)
 
-             router.push(`/payment`)
+             router.push(`/payment?id=${checkoutId}`)
           }
     }
 

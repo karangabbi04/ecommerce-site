@@ -5,7 +5,7 @@ export const createOrder = async (
 ) => {
 
   const response = await api.post(
-    "/orders/create",
+    `/order/${checkoutSessionId}`,
     {
       checkoutSessionId
     }

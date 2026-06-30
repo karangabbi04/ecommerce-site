@@ -1,5 +1,6 @@
 import { useMutation, useQuery , useQueryClient} from "@tanstack/react-query";
 import { cartService , checkoutpayload} from "@/services/cart.service";
+import { checkoutService } from "@/services/checkout.service";
 
 export const useCart = () => {
   return useQuery({
@@ -47,7 +48,7 @@ export const useCheckout = () => {
 
 
   return useMutation({
-    mutationFn: () => cartService.checkout(),
+    mutationFn: () => checkoutService.checkout(),
 
 onSuccess: (data) => {
       queryClient.setQueryData(["checkout"], data);

@@ -128,3 +128,15 @@
     @apply font-sans;
   }
 }
+
+@media (min-width: 768px) {
+  .md-block-px {
+    display: block !important;
+  }
+  .md-flex-px {
+    display: flex !important;
+  }
+  .md-hidden-px {
+    display: none !important;
+  }
+}
