@@ -7,6 +7,7 @@ import ReactQueryProvider from "@/app/providers/react-quary-provider";
 import React from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Script from "next/script";
+import  type {Viewport} from "next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,6 +25,12 @@ export const metadata: Metadata = {
    icons: {
     icon: "frontend/public/image.png",
   },
+
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
