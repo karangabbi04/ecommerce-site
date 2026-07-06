@@ -6,6 +6,10 @@ import { prisma } from "../lib/prisma.js";
 import { uploadToCloudinary } from "../utils/CloudinaryUpload.js";
 import slugify from "slugify";
 
+import { productQuerySchema } from "../validations/product-validation.js";
+
+import { productService } from "../services/product.service";
+
 // Create a new product
 
 
@@ -78,7 +82,7 @@ import slugify from "slugify";
     },
   });
   console.log("product created successfully:", product);
-  return res
+   res
     .status(201)
     .json(new ApiResponse(201, product, "Product created successfully"));
   
@@ -107,7 +111,7 @@ if (!id || Array.isArray(id)) {
   });
 
   // 4. Response
-  return res
+   res
     .status(200)
     .json(new ApiResponse(200, null, "Product deleted successfully"));
 });
@@ -135,7 +139,7 @@ const  getProductById = asyncHandler<{ id: string }>(
     }
 
     // 4. Success
-    return res
+     res
       .status(200)
       .json(new ApiResponse(200, product, "Product fetched successfully"));
   }
@@ -160,55 +164,32 @@ const getProductBySlug = asyncHandler<{ slug: string }>(
       throw new ApiError(404, "Product not found");
     }
 
-    return res
+     res
       .status(200)
       .json(new ApiResponse(200, product, "Product fetched successfully"));
   }
 );
 //get all products with pagination, filtering, sorting
-const getallProducts = asyncHandler(async (req: Request, res: Response) => {
-    const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
+export const getAllProducts = asyncHandler(
+  async (req: Request, res: Response) => {
+
+    const query = productQuerySchema.parse(req.query);
+
+    const result = await productService.getAllProducts(query);
+
+     res.status(200).json(
+      new ApiResponse(
+        200,
+        result,
+        "Products fetched successfully"
+      )
+    );
+
+  }
+);
 
 
-    const products = await prisma.product.findMany({
-       where: {
-      isFeatured: true,
-    },
-    include: {
-      images: true,   // 👈 ye line important hai
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    skip: skip,
-    take: limit,
-  
-    });
-
-     const totalProducts = await prisma.product.count({
-    where: {
-      isFeatured: true,
-    },
-  });
-    return res
-      .status(200)
-      .json(new ApiResponse(200,  {
-        products,
-        pagination: {
-          currentPage: page,
-          limit,
-          totalProducts,
-          totalPages: Math.ceil(totalProducts / limit),
-          hasNextPage: page < Math.ceil(totalProducts / limit),
-          hasPrevPage: page > 1,
-        },
-      }, "Products fetched successfully"));
-});
-
-
-export { createProduct, deleteProduct, getProductById, getProductBySlug, getallProducts
+export { createProduct, deleteProduct, getProductById, getProductBySlug, 
 
 
  };
