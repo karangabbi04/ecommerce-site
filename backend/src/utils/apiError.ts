@@ -1,7 +1,9 @@
+import { readonly } from "zod";
+
 export class ApiError extends Error {
-  statusCode: number;
-  errors: any[];
-  success: boolean;
+   public readonly statusCode: number;
+  public readonly success = false;
+  public readonly errors: unknown[];
 
   constructor(
     statusCode: number,
@@ -11,9 +13,10 @@ export class ApiError extends Error {
     super(message);
 
     this.statusCode = statusCode;
-    this.message = message;
     this.errors = errors;
     this.success = false;
+
+    
 
     Error.captureStackTrace(this, this.constructor);
   }
