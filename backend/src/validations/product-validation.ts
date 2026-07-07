@@ -8,6 +8,7 @@ import {
 } from "../constants/product.constants";
 
 
+
 export const productQuerySchema = z.object({
 
     page: z.coerce
@@ -45,3 +46,10 @@ export const productQuerySchema = z.object({
 
 export type ProductQueryDto =
     z.infer<typeof productQuerySchema>;
+
+
+export const productIdParamsSchema = z.object({
+
+    id: z.string().uuid("invalid product id")
+})
+export type productId = z.infer<typeof productIdParamsSchema>;

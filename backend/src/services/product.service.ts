@@ -1,4 +1,5 @@
 import { ProductQueryDto } from "../DTO/product-query-dto";
+import { ApiError } from "../utils/ApiError";
 
 import { getPagination, createPagination } from "../utils/pagination";
 
@@ -15,6 +16,9 @@ import {
 
 import { productRepository } from "../repositories/product.repository";
 
+  const include = buildProductInclude();
+
+
 const getAllProducts = async (
   query: ProductQueryDto
 ) => {
@@ -25,7 +29,6 @@ const getAllProducts = async (
 
   const orderBy = buildProductOrderBy(query.sort);
 
-  const include = buildProductInclude();
 
   const [products, totalProducts] =
   await Promise.all([
@@ -54,8 +57,28 @@ const getAllProducts = async (
 
 };
 
+const getProductById = async (id: string) => {
+
+  const product = await productRepository.findById({
+    where: {
+      id,
+    },
+    include
+    
+  });
+
+  if (!product) {
+    throw new ApiError(404, "Product not found");
+  }
+
+  return product;
+};
+
+
+
 export const productService = {
 
   getAllProducts,
+  getProductById,
 
 };

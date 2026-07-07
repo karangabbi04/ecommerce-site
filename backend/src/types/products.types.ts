@@ -1,3 +1,4 @@
+import { syncBuiltinESMExports } from "node:module";
 import { PRODUCT_SORT } from "../constants/product.constants";
 
 export type ProductSort =
@@ -14,4 +15,8 @@ export interface ProductQuery {
     featured?: boolean;
 
     sort?: ProductSort;
+}
+
+export interface productId{
+    id:string,
 }

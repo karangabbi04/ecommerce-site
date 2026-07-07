@@ -6,7 +6,7 @@ import { prisma } from "../lib/prisma.js";
 import { uploadToCloudinary } from "../utils/CloudinaryUpload.js";
 import slugify from "slugify";
 
-import { productQuerySchema } from "../validations/product-validation.js";
+import { productQuerySchema,productIdParamsSchema } from "../validations/product-validation.js";
 
 import { productService } from "../services/product.service";
 
@@ -115,35 +115,32 @@ if (!id || Array.isArray(id)) {
     .status(200)
     .json(new ApiResponse(200, null, "Product deleted successfully"));
 });
+
+
+
+
+
 // get single product by ID
-const  getProductById = asyncHandler<{ id: string }>(
-  async (req, res) => {
-    const { id } = req.params;
+const getProductById = asyncHandler(async (req: Request, res: Response) => {
+  console.log(req.body)
+  console.log(req.params)
 
-    // 1. Basic validation
-    if (!id) {
-      throw new ApiError(400, "Product id is required");
-    }
+  const { id } = productIdParamsSchema.parse(req.params);
 
-    // 2. Find product
-    const product = await prisma.product.findUnique({
-      where: { id },
-       include: {
-      images: true,
-    },
-    });
-
-    // 3. Not found
-    if (!product) {
-      throw new ApiError(404, "Product not found");
-    }
-
-    // 4. Success
-     res
-      .status(200)
-      .json(new ApiResponse(200, product, "Product fetched successfully"));
+  if (!id) {
+    throw new ApiError(400, "Product id is required");
   }
-);
+
+  const product = await productService.getProductById(id);
+
+  res.status(200).json(new ApiResponse(200, product, "Product fetched successfully"));
+});
+
+
+
+
+
+
 //get products by slug
 const getProductBySlug = asyncHandler<{ slug: string }>(
   async (req, res) => {
