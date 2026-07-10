@@ -1,127 +1,185 @@
-import { prisma } from "../lib/prisma";
-import { ApiError } from "../utils/ApiError";
-import { env } from "../config/env";
+import { Prisma } from "@prisma/client";
 
+import { ApiError } from "../utils/ApiError";
+
+import { prisma } from "../lib/prisma";
+
+import { checkoutRepository } from "../repositories/checkout.repository";
+
+import {
+  GST_RATE,
+  CHECKOUT_EXPIRY_MINUTES,
+} from "../constants/checkout.constants";
+
+import {
+  calculateShipping,
+  calculateTax,
+  calculateTotal,
+//   getCheckoutExpiry,
+} from "../utils/checkout.utils";
 
 type CheckoutInput = {
   userId?: string;
   guestId?: string;
 };
 
-const GST_RATE = Number(process.env.GST_RATE) || 18;
-const CHECKOUT_EXPIRY_MINUTES = Number(process.env.CHECKOUT_EXPIRY_MINUTES) || 25;
+export const createCheckoutSession = async (
+  input: CheckoutInput
+) => {
+  // Validate Input
+  if (!input.userId && !input.guestId) {
+    throw new ApiError(400, "User or Guest id is required.");
+  }
 
-export const createcheckoutsession = async (input:CheckoutInput) => {
+  // Reuse existing active checkout
+  const existingCheckout =
+    await checkoutRepository.findPendingCheckout(
+      input.userId,
+      input.guestId
+    );
 
+  if (existingCheckout) {
+    return existingCheckout;
+  }
 
+  // Find Cart
+  const cart = await checkoutRepository.findCart(
+    input.userId,
+    input.guestId
+  );
 
-    const cart = await prisma.cart.findUnique({
-        where: input.userId ? { userId: input.userId } : { guestId: input.guestId! },
-        include: {
-            items: {
-                include: {
-                    product: true,
-                },
-            },
-        },
-    });
+  if (!cart || cart.items.length === 0) {
+    throw new ApiError(400, "Cart is empty.");
+  }
 
-    if (!cart || cart.items.length === 0) {
-        throw new ApiError(400, "Cart is empty");
+  let subtotal = 0;
+
+  const checkoutItems = cart.items.map((item) => {
+    const { product } = item;
+
+    if (product.stock <= 0) {
+      throw new ApiError(
+        400,
+        `${product.name} is currently out of stock.`
+      );
     }
 
-   
+    if (item.quantity > product.stock) {
+      throw new ApiError(
+        400,
+        `${product.name} has only ${product.stock} items available.`
+      );
+    }
 
-    let subtotal = 0;
+    const itemTotal =
+      Number(product.price) * item.quantity;
 
-    const lineItems = cart.items.map((item) => {
-        const product = item.product;
-        if (item.quantity > product.stock) {
-        throw new ApiError(
-            400,
-            `${product.name} is out of stock`
+    subtotal += itemTotal;
+
+    return {
+      productId: product.id,
+      productName: product.name,
+      quantity: item.quantity,
+      unitPrice: product.price,
+    };
+  });
+
+  const shipping = calculateShipping(subtotal);
+
+  const tax = calculateTax(subtotal, GST_RATE);
+
+  const total = calculateTotal(
+    subtotal,
+    shipping,
+    tax
+  );
+
+  const session = await prisma.$transaction(
+    async (tx: Prisma.TransactionClient) => {
+      const checkoutSession =
+        await checkoutRepository.createCheckoutSession(
+          tx,
+          {
+            userId: input.userId,
+            guestId: input.guestId,
+            subtotal,
+            shipping,
+            tax,
+            total,
+            expiresAt: new Date(Date.now() + CHECKOUT_EXPIRY_MINUTES * 60 * 1000)
+          }
+        );console.log(checkoutSession);
+
+      await checkoutRepository.createCheckoutItems(
+        tx,
+        checkoutItems.map((item) => ({
+          checkoutSessionId: checkoutSession.id,
+          ...item,
+        }))
+      );
+            const completeSession =
+        await checkoutRepository.findCheckoutById(
+            tx,
+          checkoutSession.id
         );
-        }
+        console.log(completeSession);
 
-       const  itemTotal = Number(product.price) * item.quantity;
+      if (!completeSession) {
+        throw new ApiError(
+          500,
+          "Failed to create checkout session."
+        );
+      }
 
-        subtotal += itemTotal;
+      return completeSession;
+    }
+  );
 
-        return {
-            productId: product.id,
-            quantity: item.quantity,
-            unitPrice: Number(product.price),
-        };
-    });
-
-    const shipping = subtotal > 1000 ? 0 : 100;
-
-    const tax = Number((subtotal * GST_RATE/100).toFixed(2));
-
-    const total = subtotal + shipping + tax;
-       
-
-
-
-    const session = await prisma.$transaction(async (tx) => {
-        const checkoutSession = await tx.checkoutSession.create({
-            data: {
-                userId:
-                input.userId ?? null,
-
-                guestId:
-                input.guestId ?? null,
-                subtotal,
-                shipping,
-                tax,
-                total,
-                expiresAt: new Date(Date.now() + CHECKOUT_EXPIRY_MINUTES * 60 * 1000),
-            },
-        });
-        await tx.checkoutItem.createMany({
-             data: 
-             cart.items.map((item) => ({
-                 checkoutSessionId: checkoutSession.id,
-                  productId: item.product.id,
-                   productName: item.product.name, 
-                   quantity: item.quantity, 
-                   unitPrice: item.product.price, 
-                })),
-         });
-
-          const completeSession = await tx.checkoutSession.findUnique({
-            where: { id: checkoutSession.id },
-            include: { items: true },
-        });
-
-        return completeSession!;
-
-    });
-    return session; 
-
-    
-
-
+  return session;
 };
 
+export const fetchCheckoutSession = async (
+  checkoutId: string
+) => {
+  if (!checkoutId) {
+    throw new ApiError(
+      400,
+      "Checkout session id is required."
+    );
+  }
 
+  const checkout =
+    await checkoutRepository.findCheckoutById(
+        prisma,
+      checkoutId
+    );
 
+  if (!checkout) {
+    throw new ApiError(
+      404,
+      "Checkout session not found."
+    );
+  }
 
-export const fetchCheckoutSession = async (checkoutId:string) =>{
+  if (
+    checkout.status === "ACTIVE" &&
+    checkout.expiresAt < new Date()
+  ) {
+    await prisma.checkoutSession.update({
+      where: {
+        id: checkout.id,
+      },
+      data: {
+        status: "EXPIRED",
+      },
+    });
 
+    throw new ApiError(
+      410,
+      "Checkout session has expired."
+    );
+  }
 
-
-    const result = await prisma.checkoutSession.findUnique({
-
-          where: {
-              id: checkoutId,
-            },
-            include:{
-              address:true,
-            }
-    })
-
-    return result
-
-
-}
+  return checkout;
+};
+    
