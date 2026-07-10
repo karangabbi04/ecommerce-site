@@ -1,7 +1,7 @@
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import { pool } from "./db/index.js";
-import { errorHandler } from "./middlewares/error.middleware.js";
+// import { errorHandler } from "./middlewares/error.middleware.js";
 import productRoutes from "./routes/product.routes.js";
 import aiRoutes from "./routes/ai.routes.js";
 import cookieParser from "cookie-parser";
@@ -12,6 +12,8 @@ import checkoutRouter from "./routes/checkout.routes.js";
 import addressRouter from "./routes/address.routes.js"
 import orderRouter from "./routes/order.routes.js"
 import paymentRouter from "./routes/payment.routes.js"
+import {notFound} from "./middlewares/notFound.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
 
@@ -41,6 +43,8 @@ app.use("/api/v1/addresses",addressRouter);
 app.use("/api/v1/order",orderRouter);
 app.use("/api/v1/payment",paymentRouter);
 
+
+app.use(notFound)
 
 
 
