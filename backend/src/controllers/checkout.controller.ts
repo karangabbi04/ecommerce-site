@@ -1,7 +1,7 @@
 import { Request,Response } from "express";
 import { ApiResponse } from "../utils/apiResponse";
 import { ApiError } from "../utils/ApiError";
-import { createcheckoutsession, fetchCheckoutSession} from "../services/checkout.service";
+import { createCheckoutSession, fetchCheckoutSession} from "../services/checkout.service";
 import { asyncHandler } from "../utils/asyncHandler";
 
 export const checkoutController = asyncHandler(async (req: Request, res: Response) => {
@@ -15,9 +15,9 @@ export const checkoutController = asyncHandler(async (req: Request, res: Respons
     }
 
 
-    const session = await createcheckoutsession({userId,guestId});
+    const session = await createCheckoutSession({userId,guestId});
 
-   return  res.status(200).json(new ApiResponse( 200,session,"Checkout session created"));
+     res.status(200).json(new ApiResponse( 200,session,"Checkout session created"));
 });
 
 
@@ -40,7 +40,7 @@ export const fetchCheckoutsession = asyncHandler(async (req: Request, res: Respo
 
         const result = await fetchCheckoutSession(checkoutId)
 
-   return res.status(200).json(new ApiResponse( 200,result,"Checkout session created"));
+    res.status(200).json(new ApiResponse( 200,result,"Checkout session created"));
 
 
 })
