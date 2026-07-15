@@ -5,6 +5,7 @@ import { ApiError } from "../utils/ApiError";
 import { prisma } from "../lib/prisma";
 
 import { checkoutRepository } from "../repositories/checkout.repository";
+import * as addressRepository from "../repositories/address.repository";
 
 import {
   GST_RATE,
@@ -17,6 +18,8 @@ import {
   calculateTotal,
 //   getCheckoutExpiry,
 } from "../utils/checkout.utils";
+import { check, iso } from "zod";
+import { logger } from "../config/logger";
 
 type CheckoutInput = {
   userId?: string;
@@ -139,6 +142,7 @@ export const createCheckoutSession = async (
 };
 
 export const fetchCheckoutSession = async (
+
   checkoutId: string
 ) => {
   if (!checkoutId) {
@@ -181,5 +185,49 @@ export const fetchCheckoutSession = async (
   }
 
   return checkout;
+
 };
     
+  export const  attachAddressToCheckout = async(
+    checkoutId: string,
+    addressId: string,
+    userId?: string,
+    guestId?: string
+  ) => {
+    const checkout =
+      await checkoutRepository.findCheckoutById(prisma,checkoutId);
+
+    if (!checkout) {
+      throw new Error("Checkout not found");
+    }
+
+    console.log(userId,guestId,"form cookeis")
+  
+
+    const address =
+      await addressRepository.findById(addressId);
+
+      console.log(address,"afdsflsjfslfs")
+
+    if (!address) {
+      throw new Error("Address not found");
+    }
+
+    console.log(address.guestId,address.userId)
+    const isOwner =
+      (userId && address.userId === userId) ||
+      (guestId && address.guestId === guestId);
+      
+      console.log(isOwner)
+
+    if (!isOwner) {
+      throw new Error(
+        "You are not allowed to use this address."
+      );
+    }
+
+    return checkoutRepository.updateAddress(
+      checkoutId,
+      addressId
+    );
+  }
