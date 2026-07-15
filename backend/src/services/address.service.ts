@@ -1,6 +1,11 @@
+import { OtpPurpose } from "@prisma/client";
+import * as addressRepository from "../repositories/address.repository";
 
-import { CreateAddressInput } from "../validations/address.schema";
+import { CreateAddressInput } from "../validations/address.validation";
+import { otpService } from "./otp.service";
 import { prisma } from "../lib/prisma";
+import { otpRepository } from "../repositories/otp.repository";
+import { ApiError } from "../utils/ApiError";
 
 type CreateAddressParams = {
   userId?: string;
@@ -8,124 +13,97 @@ type CreateAddressParams = {
   data: CreateAddressInput;
 };
 
-export const createAddressService = 
-  async ( params: CreateAddressParams) => {
-    
-    const {
-        userId,
-        guestId,
-        data,
-  } = params;
+const DEFAULT_COUNTRY = "India";
 
-
-        const address = await prisma.address.create({
-      data: {
-
-        userId: userId ?? null,
-
-        guestId: guestId ?? null,
-
-        fullName:
-          data.fullName,
-
-        phone:
-          data.phone,
-
-        addressLine1:
-          data.addressLine1,
-
-        landmark:
-          data.landmark,
-
-        city:
-          data.city,
-
-        state:
-          data.state,
-        
-        country:
-          "india",
-
-        postalCode:
-          data.pincode,
-
-        latitude:
-          data.latitude,
-
-        longitude:
-          data.longitude,
-      },
-    });
-
-  return address;
-
+function getOwner(
+  userId?: string,
+  guestId?: string
+) {
+  if (userId) {
+    return {
+      userId,
+      guestId: null,
+    };
   }
+
+  if (guestId) {
+    return {
+      userId: null,
+      guestId,
+    };
+  }
+
+  throw new Error("Unauthorized");
+}
+
+export async function createAddressService(
+  params: CreateAddressParams
+) {
+  const { userId, guestId, data } = params;
+
+  const owner = getOwner(
+    userId,
+    guestId
+  );
+
+  const otpRecord: any = await otpService.verifyOTP({
+    email: data.email,
+    otp: data.otp,
+    purpose: OtpPurpose.SIGNUP,
+   });
+
+   console.log(otpRecord,"otep recodfldjaj lklkdsjflk sj kljfklsd ")
+   console.log(otpRecord.id ,"otep recodfldjaj lklkdsjflk sj kljfklsd ")
+
+        return prisma.$transaction(async( tx)=>{
+
+               const address = await addressRepository.create(tx, {
+
+        fullName: data.fullName,
+
+        phone: data.phone,
+
+        email: data.email,
+
+        addressLine1: data.addressLine1,
+
+        landmark: data.landmark,
+
+        city: data.city,
+
+        state: data.state,
+
+        country: "india",
+
+        postalCode: data.pincode,
+
+        latitude: data.latitude,
+
+        longitude: data.longitude,
+
+      });
+
+      await otpRepository.deleteOTPById(tx, otpRecord?.id);
+
+      return address;
+        });
+}
 
 export async function getAddresses(
   userId?: string,
   guestId?: string
 ) {
+  if (userId) {
+    return addressRepository.findManyByUserId(
+      userId
+    );
+  }
 
-  return prisma.address.findMany({
-    where: userId
-      ? {
-          userId,
-        }
-      : {
-          guestId,
-        },
+  if (guestId) {
+    return addressRepository.findManyByGuestId(
+      guestId
+    );
+  }
 
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-}
-
-export async function attachAddressToCheckout(
-  checkoutId: string,
-  addressId: string
-) {
-
-
-
-  // const checkout =
-  //   await prisma.checkoutSession.update({
-  //     where: {
-  //       id: checkoutId,
-  //     },
-
-  //     data: {
-  //       addressId,
-  //     },
-    
-  //   });
-
-
- const checkout =   await prisma.$transaction(
-        async (tx) => {
-
-          const attechAddress = await tx.checkoutSession.update({
-            where: {
-              id: checkoutId,
-            },
-
-            data: {
-              addressId,
-            },
-          
-          });
-
-         
-
-          return attechAddress
-          
-
-
-        })
-  
-
-   
-
-  return checkout;
+  throw new Error("Unauthorized");
 }
