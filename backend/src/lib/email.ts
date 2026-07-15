@@ -1,5 +1,7 @@
 
+import { OtpPurpose } from "@prisma/client";
 import { Resend } from "resend";
+
 
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -7,7 +9,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 type SendSignupOTPEmailParams = {
   to: string;
   otp: string;
-  purpose?: "SIGNUP" | "PASSWORD_RESET";
+  purpose?:OtpPurpose;
 };
 
 export async function sendOTPEmail({
