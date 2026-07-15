@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
 import { ApiResponse } from "../utils/apiResponse";
-import { createAddressService,getAddresses,attachAddressToCheckout } from "../services/address.service";
-import { createAddressSchema } from "../validations/address.schema";
+import { createAddressService,getAddresses, } from "../services/address.service";
+import { createAddressSchema } from "../validations/address.validation";
 import { ApiError } from "../utils/ApiError";
 import { searchAddress } from "../provider/photon.provider";
 import z from "zod";
 import { getLocationwithNomination } from "../provider/nomination.provider";
+import { attachAddressToCheckout } from "../services/checkout.service";
 
 
 export const createAddress = asyncHandler( async (req:Request, res:Response)=>{
@@ -64,17 +65,18 @@ export const getAddress = asyncHandler(async(req:Request, res:Response)=>{
 
 export const attachAddress = asyncHandler(async(req:Request, res:Response)=>{
 
+   const userId = req.user?.id;
+    const guestId = req.cookies.guest_cart_id;
+
     const checkoutId = req.params.checkoutId;
 
    const  {addressId} = req.body;
 
-   console.log(checkoutId,"checkoutid")
-   console.log(addressId,"checkouaadasdadatid")
-
-
     const checkout = await attachAddressToCheckout(
     checkoutId as string,
-     addressId
+     addressId,
+     userId,
+     guestId
 );
 
   console.log(checkout)
@@ -106,7 +108,7 @@ export const getAddressSuggestions = asyncHandler(async (req: Request, res: Resp
   const { q } = validation.data;
 
   if (q.trim().length < 3) {
-    return res.status(200).json(new ApiResponse(200, "enter more letters"));
+     res.status(200).json(new ApiResponse(200, "enter more letters"));
   }
 
   const suggestions = await searchAddress(q);
