@@ -25,10 +25,17 @@ model Product {
   imageUrl    String?
   images      ProductImage[]
   cartItems   CartItem[]
-  isFeatured  Boolean  @default(false)
+  status      ProductStatus   @default(ACTIVE)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+enum ProductStatus {
+    ACTIVE
+    DRAFT
+    ARCHIVED
+}
+
 
 model ProductImage {
   id        String   @id @default(cuid())
@@ -42,11 +49,14 @@ model ProductImage {
 
 
 
+
+
   enum Role {
   USER
   ADMIN
   STAFF
 }
+
 
 
 model User {
@@ -70,7 +80,8 @@ model User {
 enum OtpPurpose {
   SIGNUP
   LOGIN
-  PASSWORD_RESET
+  RESET_PASSWORD
+  CHANGE_EMAIL
   ORDER_CONFIRMATION
 }
 
@@ -188,6 +199,7 @@ model Address {
 
   fullName            String
   phone               String
+  email               String?   
   guestId            String?
 
   addressLine1        String
