@@ -86,6 +86,20 @@ export class CheckoutRepository {
       },
     });
   }
+  async updateAddress(
+    checkoutId: string,
+    addressId: string
+  ) {
+    return prisma.checkoutSession.update({
+      where: {
+        id: checkoutId,
+      },
+      data: {
+        addressId,
+      },
+    });
+  }
 }
+
 
 export const checkoutRepository = new CheckoutRepository();
