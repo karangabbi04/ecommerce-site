@@ -5,12 +5,18 @@ export interface AddressSuggestion {
 }
 
 export interface ValidatedAddress {
-  fullAddress: string;
+  fullName: string;
+  phone: string;
+  email?: string;
+  addressLine1: string;
+  landmark?: string;
   city: string;
   state: string;
-  country: string;
-  pincode: string;
-  latitude: number;
-  longitude: number;
-  verified: boolean;
+  country?: string;
+  postalCode: string;
+  latitude?: number;
+  longitude?: number;
+  userId?: string;
+  guestId?: string;
 }
+
