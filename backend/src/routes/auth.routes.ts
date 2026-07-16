@@ -1,10 +1,10 @@
 import Router from "express";
-import {verifySignupOTP} from "../controllers/verifyOtp.controller";
-import {requestSignupOTP} from "../controllers/otp-request.controller";
+// import {verifySignupOTP} from "../controllers/otp.controller";
+import {requestSignupOTP} from "../controllers/otp.controller";
 
 const router = Router();
 
 router.post("/request-signup-otp", requestSignupOTP);
-router.post("/verify-signup-otp", verifySignupOTP);
+// router.post("/verify-signup-otp", verifySignupOTP);
 
 export default router;
