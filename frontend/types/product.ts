@@ -1,25 +1,45 @@
+export interface ProductImage {
+  id?: number;
+  url: string;
+}
+
 export interface Product {
-  id: string;
+  id: number;
   name: string;
   description: string;
-  images: { url: string }[];
+  category: string;
+
   price: number;
   oldPrice?: number;
-  image?: string;
-  stock: number;
-  category?: string;
-  createdAt?: string;
+
+  images: ProductImage[];
 }
+
 export interface Pagination {
   currentPage: number;
-  limit: number;
-  totalProducts: number;
   totalPages: number;
+  totalProducts: number;
+
+  limit: number;
+
   hasNextPage: boolean;
   hasPrevPage: boolean;
 }
 
-export interface ProductsResponse {
+export interface ProductResponse {
   products: Product[];
+
   pagination: Pagination;
+}
+
+
+   export interface ProductsParams {
+  page: number;
+  limit: number;
+  search?:string;
+  sort?:string;
+  category?:string;
+
+
+  
 }
