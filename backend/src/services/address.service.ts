@@ -46,6 +46,8 @@ export async function createAddressService(
     guestId
   );
 
+  console.log(owner)
+
   const otpRecord: any = await otpService.verifyOTP({
     email: data.email,
     otp: data.otp,
@@ -58,8 +60,11 @@ export async function createAddressService(
         return prisma.$transaction(async( tx)=>{
 
                const address = await addressRepository.create(tx, {
-
         fullName: data.fullName,
+
+        guestId: guestId,
+
+        user: userId ? { connect: { id: userId } } : undefined,
 
         phone: data.phone,
 
@@ -73,7 +78,7 @@ export async function createAddressService(
 
         state: data.state,
 
-        country: "india",
+        country: DEFAULT_COUNTRY,
 
         postalCode: data.pincode,
 
