@@ -201,24 +201,23 @@ export const fetchCheckoutSession = async (
       throw new Error("Checkout not found");
     }
 
-    console.log(userId,guestId,"form cookeis")
   
 
     const address =
       await addressRepository.findById(addressId);
 
-      console.log(address,"afdsflsjfslfs")
 
     if (!address) {
       throw new Error("Address not found");
     }
+
 
     console.log(address.guestId,address.userId)
     const isOwner =
       (userId && address.userId === userId) ||
       (guestId && address.guestId === guestId);
       
-      console.log(isOwner)
+      console.log(isOwner,"kjalkfjakfajkj afa")
 
     if (!isOwner) {
       throw new Error(
