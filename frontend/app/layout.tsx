@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/layout/navbar";
-import { Providers } from "@/lib/reactquery.provider";
-import ReactQueryProvider from "@/app/providers/react-quary-provider";
 import React from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Script from "next/script";
 import  type {Viewport} from "next";
+import ReactQueryProvider from "@/providers/react-quary-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

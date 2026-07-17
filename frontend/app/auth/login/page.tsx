@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useLogin } from "@/app/hooks/mutations/use-login";
-import { useAuthStore } from "@/app/store/auth.store";
+import { useLogin } from "@/hooks/mutations/use-login";
+import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "next/navigation";
 
 type LoginForm = {

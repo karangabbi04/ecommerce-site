@@ -22,6 +22,10 @@ export const checkoutAddressSchema = z.object({
   latitude: z.number().optional(),
 
   longitude: z.number().optional(),
+
+  email: z.email(),
+
+  otp: z.string(),
 });
 
 export type CheckoutFormValues = z.infer<typeof checkoutAddressSchema>;

@@ -4,7 +4,6 @@ import { api } from "@/lib/api";
 export const checkoutService ={
 
     async checkout (){
-        console.log("checkout api is called")
         const res = await api.post(`/checkout/create-session`)
     
         if(!res){
@@ -25,7 +24,6 @@ export const checkoutService ={
             console.log ("checkout api not working ");
         }
         
-        console.log(res?.data,"sdjfklsf")
 
         return res.data.data ;
     }

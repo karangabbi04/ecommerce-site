@@ -22,20 +22,20 @@ export function QuickActionCard({ action }: QuickActionCardProps) {
     <Link href="/" className="group block">
       <Card
         className={cn(
-          "relative h-full overflow-hidden border transition-all duration-300",
+          "relative w-30 h-32 py-2 px-0 bg-gray-100 overflow-hidden border transition-all duration-300",
           "hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg",
           "focus-visible:ring-2 focus-visible:ring-ring"
         )}
       >
-        <CardHeader className="space-y-6">
+        <CardHeader className="space-y-1">
           <div className="flex items-start justify-between">
             <div
               className={cn(
-                "flex h-12 w-12 items-center justify-center rounded-xl transition-colors",
+                "flex h-6 w-6 items-center justify-center rounded-xl transition-colors",
                 action.color
               )}
             >
-              <Icon className="h-6 w-6" />
+              <Icon className="h-4 w-4" />
             </div>
 
             <ArrowUpRight
@@ -47,11 +47,11 @@ export function QuickActionCard({ action }: QuickActionCardProps) {
           </div>
 
           <div className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle className="text-base text-[14px] font-semibold">
               {action.title}
             </CardTitle>
 
-            <CardDescription>
+            <CardDescription className="text-[12px]">
               {action.description}
             </CardDescription>
           </div>

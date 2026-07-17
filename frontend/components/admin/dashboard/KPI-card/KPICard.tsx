@@ -63,7 +63,7 @@ export function KPICard({
   if (loading) {
     return (
       <Card className={cn("rounded-2xl border", className)}>
-        <CardContent className="space-y-5 p-6">
+        <CardContent className="space-y-3 p-4">
           <div className="flex items-center justify-between">
             <div className="h-4 w-24 animate-pulse rounded bg-muted" />
             <div className="h-12 w-12 animate-pulse rounded-xl bg-muted" />
@@ -85,11 +85,11 @@ export function KPICard({
   return (
     <Card
       className={cn(
-        "group   w-50 h-50 rounded-2xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl",
+        "group  rounded-xl  bg-gray-100 border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl",
         className
       )}
     >
-      <CardContent className="space-y-5 p-6">
+      <CardContent className="space-y-2 px-7">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="space-y-1">
@@ -118,7 +118,7 @@ export function KPICard({
         </div>
 
         {/* Value */}
-        <h2 className="text-3xl font-bold tracking-tight">{value}</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{value}</h2>
 
         {/* Trend */}
         {trend !== undefined && (
@@ -142,10 +142,10 @@ export function KPICard({
           </div>
         )}
 
-        {/* Description */}
+        {/* Description
         {description && (
           <p className="text-sm text-muted-foreground">{description}</p>
-        )}
+        )} */}
       </CardContent>
     </Card>
   );

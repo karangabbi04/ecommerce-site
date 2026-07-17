@@ -1,12 +1,18 @@
+
 import { api } from "@/lib/api";
 import { Product } from "@/types/product";
-import { ProductsResponse } from "@/types/product";
+import { ProductResponse } from "@/types/product";
+import { ProductsParams } from "@/types/product";
+
+
 
  const productService = {
 
-  getAllProducts: async (page = 1, limit = 10): Promise<ProductsResponse> => {
+  getAllProducts: async (productPayload:ProductsParams): Promise<ProductResponse> => {
 
-    const res = await api.get(`/products?page=${page}&limit=${limit}`);
+     const res = await api.get("/products", {
+            params: productPayload,
+  });
     if(!res){
         console.log("No response from server");
     }
@@ -16,12 +22,17 @@ import { ProductsResponse } from "@/types/product";
     return res.data.data;
   },
 
-  getProductById: async (id: string): Promise<Product> => {
-    const res = await api.get(`/products/${id}`);
+   getProductById: async (id:string) => {
+    console.log("api heet sfslfsdfdskjhfkshfksdhfks")
+
+     const res = await api.get(`/products/${id}`);
+  console.log(res)
     if(!res){
-        console.log(`No response from server for product ID: ${id}`);
+        console.log("No response from server");
     }
-    console.log(`Product fetched from API for ID ${id}:`, res.data.data);
+    console.log("Products fetched from API:", res.data.data);
+
+    // agar backend response { success:true, data:[...] } deta hai
     return res.data.data;
   },
   // create product 

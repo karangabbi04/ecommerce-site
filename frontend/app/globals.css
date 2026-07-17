@@ -139,4 +139,7 @@
   .md-hidden-px {
     display: none !important;
   }
+   .animation{
+    display:none;
+  }
 }

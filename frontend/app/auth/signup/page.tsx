@@ -1,7 +1,7 @@
 "use client";
 
 import { signupService } from "@/services/signup.service";
-import { useAuthStore } from "@/app/store/auth.store";
+import { useAuthStore } from "@/store/auth.store";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

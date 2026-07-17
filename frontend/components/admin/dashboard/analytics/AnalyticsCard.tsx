@@ -36,8 +36,8 @@ const [chartType, setChartType] = useState<"line" | "bar" | "area">("line");
 
 
     return (
-        <main className='flex flex-wrap p-4'>
-            <div className='w-full h-12 flex flex-3'>
+        <main className='flex w-full h-full bg-gray-800 rounded-2xl flex-wrap p-4'>
+            <div className='w-full h-12 flex justify-between  flex-3'>
                 <AnalyticsSelect
                     value={metric}
                     options={metricOptions}

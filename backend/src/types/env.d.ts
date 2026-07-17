@@ -3,6 +3,7 @@ declare namespace NodeJS {
     RAZORPAY_SECRET: string | undefined;
     PORT?: string;
     NODE_ENV?: "development" | "production" | "test";
+    DATABASE_URL: string;
 
     GEMINI_API_KEY: string;
 

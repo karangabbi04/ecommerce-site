@@ -25,15 +25,7 @@ export const dashboardKPI = [
     variant: "default" as const,
     badge: "Live",
   },
-  {
-    title: "Customers",
-    value: "8,942",
-    icon: Users,
-    trend: -2.3,
-    description: "Active customers this month",
-    variant: "warning" as const,
-    badge: "Active",
-  },
+  
   {
     title: "Products",
     value: "426",

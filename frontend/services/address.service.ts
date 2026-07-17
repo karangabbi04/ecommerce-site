@@ -8,6 +8,7 @@ export const getSuggestions = async (city: string) => {
     const res = await api.get(
       `addresses/search?q=${city}`
     );
+    console.log(res.data)
 
     console.log("API Success");
 
@@ -53,6 +54,8 @@ export type CreateAddressPayload = {
   pincode: string;
   latitude?: number;
   longitude?: number;
+  email:string;
+  otp:string;
 };
 
 export const createAddress = async (payload: CreateAddressPayload) => {
@@ -74,7 +77,7 @@ export const attechAddress = async( payLoad:{checkoutId:string,addressId:string}
 
 console.log("attech address api hit");
 
-  const response = await api.post(`/addresses/checkout/${payLoad.checkoutId}`,{
+  const response = await api.post(`/addresses/address/${payLoad.checkoutId}`,{
     addressId: payLoad.addressId,
   });
 

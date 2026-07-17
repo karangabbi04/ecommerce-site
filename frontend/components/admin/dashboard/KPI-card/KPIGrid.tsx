@@ -11,11 +11,11 @@ export function KPIGrid({ children, className }: KPIGridProps) {
   return (
     <section
       aria-label="Key Performance Indicators"
-      className={cn(
-        "grid gap-4 p-2 border-2 w-fit rounded-4xl ",
+      className={cn( 
+        "grid gap-4 bg-lime-400 p-2  w-full ",
         "grid-cols-1",
         "sm:grid-cols-2",
-        "xl:grid-cols-4 flex flex-wrap",
+        "xl:grid-cols-4 flex justify-between",
         className
       )}
     >
