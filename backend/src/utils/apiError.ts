@@ -1,4 +1,3 @@
-import { readonly } from "zod";
 
 export class ApiError extends Error {
    public readonly statusCode: number;
