@@ -4,7 +4,7 @@ import {
   addToCartSchema,
   updateCartItemSchema,
   removeCartItemSchema,
-} from "../validations/cart.validation";
+} from "../validations/cart.validation.js";
 
 import { Response } from "express";
 

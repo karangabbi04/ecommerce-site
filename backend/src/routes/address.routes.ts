@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { createAddress,getAddress,getAddressSuggestions,getcurrentLocation,attachAddress} from "../controllers/address.controller";
+import { createAddress,getAddress,getAddressSuggestions,getcurrentLocation,attachAddress} from "../controllers/address.controller.js";
 
 const router = Router();
 

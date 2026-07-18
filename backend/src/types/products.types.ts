@@ -1,5 +1,5 @@
 import { syncBuiltinESMExports } from "node:module";
-import { PRODUCT_SORT } from "../constants/product.constants";
+import { PRODUCT_SORT } from "../constants/product.constants.js";
 
 export type ProductSort =
     (typeof PRODUCT_SORT)[keyof typeof PRODUCT_SORT];

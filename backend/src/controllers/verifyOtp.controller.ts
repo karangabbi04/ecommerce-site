@@ -1,10 +1,10 @@
-// import { asyncHandler } from "../utils/asyncHandler";
+// import { asyncHandler } from "../utils/asyncHandler.js";
 // import e, { Request, Response } from "express";
-// import { ApiResponse } from "../utils/apiResponse";
-// import { generateOTP, hashOTP, getOTPExpiryTime, verifyOTP } from "../utils/otp";
-// import { sendOTPEmail } from "../lib/email";
-// import { ApiError } from "../utils/ApiError";
-// import {prisma} from "../lib/prisma"; 
+// import { ApiResponse } from "../utils/apiResponse.js";
+// import { generateOTP, hashOTP, getOTPExpiryTime, verifyOTP } from "../utils/otp.js";
+// import { sendOTPEmail } from "../lib/email.js";
+// import { ApiError } from "../utils/ApiError.js";
+// import {prisma} from "../lib/prisma.js"; 
 // import { z } from "zod";
 // import { compare } from "bcryptjs";
 

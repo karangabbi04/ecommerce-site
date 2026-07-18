@@ -1,7 +1,7 @@
 import {
   AddressSuggestion,
   ValidatedAddress,
-} from "../types/address.types";
+} from "../types/address.types.js";
 
 export interface AddressProvider {
   search(query: string): Promise<AddressSuggestion[]>;

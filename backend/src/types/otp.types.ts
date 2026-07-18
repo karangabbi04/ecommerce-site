@@ -1,6 +1,6 @@
 // src/modules/otp/otp.types.ts
 
-import { OtpPurpose } from "../constants/otp.constants";
+import { OtpPurpose } from "../constants/otp.constants.js";
 
 export interface SendOTPInput {
   email: string;

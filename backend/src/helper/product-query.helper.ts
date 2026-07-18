@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 
-import { ProductQueryDto } from "../DTO/product-query-dto";
-import { PRODUCT_SORT } from "../constants/product.constants";
+import { ProductQueryDto } from "../DTO/product-query-dto.js";
+import { PRODUCT_SORT } from "../constants/product.constants.js";
 
 export const buildProductWhere = (
   query: ProductQueryDto

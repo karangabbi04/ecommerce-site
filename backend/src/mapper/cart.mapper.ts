@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { CartPayload } from "../select/cart.selects";
+import { CartPayload } from "../select/cart.selects.js";
 
 export interface CartResponse {
   id: string;

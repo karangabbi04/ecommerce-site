@@ -1,13 +1,13 @@
 // src/modules/otp/otp.service.ts
 
-import { otpRepository } from "../repositories/otp.repository";
-import { SendOTPInput, VerifyOTPInput } from "../types/otp.types";
-import { sendOTPEmail } from "../lib/email";
-import { generateOTP, hashOTP, verifyOTP } from "../utils/otp";
-import { OTP_REQUEST_INTERVAL } from "../constants/otp.constants";
-import { prisma } from "../lib/prisma";
-import { ApiResponse } from "../utils/apiResponse";
-import { ApiError } from "../utils/ApiError";
+import { otpRepository } from "../repositories/otp.repository.js";
+import { SendOTPInput, VerifyOTPInput } from "../types/otp.types.js";
+import { sendOTPEmail } from "../lib/email.js";
+import { generateOTP, hashOTP, verifyOTP } from "../utils/otp.js";
+import { OTP_REQUEST_INTERVAL } from "../constants/otp.constants.js";
+import { prisma } from "../lib/prisma.js";
+import { ApiResponse } from "../utils/apiResponse.js";
+import { ApiError } from "../utils/ApiError.js";
 
 
 class OTPService {

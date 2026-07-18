@@ -1,8 +1,8 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 
-import { prisma } from "../../src/lib/prisma";
+import { prisma } from "../../src/lib/prisma.js";
 
-import { cartSelect } from "../select/cart.selects";
+import { cartSelect } from "../select/cart.selects.js";
 
 class CartRepository {
   async findCartById(cartId: string) {

@@ -1,7 +1,7 @@
-import { ApiError } from "../utils/ApiError";
-import { razorpay } from "../config/razorpay";
-import { prisma } from "../lib/prisma";
-import { verifyRazorpaySignature } from "../utils/verify-RazorpaySignature";
+import { ApiError } from "../utils/ApiError.js";
+import { razorpay } from "../config/razorpay.js";
+import { prisma } from "../lib/prisma.js";
+import { verifyRazorpaySignature } from "../utils/verify-RazorpaySignature.js";
 razorpay
 
 export interface VerifyPaymentDto {

@@ -1,10 +1,10 @@
 
 // import { check } from "zod";
-// import { prisma } from "../lib/prisma";
-// import { ApiError } from "../utils/ApiError";
-// import { generateOrderNumber } from "../utils/generateOrderNumber";
+// import { prisma } from "../lib/prisma.js";
+// import { ApiError } from "../utils/ApiError.js";
+// import { generateOrderNumber } from "../utils/generateOrderNumber.js";
 // import Razorpay from "razorpay";
-// import { razorpay } from "../config/razorpay";
+// import { razorpay } from "../config/razorpay.js";
 
 
 
@@ -281,11 +281,11 @@
 
 
 
-import { ApiError } from "../utils/ApiError";
-import { generateOrderNumber } from "../utils/generateOrderNumber";
-import { razorpay } from "../config/razorpay";
-import { orderRepository } from "../repositories/order.repository";
-import { prisma } from "../lib/prisma";
+import { ApiError } from "../utils/ApiError.js";
+import { generateOrderNumber } from "../utils/generateOrderNumber.js";
+import { razorpay } from "../config/razorpay.js";
+import { orderRepository } from "../repositories/order.repository.js";
+import { prisma } from "../lib/prisma.js";
 
 
 export interface CreateOrderDto {

@@ -1,4 +1,4 @@
 export {
     ProductQueryDto,
     productQuerySchema,
-} from "../validations/product-validation";
+} from "../validations/product-validation.js";

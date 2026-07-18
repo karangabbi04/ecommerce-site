@@ -1,7 +1,7 @@
 
 import { Prisma, PrismaClient } from "@prisma/client";
 
-import { prisma } from "../../src/lib/prisma";
+import { prisma } from "../../src/lib/prisma.js";
 
 export class CheckoutRepository {
   static findPendingCheckout(userId: string | undefined, guestId: string | undefined) {

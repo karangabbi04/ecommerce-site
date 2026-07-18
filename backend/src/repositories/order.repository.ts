@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib/prisma.js";
 
 class OrderRepository {
 

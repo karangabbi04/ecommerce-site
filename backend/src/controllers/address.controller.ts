@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
-import { asyncHandler } from "../utils/asyncHandler";
-import { ApiResponse } from "../utils/apiResponse";
-import { createAddressService,getAddresses, } from "../services/address.service";
-import { createAddressSchema } from "../validations/address.validation";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiResponse } from "../utils/apiResponse.js";
+import { createAddressService,getAddresses, } from "../services/address.service.js";
+import { createAddressSchema } from "../validations/address.validation.js";
 import { ApiError } from "../utils/ApiError.js";
-import { searchAddress } from "../provider/photon.provider";
+import { searchAddress } from "../provider/photon.provider.js";
 import z from "zod";
-import { getLocationwithNomination } from "../provider/nomination.provider";
-import { attachAddressToCheckout } from "../services/checkout.service";
+import { getLocationwithNomination } from "../provider/nomination.provider.js";
+import { attachAddressToCheckout } from "../services/checkout.service.js";
 
 
 export const createAddress = asyncHandler( async (req:Request, res:Response)=>{

@@ -1,9 +1,9 @@
 import { Response ,Request,CookieOptions} from "express";
 import crypto from "crypto";
 import { Cart } from "@prisma/client";
-import { prisma } from "../lib/prisma";
-import { asyncHandler } from "./asyncHandler";
-import { ApiError } from "./ApiError";
+import { prisma } from "../lib/prisma.js";
+import { asyncHandler } from "./asyncHandler.js";
+import { ApiError } from "./ApiError.js";
 
 const GUEST_CART_COOKIE_NAME = "guest_cart_id";
 const GUEST_CART_MAX_AGE = 1000 * 60 * 60 * 24 * 30; // 30 days

@@ -1,6 +1,6 @@
 import axios from "axios";
-import { asyncHandler } from "../utils/asyncHandler";
-import { getCache,setCache } from "../services/cache.service";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { getCache,setCache } from "../services/cache.service.js";
 
 
 const PHOTON_URL =

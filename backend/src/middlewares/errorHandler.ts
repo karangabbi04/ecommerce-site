@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 
-import { ApiError } from "../utils/ApiError";
-import { logger } from "../config/logger";
-import { parseStackTrace } from "../utils/stackParser";
+import { ApiError } from "../utils/ApiError.js";
+import { logger } from "../config/logger.js";
+import { parseStackTrace } from "../utils/stackParser.js";
 
 export const errorHandler = (
   error: Error,

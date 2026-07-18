@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { createProduct, getProductById, deleteProduct, getAllProducts, getProductBySlug } from "../controllers/product.controller";
-import { upload } from "../middlewares/multer.middleware";
+import { createProduct, getProductById, deleteProduct, getAllProducts, getProductBySlug } from "../controllers/product.controller.js";
+import { upload } from "../middlewares/multer.middleware.js";
 
 const router = Router();
 

@@ -1,6 +1,6 @@
 import Router from "express";
-import { optionalAuth } from "../middlewares/verifyJWT.middleware";
-import { addToCart, getCart,updateCartItemQuantity , deleteCartItem} from "../controllers/cart.controller";
+import { optionalAuth } from "../middlewares/verifyJWT.middleware.js";
+import { addToCart, getCart,updateCartItemQuantity , deleteCartItem} from "../controllers/cart.controller.js";
 import { get } from "node:http";
 
 

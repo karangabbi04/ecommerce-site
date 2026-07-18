@@ -1,20 +1,20 @@
-import { ProductQueryDto } from "../DTO/product-query-dto";
-import { ApiError } from "../utils/ApiError";
+import { ProductQueryDto } from "../DTO/product-query-dto.js";
+import { ApiError } from "../utils/ApiError.js";
 
-import { getPagination, createPagination } from "../utils/pagination";
+import { getPagination, createPagination } from "../utils/pagination.js";
 
 import {
   buildProductInclude,
   buildProductOrderBy,
   buildProductWhere,
-} from "../helper/product-query.helper";
+} from "../helper/product-query.helper.js";
 
 import {
   transformProduct,
   transformProducts,
-} from "../helper/product-transform.helper";
+} from "../helper/product-transform.helper.js";
 
-import { productRepository } from "../repositories/product.repository";
+import { productRepository } from "../repositories/product.repository.js";
 
   const include = buildProductInclude();
 

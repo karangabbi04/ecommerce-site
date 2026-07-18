@@ -1,13 +1,13 @@
 import { Response } from "express";
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib/prisma.js";
 
-import { ApiError } from "../utils/ApiError";
-import { getOrCreateCart } from "../utils/getOrCreateCart";
+import { ApiError } from "../utils/ApiError.js";
+import { getOrCreateCart } from "../utils/getOrCreateCart.js";
 
-import { CART_ERRORS } from "../constants/cart.constants";
-import { cartRepository } from "../repositories/cart .repository";
-import { AddToCartDto } from "../types/cart.typs";
-import { mapCart, mapToClientCartResponse } from "../mapper/cart.mapper";
+import { CART_ERRORS } from "../constants/cart.constants.js";
+import { cartRepository } from "../repositories/cart .repository.js";
+import { AddToCartDto } from "../types/cart.typs.js";
+import { mapCart, mapToClientCartResponse } from "../mapper/cart.mapper.js";
 
 class CartService {
   async getCart(params: {

@@ -1,11 +1,11 @@
 import { OtpPurpose } from "@prisma/client";
-import * as addressRepository from "../repositories/address.repository";
+import * as addressRepository from "../repositories/address.repository.js";
 
-import { CreateAddressInput } from "../validations/address.validation";
-import { otpService } from "./otp.service";
-import { prisma } from "../lib/prisma";
-import { otpRepository } from "../repositories/otp.repository";
-import { ApiError } from "../utils/ApiError";
+import { CreateAddressInput } from "../validations/address.validation.js";
+import { otpService } from "./otp.service.js";
+import { prisma } from "../lib/prisma.js";
+import { otpRepository } from "../repositories/otp.repository.js";
+import { ApiError } from "../utils/ApiError.js";
 
 type CreateAddressParams = {
   userId?: string;

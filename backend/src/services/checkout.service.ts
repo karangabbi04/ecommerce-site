@@ -1,25 +1,25 @@
 import { Prisma } from "@prisma/client";
 
-import { ApiError } from "../utils/ApiError";
+import { ApiError } from "../utils/ApiError.js";
 
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib/prisma.js";
 
-import { checkoutRepository } from "../repositories/checkout.repository";
-import * as addressRepository from "../repositories/address.repository";
+import { checkoutRepository } from "../repositories/checkout.repository.js";
+import * as addressRepository from "../repositories/address.repository.js";
 
 import {
   GST_RATE,
   CHECKOUT_EXPIRY_MINUTES,
-} from "../constants/checkout.constants";
+} from "../constants/checkout.constants.js";
 
 import {
   calculateShipping,
   calculateTax,
   calculateTotal,
 //   getCheckoutExpiry,
-} from "../utils/checkout.utils";
+} from "../utils/checkout.utils.js";
 import { check, iso } from "zod";
-import { logger } from "../config/logger";
+import { logger } from "../config/logger.js";
 
 type CheckoutInput = {
   userId?: string;

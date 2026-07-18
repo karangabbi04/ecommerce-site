@@ -1,8 +1,8 @@
 // src/modules/otp/otp.repository.ts
 
 import { Prisma, PrismaClient } from "@prisma/client";
-import { OtpPurpose } from "../constants/otp.constants";
-import { prisma } from "../lib/prisma";
+import { OtpPurpose } from "../constants/otp.constants.js";
+import { prisma } from "../lib/prisma.js";
 
 
 class OTPRepository {

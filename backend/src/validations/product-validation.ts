@@ -5,7 +5,7 @@ import {
     DEFAULT_PAGE,
     MAX_LIMIT,
     PRODUCT_SORT_VALUES,
-} from "../constants/product.constants";
+} from "../constants/product.constants.js";
 
 
 

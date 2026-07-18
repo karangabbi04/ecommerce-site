@@ -1,7 +1,7 @@
 import Router from "express";
-import { optionalAuth } from "../middlewares/verifyJWT.middleware";
-import { checkoutController, fetchCheckoutsession } from "../controllers/checkout.controller";
-import { razorpay } from "../config/razorpay";
+import { optionalAuth } from "../middlewares/verifyJWT.middleware.js";
+import { checkoutController, fetchCheckoutsession } from "../controllers/checkout.controller.js";
+import { razorpay } from "../config/razorpay.js";
 
 
 
