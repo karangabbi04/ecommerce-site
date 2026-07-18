@@ -60,7 +60,7 @@ const registerUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             purpose: "SIGNUP",
         },
     });
-    return res.status(201).json(new apiResponse_1.ApiResponse(201, newUser, "User registered successfully"));
+    res.status(201).json(new apiResponse_1.ApiResponse(201, newUser, "User registered successfully"));
 });
 exports.registerUser = registerUser;
 const loginUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
@@ -92,7 +92,7 @@ const loginUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         secure: true,
         sameSite: "strict",
     });
-    return res.status(200).
+    res.status(200).
         json(new apiResponse_1.ApiResponse(200, { user: userData }, "User logged in successfully"));
 });
 exports.loginUser = loginUser;
@@ -117,7 +117,7 @@ const getCurrentUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     if (!user) {
         throw new ApiError_1.ApiError(404, "user not found");
     }
-    return res.status(200).json(new apiResponse_1.ApiResponse(200, { user }, "currunt user fetched succesulf"));
+    res.status(200).json(new apiResponse_1.ApiResponse(200, { user }, "currunt user fetched succesulf"));
 });
 exports.getCurrentUser = getCurrentUser;
 const registerDuringCheckoutSchema = zod_1.default.object({
@@ -153,5 +153,5 @@ const registerDuringCheckout = (0, asyncHandler_1.asyncHandler)(async (req, res)
         },
     });
     console.log("New user created during checkout:", newUser);
-    return res.status(201).json(new apiResponse_1.ApiResponse(201, newUser, "User registered successfully during checkout"));
+    res.status(201).json(new apiResponse_1.ApiResponse(201, newUser, "User registered successfully during checkout"));
 });

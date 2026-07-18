@@ -57,7 +57,7 @@ Rules:
             throw new ApiError_js_1.ApiError(500, "Failed to parse AI response");
         }
         console.log("PARSED AI RESPONSE:", parsed);
-        return res
+        res
             .status(200)
             .json(new apiResponse_js_1.ApiResponse(200, parsed, "Product description generated successfully"));
     }

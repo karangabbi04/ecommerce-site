@@ -8,9 +8,6 @@ export const buildProductWhere = (
 ): Prisma.ProductWhereInput => {
   const where: Prisma.ProductWhereInput = {};
 
-  if (query.featured !== undefined) {
-    where.isFeatured = query.featured;
-  }
 
   if (query.category) {
     where.category = query.category;

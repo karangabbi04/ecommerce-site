@@ -4,9 +4,6 @@ exports.buildProductInclude = exports.buildProductOrderBy = exports.buildProduct
 const product_constants_1 = require("../constants/product.constants");
 const buildProductWhere = (query) => {
     const where = {};
-    if (query.featured !== undefined) {
-        where.isFeatured = query.featured;
-    }
     if (query.category) {
         where.category = query.category;
     }
