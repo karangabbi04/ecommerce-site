@@ -1,7 +1,6 @@
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import { pool } from "./db/index.js";
-// import { errorHandler } from "./middlewares/error.middleware.js";
 import productRoutes from "./routes/product.routes.js";
 import aiRoutes from "./routes/ai.routes.js";
 import cookieParser from "cookie-parser";

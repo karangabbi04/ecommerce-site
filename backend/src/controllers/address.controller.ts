@@ -3,7 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { ApiResponse } from "../utils/apiResponse";
 import { createAddressService,getAddresses, } from "../services/address.service";
 import { createAddressSchema } from "../validations/address.validation";
-import { ApiError } from "../utils/ApiError";
+import { ApiError } from "../utils/ApiError.js";
 import { searchAddress } from "../provider/photon.provider";
 import z from "zod";
 import { getLocationwithNomination } from "../provider/nomination.provider";
