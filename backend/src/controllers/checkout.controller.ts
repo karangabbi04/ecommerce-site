@@ -1,6 +1,6 @@
 import { Request,Response } from "express";
 import { ApiResponse } from "../utils/apiResponse.js";
-import { ApiError } from "../utils/ApiError.js";
+import { ApiError } from "../utils/apiError.js";
 import { createCheckoutSession, fetchCheckoutSession} from "../services/checkout.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 

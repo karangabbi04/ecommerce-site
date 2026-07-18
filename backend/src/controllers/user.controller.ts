@@ -3,7 +3,7 @@ import { Request, Response, urlencoded } from "express";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { hashPassword, comparePassword } from "../utils/password.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
+import { ApiError } from "../utils/apiError.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 import { prisma } from "../lib/prisma.js";
 import z from "zod";

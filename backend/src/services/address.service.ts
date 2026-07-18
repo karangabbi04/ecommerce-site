@@ -5,7 +5,7 @@ import { CreateAddressInput } from "../validations/address.validation.js";
 import { otpService } from "./otp.service.js";
 import { prisma } from "../lib/prisma.js";
 import { otpRepository } from "../repositories/otp.repository.js";
-import { ApiError } from "../utils/ApiError.js";
+import { ApiError } from "../utils/apiError.js";
 
 type CreateAddressParams = {
   userId?: string;

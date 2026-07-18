@@ -1,4 +1,4 @@
-import { ApiError } from "../utils/ApiError.js";
+import { ApiError } from "../utils/apiError.js";
 import { razorpay } from "../config/razorpay.js";
 import { prisma } from "../lib/prisma.js";
 import { verifyRazorpaySignature } from "../utils/verify-RazorpaySignature.js";

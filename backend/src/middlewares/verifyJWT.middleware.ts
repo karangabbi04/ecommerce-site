@@ -3,7 +3,7 @@
 import { Request, Response, NextFunction, response } from "express";
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma.js";
-import { ApiError } from "../utils/ApiError.js";
+import { ApiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 type JwtPayload = {

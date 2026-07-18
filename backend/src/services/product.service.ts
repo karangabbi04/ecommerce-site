@@ -1,5 +1,5 @@
 import { ProductQueryDto } from "../DTO/product-query-dto.js";
-import { ApiError } from "../utils/ApiError.js";
+import { ApiError } from "../utils/apiError.js";
 
 import { getPagination, createPagination } from "../utils/pagination.js";
 

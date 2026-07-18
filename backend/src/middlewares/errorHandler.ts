@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-import { ApiError } from "../utils/ApiError.js";
+import { ApiError } from "../utils/apiError.js";
 import { logger } from "../config/logger.js";
 import { parseStackTrace } from "../utils/stackParser.js";
 

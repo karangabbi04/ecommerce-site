@@ -3,7 +3,7 @@ import e, { Request, Response } from "express";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { generateOTP, hashOTP, getOTPExpiryTime } from "../utils/otp.js";
 import { sendOTPEmail } from "../lib/email.js";
-import { ApiError } from "../utils/ApiError.js";
+import { ApiError } from "../utils/apiError.js";
 import {prisma} from "../lib/prisma.js"; 
 import { z } from "zod";
 import { send } from "node:process";

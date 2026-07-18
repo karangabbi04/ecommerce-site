@@ -7,7 +7,7 @@ import { generateOTP, hashOTP, verifyOTP } from "../utils/otp.js";
 import { OTP_REQUEST_INTERVAL } from "../constants/otp.constants.js";
 import { prisma } from "../lib/prisma.js";
 import { ApiResponse } from "../utils/apiResponse.js";
-import { ApiError } from "../utils/ApiError.js";
+import { ApiError } from "../utils/apiError.js";
 
 
 class OTPService {
