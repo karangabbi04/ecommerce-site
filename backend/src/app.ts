@@ -18,7 +18,7 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 const app = express();
 
 app.use(cors(
- { origin: "http://localhost:3000",
+ { origin: process.env.FRONTEND_URL,
   credentials: true,
 }
 ));
