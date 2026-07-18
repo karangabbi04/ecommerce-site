@@ -71,7 +71,7 @@ Rules:
       }
 
       console.log("PARSED AI RESPONSE:", parsed);
-      return res
+       res
         .status(200)
         .json(
           new ApiResponse(

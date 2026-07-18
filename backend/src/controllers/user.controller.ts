@@ -84,7 +84,7 @@ if (!verifiedOTP) {
    },
 });
 
-    return res.status(201).json(new ApiResponse(201, newUser, "User registered successfully")); 
+     res.status(201).json(new ApiResponse(201, newUser, "User registered successfully")); 
 
 
 
@@ -129,7 +129,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
   });
 
 
-  return res.status(200).
+   res.status(200).
   json(new ApiResponse(200, { user: userData }, "User logged in successfully"));
 
 
@@ -159,7 +159,7 @@ const  getCurrentUser  = asyncHandler( async (req: Request, res: Response) => {
     throw new ApiError(404,"user not found");
    }
 
-   return res.status(200).json(
+    res.status(200).json(
     new ApiResponse(200,{user},"currunt user fetched succesulf")
    )
 
@@ -207,7 +207,7 @@ const registerDuringCheckout = asyncHandler(async (req: Request, res: Response) 
       },
     });
     console.log("New user created during checkout:", newUser);
-    return res.status(201).json(new ApiResponse(201, newUser, "User registered successfully during checkout"));
+     res.status(201).json(new ApiResponse(201, newUser, "User registered successfully during checkout"));
 
  
 
