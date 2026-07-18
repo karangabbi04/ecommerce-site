@@ -32,6 +32,14 @@ app.get("/", (_req: Request, res: Response) => {
   res.send("API is running...");
 });
 
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Server is healthy",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.use("/api/v1", productRoutes);
 app.use("/api/v1/ai", aiRoutes);
 app.use("/api/v1/auth", userRoutes);
