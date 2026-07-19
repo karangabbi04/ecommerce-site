@@ -11,8 +11,9 @@ import { it } from "node:test";
  
 export const addToCart = asyncHandler(
   async (req: Request, res: Response) => {
-console.log("Cookies:", req.cookies);
-console.log("Guest:", req.cookies.guest_cart_id);
+console.log("Raw Cookie Header:", req.headers.cookie);
+console.log("Parsed Cookies:", req.cookies);
+console.log("Guest Cookie:", req.cookies?.guest_cart_id);
 
 
     const parsedBody = addToCartSchema.safeParse(req.body);
@@ -43,6 +44,10 @@ console.log("Guest:", req.cookies.guest_cart_id);
 
 export const getCart = asyncHandler(
   async (req: Request, res: Response) => {
+
+    console.log("Raw Cookie Header:", req.headers.cookie);
+console.log("Parsed Cookies:", req.cookies);
+console.log("Guest Cookie:", req.cookies?.guest_cart_id);
     const cart = await cartService.getCart({
       userId: req.user?.id,
       guestId: req.cookies?.guest_cart_id,
