@@ -35,6 +35,16 @@ export const getOrCreateCart = async ({
   guestId,
   res,
 }: GetOrCreateCartParams): Promise<Cart> => {
+
+console.log("Received Guest ID:", guestId);
+
+if (!isValidGuestId(guestId)) {
+  console.log("Creating NEW Guest ID");
+}
+
+if (!isValidGuestId(guestId)) {
+  console.log("Creating NEW Guest ID");
+}
   if (userId) {
     return prisma.cart.upsert({
       where: {
@@ -50,6 +60,8 @@ export const getOrCreateCart = async ({
   let finalGuestId = guestId;
 
   if (!isValidGuestId(finalGuestId)) {
+
+      console.log("Creating NEW Guest ID");
     finalGuestId = createGuestId();
 
     res.cookie(

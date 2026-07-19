@@ -11,6 +11,10 @@ import { it } from "node:test";
  
 export const addToCart = asyncHandler(
   async (req: Request, res: Response) => {
+console.log("Cookies:", req.cookies);
+console.log("Guest:", req.cookies.guest_cart_id);
+
+
     const parsedBody = addToCartSchema.safeParse(req.body);
 
     if (!parsedBody.success) {
