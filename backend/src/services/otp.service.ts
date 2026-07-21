@@ -134,28 +134,28 @@ async sendOTP({ email, purpose }: SendOTPInput) {
 
         }
 
-        // const isValid = verifyOTP(
-        //       otp,
-        //       existingOTP.otpHash
-        //   );
+        const isValid = verifyOTP(
+              otp,
+              existingOTP.otpHash
+          );
 
-        //         if (!isValid) {
+                if (!isValid) {
 
-        //           await otpRepository.incrementAttempts(
-        //               existingOTP.id
-        //           );
+                  await otpRepository.incrementAttempts(
+                      existingOTP.id
+                  );
 
-        //           throw new ApiError(
-        //               400,
-        //               "Invalid OTP."
-        //           );
+                  throw new ApiError(
+                      400,
+                      "Invalid OTP."
+                  );
 
-        //       }
+              }
 
-        //     await otpRepository.deleteOTPById(
-        //       prisma,
-        //       existingOTP.id
-        //   );
+            await otpRepository.deleteOTPById(
+              prisma,
+              existingOTP.id
+          );
 
       return  existingOTP;
 
