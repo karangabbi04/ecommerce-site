@@ -7,86 +7,47 @@ import { ApiError } from "../utils/apiError.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 import { prisma } from "../lib/prisma.js";
 import z from "zod";
+import { registerStart, verifyRegistrationOTP } from "../services/user.service.js";
+import { registerUserSchema, userOtpValidSchema } from "../validations/user.validation.js";
+import { parse } from "node:path";
 
-
-
-    const signUpSchema = z.object({
-      name: z.string().min(1, "Name is required"),
-      email: z.string().email("Invalid email address"),
-      password: z.string().min(8, "Password must be at least 8 characters long"),
-    });
 
 
 const registerUser = asyncHandler(async (req: Request, res: Response) => {
-  
-  const validatedData = signUpSchema.parse(req.body);
 
-const { name, email, password } = validatedData;
+  const parsed = registerUserSchema.parse(req.body)
 
 
-const normalizedEmail = email.toLowerCase().trim();
+     const responce = await registerStart(parsed)
 
-
-  const existingUser = await prisma.user.findUnique(
-    { where: { email:normalizedEmail } });
-
-    if (existingUser) {
-      throw new ApiError(400, "User with this email already exists");
-    }
-
-
-//// check otp is verified or not
-
-const verifiedOTP =
- await prisma.emailOTP.findFirst({
-   where: {
-      email: normalizedEmail,
-      purpose: "SIGNUP",
-      verified: true,
-   },
-   orderBy: {
-      createdAt: "desc",
-   },
- });
-
-
-if (!verifiedOTP) {
-  throw new ApiError(400, "Email not verified. Please verify your email before registering");
-}
+      res.status(201).json(
+      new ApiResponse(201, responce, "user  created successfully in redis")
+    );
 
 
 
-
-
-
-    const hashedPassword = await hashPassword(password);
-
-    const newUser = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        emailVerified: false,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        emailVerified: true,
-        createdAt: true,
-      },
-    });
-
-    await prisma.emailOTP.deleteMany({
-   where: {
-      email: normalizedEmail,
-      purpose: "SIGNUP",
-   },
 });
 
-     res.status(201).json(new ApiResponse(201, newUser, "User registered successfully")); 
+export const verifyUserUsingOtp = asyncHandler(async (req: Request, res: Response) => {
+  const { email, otp } = userOtpValidSchema.parse(req.body);
 
+  const {user,refreshToken,accessToken} = await verifyRegistrationOTP(email, otp);
 
+   res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+
+  });
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+  });
+
+  res.status(200).json(new ApiResponse(200, user, "OTP verified successfully"));
+
+   
 
 });
 
