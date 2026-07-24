@@ -1,5 +1,7 @@
 // components/auth/types.ts
 
+import { tuple } from "zod";
+
 export type SignupFormData = {
   name: string;
   email: string;
@@ -26,3 +28,9 @@ export type VerifyOtpResponse = {
 export type ApiError = {
   message: string;
 };
+
+export type LoginRequest = {
+
+  email:string;
+  password:string;
+}
