@@ -1,21 +1,42 @@
+"use client";
+
 import { useMutation } from "@tanstack/react-query";
-import { signupService ,OtpPayload,createAccoutPayload} from "@/services/signup.service";
+import { toast } from "sonner";
+
+import { signupService } from "@/services/signup.service";
+import { SignupSchema} from "@/validations/signup.validation";
+import { VerifyOtpRequest } from "@/types/signup.types";
 
 
-export const usecreateAccount = () => {
-  return useMutation({
-    mutationFn: (payload: createAccoutPayload) => signupService.createAccount(payload),
-  });
+
+// type UseSignupOptions = {
+//   onOtpSent?: (email: string) => void;
+//   onSignupSuccess?: (user: any) => void;
+// };
+
+export const useSignup = () => {
+ return useMutation({
+     mutationFn: (payload: SignupSchema) => signupService.SignupStart(payload),
+   });
 }
 
-export const useSendOTP = () => {
-  return useMutation({
-    mutationFn: (payload: OtpPayload) => signupService.sendOTP(payload),
-  });
-};
+export const useverifySignup = () => {
+ return useMutation({
+     mutationFn: (payload: VerifyOtpRequest) => signupService.SignupVerify(payload),
+   });
+}
 
-export const useVerifyOTP = () => {
-  return useMutation({
-    mutationFn: (payload: OtpPayload) => signupService.verifyOTP(payload),
-  });
-};
+// const verifyMutation = useMutation({
+//   mutationFn: signupService.SignupVerify,
+// });
+
+//   return {
+//   sendOtp: signupMutation.mutateAsync,
+//   verifyOtp: verifyMutation.mutateAsync,
+
+//   signupError: signupMutation.error,
+//   verifyError: verifyMutation.error,
+
+//   isSendingOtp: signupMutation.isPending,
+//   isVerifyingOtp: verifyMutation.isPending,
+// };
