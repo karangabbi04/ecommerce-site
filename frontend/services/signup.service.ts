@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { signupSchema,SignupSchema,} from "@/validations/signup.validation";
-import { VerifyOtpRequest } from "@/types/signup.types";
+import { LoginRequest, VerifyOtpRequest, } from "@/types/signup.types";
 
 
 
@@ -84,18 +84,18 @@ export const signupService = {
   //   }
   // },
 
-  // async LogIn(payload: LoginPayload) {
-  //   try {
-  //     console.log("LogIn called", payload);
+  async LogIn(payload:LoginRequest) {
+    try {
+      console.log("LogIn called", payload);
 
-  //     const response = await api.post(`/auth/login`, payload);
+      const response = await api.post(`/auth/login`, payload);
 
-  //     console.log("LogIn response", response.data);
+      console.log("LogIn response", response.data);
 
-  //     return response.data.data;
-  //   } catch (error: any) {
-  //     console.log("LogIn error", error?.response?.data || error);
-  //     throw new Error(error?.response?.data?.message || "Login failed");
-  //   }
-  // },
+      return response.data.data;
+    } catch (error: any) {
+      console.log("LogIn error", error?.response?.data || error);
+      throw new Error(error?.response?.data?.message || "Login failed");
+    }
+  },
 };
