@@ -29,9 +29,6 @@ export default function CartDropdown() {
   const { data: cartData } = useCart();
 
   const totalItems = cartData?.totalItems ?? 0;
-  console.log({
-  isDesktop,
-});
 
   if (isDesktop) {
     return (

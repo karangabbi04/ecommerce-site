@@ -110,7 +110,7 @@ export default function LoginPage() {
             const response = await loginMutation.mutateAsync({
                 email: form.email.toLowerCase().trim(),
                  password: form.password,
-            });
+            }) as any;
 
             console.log("login response",response)
 

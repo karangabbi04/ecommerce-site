@@ -1,6 +1,5 @@
 "use client"
 import { AuthCard } from "@/components/signup/signup-card";
-import { AuthHeader } from "@/components/signup/auth-header";
 
 
 import { SignupForm } from "@/components/signup/signup-form";

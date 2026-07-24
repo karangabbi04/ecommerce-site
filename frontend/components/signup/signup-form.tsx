@@ -32,7 +32,7 @@ import { VerifyOtpRequest } from "@/types/signup.types";
 
 export function SignupForm() {
     //   const router = useRouter();
-  const [otpOpen, setOtpOpen] = React.useState(true);
+  const [otpOpen, setOtpOpen] = React.useState(false);
     const [email, setEmail] = React.useState("");
 
   const form = useForm<SignupSchema>({
