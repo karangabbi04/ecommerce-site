@@ -1,15 +1,14 @@
 
-import { Request, Response, urlencoded } from "express";
+import { Request, Response,  } from "express";
 import { ApiResponse } from "../utils/apiResponse.js";
-import { hashPassword, comparePassword } from "../utils/password.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
-import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 import { prisma } from "../lib/prisma.js";
 import z from "zod";
-import { registerStart, verifyRegistrationOTP } from "../services/user.service.js";
+import { loginService, registerStart, verifyLogin, verifyRegistrationOTP } from "../services/user.service.js";
 import { registerUserSchema, userOtpValidSchema } from "../validations/user.validation.js";
-import { parse } from "node:path";
+
+
 
 
 
@@ -54,30 +53,22 @@ export const verifyUserUsingOtp = asyncHandler(async (req: Request, res: Respons
 const loginUser = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
-  const user = await prisma.user.findUnique({ where: { email } });
+    const user = await loginService(email,password)
 
-  if (!user || !user.password) {
-    throw new ApiError(400, "Invalid email or password");
-  }
+   res.status(200).
+  json(new ApiResponse(200, {user}, "User logged in successfully"));
 
-  const isPasswordValid = await comparePassword(password, user.password);
 
-  if (!isPasswordValid) {
-    throw new ApiError(400, "Invalid   password");
-  }
+});
 
-    const userData = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      emailVerified: user.emailVerified,
-      createdAt: user.createdAt,
-    };
-  
-  const accessToken = generateAccessToken({ userId: user.id, email: user.email });
-  const refreshToken = generateRefreshToken({ userId: user.id, email: user.email });
 
-  res.cookie("refreshToken", refreshToken, {
+
+export const loginotpverify = asyncHandler(async (req: Request, res: Response) => {
+  const { email, otp } = userOtpValidSchema.parse(req.body);
+
+  const {user,refreshToken,accessToken} = await verifyLogin(email, otp);
+
+   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: true,
     sameSite: "strict",
@@ -89,12 +80,13 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     sameSite: "strict",
   });
 
+  res.status(200).json(new ApiResponse(200, user, "OTP verified successfully"));
 
-   res.status(200).
-  json(new ApiResponse(200, { user: userData }, "User logged in successfully"));
-
+   
 
 });
+
+
 
 const  getCurrentUser  = asyncHandler( async (req: Request, res: Response) => {
 
