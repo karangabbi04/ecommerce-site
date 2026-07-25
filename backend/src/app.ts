@@ -11,6 +11,7 @@ import checkoutRouter from "./routes/checkout.routes.js";
 import addressRouter from "./routes/address.routes.js"
 import orderRouter from "./routes/order.routes.js"
 import paymentRouter from "./routes/payment.routes.js"
+import adminRouter from "./routes/admin.routes.js"
 import {notFound} from "./middlewares/notFound.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 
@@ -49,6 +50,9 @@ app.use("/api/v1/checkout",checkoutRouter);
 app.use("/api/v1/addresses",addressRouter);
 app.use("/api/v1/order",orderRouter);
 app.use("/api/v1/payment",paymentRouter);
+
+app.use("/api/v1/admin",adminRouter);
+
 
 
 app.use(notFound)
