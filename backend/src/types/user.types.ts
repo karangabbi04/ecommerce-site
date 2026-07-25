@@ -23,3 +23,13 @@ export type RegisterDuringCheckoutDto =
   email: string;
   password: string;
 };
+
+export interface TempAuthUser {
+    id: string;
+    name: string | null;
+    email: string;
+    role: string;
+    phone:number;
+    emailVerified: boolean;
+    createdAt:Date;
+}
