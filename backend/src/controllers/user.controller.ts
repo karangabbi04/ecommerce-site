@@ -66,7 +66,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
 export const loginotpverify = asyncHandler(async (req: Request, res: Response) => {
   const { email, otp } = userOtpValidSchema.parse(req.body);
 
-  const {user,refreshToken,accessToken} = await verifyLogin(email, otp);
+  const {userData,refreshToken,accessToken} = await verifyLogin(email, otp);
 
    res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -80,7 +80,7 @@ export const loginotpverify = asyncHandler(async (req: Request, res: Response) =
     sameSite: "strict",
   });
 
-  res.status(200).json(new ApiResponse(200, user, "OTP verified successfully"));
+  res.status(200).json(new ApiResponse(200, userData, "OTP verified successfully"));
 
    
 
