@@ -9,6 +9,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 type JwtPayload = {
   userId: string;
   email?: string;
+  role?:string
 };
 
 export const verifyJWT = asyncHandler(
