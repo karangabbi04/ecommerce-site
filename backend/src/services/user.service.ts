@@ -117,11 +117,14 @@ const signupData=await redisService.get<SignupCache>(key);
                         const accessToken = generateAccessToken({
                             userId: user.id,
                             email: user.email,
+                            role:user.role,
                         });
 
                         const refreshToken = generateRefreshToken({
                             userId: user.id,
                             email: user.email,
+                            role:user.role,
+
                         });
 
                     return {user,
@@ -195,11 +198,14 @@ export const  verifyLogin = async (email:string,otp:string) => {
         const accessToken = generateAccessToken({
                             userId: user.id,
                             email: user.email,
+                            role:user.role,
                         });
 
                         const refreshToken = generateRefreshToken({
                             userId: user.id,
                             email: user.email,
+                            role:user.role,
+
                         });
 
                     return {userData,
