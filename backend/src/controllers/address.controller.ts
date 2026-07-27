@@ -5,9 +5,41 @@ import { createAddressService,getAddresses, } from "../services/address.service.
 import { createAddressSchema } from "../validations/address.validation.js";
 import { ApiError } from "../utils/apiError.js";
 import { searchAddress } from "../provider/photon.provider.js";
-import z from "zod";
+import z, { email } from "zod";
 import { getLocationwithNomination } from "../provider/nomination.provider.js";
 import { attachAddressToCheckout } from "../services/checkout.service.js";
+
+import { addressOtpsend } from "../services/address.service.js";
+
+
+ const sendOtpschema = z.object({
+  email: z
+    .string()
+    .trim()
+    .email("Enter a valid email address")
+    .max(255),
+ })
+
+
+export const sendAddressOtp = asyncHandler( async (req:Request, res:Response)=>{
+
+   const parsed = sendOtpschema.safeParse(req.body);
+   
+   if (!parsed.success) {
+     throw new ApiError(400, parsed.error.message);
+   }
+
+   const {email} = parsed.data;
+
+      const response = await addressOtpsend(email)
+
+  res.status(201).json(
+      new ApiResponse(201,response,  "otp send successfully  successfully")
+    );
+
+
+})
+
 
 
 export const createAddress = asyncHandler( async (req:Request, res:Response)=>{
