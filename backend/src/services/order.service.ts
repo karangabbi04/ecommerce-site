@@ -465,6 +465,7 @@ export const createOrderService = async (
       });
 
       return {
+        
         orderId: order.id,
         razorpayOrderId:
           razorpayOrder.id,
@@ -475,6 +476,9 @@ export const createOrderService = async (
         key:
           process.env.RAZORPAY_KEY_ID,
       };
-    }
-  );
+      
+    });
+
+  return createOrder;
+
 };
