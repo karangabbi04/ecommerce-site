@@ -36,6 +36,16 @@ function getOwner(
   throw new Error("Unauthorized");
 }
 
+
+export async  function addressOtpsend(email:string) {
+  
+    const otp = await otpService.sendOTP({email,purpose:OtpPurpose.ORDER_CONFIRMATION})
+
+    return 
+
+
+}
+
 export async function createAddressService(
   params: CreateAddressParams
 ) {
@@ -46,16 +56,12 @@ export async function createAddressService(
     guestId
   );
 
-  console.log(owner)
 
   const otpRecord: any = await otpService.verifyOTP({
     email: data.email,
     otp: data.otp,
-    purpose: OtpPurpose.SIGNUP,
+    purpose: OtpPurpose.ORDER_CONFIRMATION,
    });
-
-   console.log(otpRecord,"otep recodfldjaj lklkdsjflk sj kljfklsd ")
-   console.log(otpRecord.id ,"otep recodfldjaj lklkdsjflk sj kljfklsd ")
 
         return prisma.$transaction(async( tx)=>{
 
@@ -88,7 +94,6 @@ export async function createAddressService(
 
       });
 
-      await otpRepository.deleteOTPById(tx, otpRecord?.id);
 
       return address;
         });
