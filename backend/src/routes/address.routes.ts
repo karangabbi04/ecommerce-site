@@ -1,11 +1,12 @@
 import { Router } from "express";
 
-import { createAddress,getAddress,getAddressSuggestions,getcurrentLocation,attachAddress} from "../controllers/address.controller.js";
+import { createAddress,getAddress,getAddressSuggestions,getcurrentLocation,attachAddress, sendAddressOtp} from "../controllers/address.controller.js";
 
 const router = Router();
 
 
 router.post( "/",createAddress);
+router.post( "/sendOtp",sendAddressOtp);
 
 router.get("/", getAddress );
 
