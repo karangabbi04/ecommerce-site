@@ -17,13 +17,13 @@ import { attechAddress } from "@/services/address.service";
 import AddressForm from "@/components/checkoutPage/addressform/index";
 import { useSendOTP } from "../../../hooks/mutations/use-otp";
 
-
+import { sendAddressOtp } from "../../../hooks/mutations/use-address";
 
 export default function CheckoutPage() {
 
   const router = useRouter()
   const checkout = useCheckout();
-  const sendOtp = useSendOTP()
+  const sendOtp = sendAddressOtp()
   const[checkoutId,setcheckoutid]=useState(" ")
   const[addressId,setaddressId]=useState(" ")
   const createAddressMutation = useCreateAddress();
@@ -40,7 +40,7 @@ const handelOtpSend = async (email:string )=>{
 
    try {
     setSendingOtp(true);
-      sendOtp.mutate({ email });
+      sendOtp.mutate( email );
 
     setOtpSent(true);
 

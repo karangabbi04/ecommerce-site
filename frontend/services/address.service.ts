@@ -93,3 +93,20 @@ console.log("attech address api hit");
   return response.data;
 
 }
+
+
+
+ export const  sendOTP = async (email:string)=>{
+    try {
+      console.log("sendOTP called", email);
+
+      const response = await api.post(`/addresses/sendOtp`, {email});
+
+      console.log("sendOTP response", response.data);
+
+      return response.data.data;
+    } catch (error: any) {
+      console.log("sendOTP error", error?.response?.data || error);
+      throw new Error(error?.response?.data?.message || "Signup failed");
+    }
+  }

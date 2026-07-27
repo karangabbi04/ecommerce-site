@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { createAddress, currentLocation, attechAddress } from "@/services/address.service";
+import { createAddress, currentLocation, attechAddress, sendOTP } from "@/services/address.service";
 
 export const usecurrentlocation = () => {
   return useMutation({
@@ -18,5 +18,13 @@ export const useAttechAddress= ()=>{
 
   return useMutation({
     mutationFn : attechAddress,
+  })
+}
+
+
+export const sendAddressOtp= ()=>{
+
+  return useMutation({
+    mutationFn : sendOTP,
   })
 }
