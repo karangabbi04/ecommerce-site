@@ -11,17 +11,24 @@ import checkoutRouter from "./routes/checkout.routes.js";
 import addressRouter from "./routes/address.routes.js"
 import orderRouter from "./routes/order.routes.js"
 import paymentRouter from "./routes/payment.routes.js"
+import paymentwebhook from "./routes/paymentwebhook.route.js"
 import adminRouter from "./routes/admin.routes.js"
 import {notFound} from "./middlewares/notFound.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
 
+app.use(
+  "/api/v1/paymentwebhook",express.raw({ type: "application/json" }),paymentwebhook
+);
+
 app.use(cors(
  { origin: process.env.FRONTEND_URL,
   credentials: true,
 }
 ));
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
@@ -75,3 +82,10 @@ app.get("/db-test", async (_req: Request, res: Response) => {
 
 
 export default app;
+
+
+
+
+
+
+
