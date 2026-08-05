@@ -2,7 +2,7 @@ import { ApiError } from "../utils/apiError.js";
 import { razorpay } from "../config/razorpay.js";
 import { prisma } from "../lib/prisma.js";
 import { verifyRazorpaySignature } from "../utils/verify-RazorpaySignature.js";
-razorpay
+import {PaymentRepository} from "../repositories/payment.repository.js";
 
 export interface VerifyPaymentDto {
   orderId: string;
@@ -184,3 +184,48 @@ export const  paymentService = async (dto:VerifyPaymentDto)=> {
 
 
 }
+
+
+export const handlePaymentWebhook = async(
+event:any
+)=>{
+
+
+await prisma.$transaction(
+async(tx)=>{
+
+const paymentData =
+event.payload.payment.entity;
+
+const payment = await PaymentRepository.findByRazorpayOrderId(paymentData.order_id);
+
+
+
+if(!payment){
+        throw new ApiError(400,"Payment not found");
+}
+
+
+
+        if(event.event==="payment.captured"){
+            await PaymentRepository.updatePayment(tx,payment.id,
+                {
+                    razorpayPaymentId: paymentData.id,
+                    status:"SUCCESS"
+                }   );
+
+
+
+        await tx.order.update(
+            {
+             where:{
+                id:payment.orderId
+            },
+
+            data:{
+            status:"CONFIRMED"
+            }
+        });
+    }
+});
+};
