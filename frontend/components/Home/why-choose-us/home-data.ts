@@ -5,6 +5,7 @@ export const featuredProducts = [
     tag: "Best Seller",
     description: "Smooth-edged glasses made from recycled bottles.",
     gradient: "from-emerald-100 via-white to-cyan-100",
+    image: "https://res.cloudinary.com/dug5p4xso/image/upload/v1778236802/main_kidr1b.jpg",
   },
   {
     name: "Candle Holder",
@@ -12,6 +13,7 @@ export const featuredProducts = [
     tag: "Cozy Decor",
     description: "Minimal glass holder for warm evening lights.",
     gradient: "from-amber-100 via-white to-orange-100",
+    image: "https://i.pinimg.com/1200x/64/27/ea/6427ea29cd76b01790f6cfb6862d9279.jpg",
   },
   {
     name: "Flower Vase",
@@ -19,6 +21,7 @@ export const featuredProducts = [
     tag: "Hand Polished",
     description: "A clean centerpiece crafted for modern tables.",
     gradient: "from-lime-100 via-white to-emerald-100",
+    image:"https://i.pinimg.com/736x/8f/89/55/8f895521cfcc0710acb84b3e6d7255f7.jpg"
   },
   {
     name: "Table Lamp",
@@ -26,6 +29,7 @@ export const featuredProducts = [
     tag: "Premium Pick",
     description: "Recycled glass base with a soft luxury glow.",
     gradient: "from-sky-100 via-white to-indigo-100",
+    image:"https://i.pinimg.com/1200x/ab/07/e0/ab07e05f5c9f27a8aeeda8bd98faefb2.jpg"
   },
 ];
 
