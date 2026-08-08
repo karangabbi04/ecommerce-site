@@ -1,5 +1,5 @@
 export const PRODUCT_CATEGORIES = [
-  "newest",
+
   "All",
   "Glassware",
   "Decor",
@@ -14,11 +14,11 @@ export const SORT_OPTIONS = [
   },
   {
     label: "Price : Low to High",
-    value: "low-high",
+    value: "price_asc",
   },
   {
     label: "Price : High to Low",
-    value: "high-low",
+    value: "price_desc",
   },
 ] as const;
 
