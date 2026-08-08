@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,6 +14,7 @@ type FeaturedProduct = {
   price: string;
   tag: string;
   gradient: string;
+  image: string;
 };
 
 interface FeaturedProductCardProps {
@@ -35,9 +36,14 @@ export function FeaturedProductCard({
             {product.tag}
           </div>
 
-          <div className="relative h-40 w-24 rounded-b-[2.5rem] rounded-t-2xl border border-white/90 bg-white/45 shadow-2xl backdrop-blur-md">
-            <div className="absolute left-1/2 top-[-2.5rem] h-12 w-10 -translate-x-1/2 rounded-t-xl border border-white/90 bg-white/60" />
-            <div className="absolute left-4 top-6 h-24 w-3 rounded-full bg-white/70 blur-sm" />
+          <div className="relative  rounded-b-[2.5rem] rounded-t-2xl border border-white/90 bg-white/45 shadow-2xl backdrop-blur-md">
+           
+                    <Image
+                  src={product.image}
+                  width={400}
+                  height={600 }
+                  alt="" />
+
           </div>
         </div>
       </CardHeader>
