@@ -3,6 +3,7 @@ import { api } from "@/lib/api";
 import { Product } from "@/types/product";
 import { ProductResponse } from "@/types/product";
 import { ProductsParams } from "@/types/product";
+import { ProductSchemaType } from "@/validations/addProduct.validation";
 
 
 
@@ -37,34 +38,22 @@ import { ProductsParams } from "@/types/product";
   },
   // create product 
   createProduct: async (formData: FormData) => {
-     try {
+  
     const res = await api.post("/add-product", formData, {
-    });
+        headers:{
+        "Content-Type":
+        "multipart/form-data"
+        }
+        });
 
     console.log("Product created via API:", res.data);
 
     return res.data;
-    } catch (error: any) {
+   
     
-    console.error("FULL ERROR:", error);
-     if (error.response) {
-      
-      console.error("BACKEND ERROR DATA:", error.response.data);
-      console.error("STATUS:", error.response.status);
-      console.error("HEADERS:", error.response.headers);
 
-      
-      throw new Error(error.response.data?.message || "Backend Error");
-    } else if (error.request) {
-
-      console.error("NO RESPONSE:", error.request);
-      throw new Error("No response from server");
-    } else {
-     
-      console.error("UNKNOWN ERROR:", error.message);
-      throw new Error(error.message);
     }
-  }}
+ 
 };
 
 export { productService };
