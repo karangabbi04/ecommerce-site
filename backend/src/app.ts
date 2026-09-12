@@ -13,6 +13,7 @@ import orderRouter from "./routes/order.routes.js"
 import paymentRouter from "./routes/payment.routes.js"
 import paymentwebhook from "./routes/paymentwebhook.route.js"
 import adminRouter from "./routes/admin.routes.js"
+import categoryRouter from "./routes/category.routes.js"
 import {notFound} from "./middlewares/notFound.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 
@@ -49,6 +50,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/v1", productRoutes);
+app.use("/api/v1", categoryRouter);
 app.use("/api/v1/ai", aiRoutes);
 app.use("/api/v1/auth", userRoutes);
 app.use("/api/v1/otp", otpRouter);
