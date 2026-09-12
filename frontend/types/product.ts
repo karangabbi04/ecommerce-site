@@ -43,3 +43,36 @@ export interface ProductResponse {
 
   
 }
+
+export interface Product {
+
+  name: string;
+
+  description: string;
+
+  category: string;
+
+
+  price: number;
+
+  stock: number;
+
+  createdAt: string;
+}
+
+
+export interface CreateProductPayload {
+
+  name: string;
+
+  description: string;
+
+  category: string;
+
+  images: string[];
+
+  price: number;
+
+  stock: number;
+
+}
