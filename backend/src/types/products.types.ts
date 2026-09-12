@@ -20,3 +20,16 @@ export interface ProductQuery {
 export interface productId{
     id:string,
 }
+
+export interface Product {
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    category: string;
+    featured: boolean;
+    slug: string;
+    stock: number;
+    createdAt: Date;
+    updatedAt: Date;
+}

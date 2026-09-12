@@ -1,110 +1,88 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
-import {prisma} from "../lib/prisma.js";
+import { prisma } from "../lib/prisma.js";
 
 
 
-/**
- * Find Many
- */
-const findMany = <
-  T extends Prisma.ProductFindManyArgs
->(
-  args: Prisma.SelectSubset<
-    T,
-    Prisma.ProductFindManyArgs
-  >
-) => {
-  return prisma.product.findMany(args);
-};
 
-/**
- * Count
- */
-const count = (
-  where?: Prisma.ProductWhereInput
-) => {
-  return prisma.product.count({
-    where,
-  });
-};
+class ProductRepository {
 
-/**
- * Find By Id
- */
-const findById = <
-  T extends Prisma.ProductFindUniqueArgs
->(
-  args: Prisma.SelectSubset<
-    T,
-    Prisma.ProductFindUniqueArgs
-  >
-) => {
-  return prisma.product.findUnique(args);
-};
 
-/**
- * Find By Slug
- */
-const findBySlug = <
-  T extends Prisma.ProductFindFirstArgs
->(
-  args: Prisma.SelectSubset<
-    T,
-    Prisma.ProductFindFirstArgs
-  >
-) => {
-  return prisma.product.findFirst(args);
-};
+   async create( db:PrismaClient | Prisma.TransactionClient,data: {
+    name: string;
+    slug: string;
+    description: string;
+    tag: string;
+    price: number;
+    stock: number;
+    status: Prisma.ProductCreateInput['status'];
+    images: {
+      url: string;
+      publicId: string;
+    }[];
+  }) {
+    return db.product.create({
+      data: {
+        name: data.name,
+        slug: data.slug,
+        description: data.description,
+        tag: data.tag,
+        price: data.price,
+        stock: data.stock,
+        status: data.status,
+        images: {
+          create: data.images.map((image) => ({
+            url: image.url,
+            publicId: image.publicId,
+          })),
+        },
+      },
+      include: {
+        images: true,
+      },
+    });
+  }
 
-/**
- * Create
- */
-const create = <
-  T extends Prisma.ProductCreateArgs
->(
-  args: Prisma.SelectSubset<
-    T,
-    Prisma.ProductCreateArgs
-  >
-) => {
-  return prisma.product.create(args);
-};
+   /**
+   * Find By Slug
+   */
+  async findbyslug(slug: string) {
+    return prisma.product.findUnique({
+      where: {
+        slug,
+      },
+    });
+  }
 
-/**
- * Update
- */
-const update = <
-  T extends Prisma.ProductUpdateArgs
->(
-  args: Prisma.SelectSubset<
-    T,
-    Prisma.ProductUpdateArgs
-  >
-) => {
-  return prisma.product.update(args);
-};
 
-/**
- * Delete
- */
-const remove = <
-  T extends Prisma.ProductDeleteArgs
->(
-  args: Prisma.SelectSubset<
-    T,
-    Prisma.ProductDeleteArgs
-  >
-) => {
-  return prisma.product.delete(args);
-};
+  //find many 
 
-export const productRepository = {
-  findMany,
-  count,
-  findById,
-  findBySlug,
-  create,
-  update,
-  remove,
-};
+  async findMany(args: Prisma.ProductFindManyArgs) {
+    return prisma.product.findMany(args);
+  }
+
+  //count
+  async count(where?: Prisma.ProductWhereInput) {
+    return prisma.product.count({
+      where,
+    });
+  }
+  // find by id
+  async findById(args: Prisma.ProductFindUniqueArgs) {
+    return prisma.product.findUnique(args);
+  }
+
+  //update
+  async update(args: Prisma.ProductUpdateArgs) {
+    return prisma.product.update(args);
+  }
+
+  //delete
+  async remove(args: Prisma.ProductDeleteArgs) {
+    return prisma.product.delete(args);
+  }
+
+}
+
+
+export const productRepository = new ProductRepository();

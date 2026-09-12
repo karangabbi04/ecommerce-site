@@ -53,3 +53,35 @@ export const productIdParamsSchema = z.object({
     id: z.string().uuid("invalid product id")
 })
 export type productId = z.infer<typeof productIdParamsSchema>;
+
+
+export const createProductSchema = z.object({
+  name: z
+    .string()
+    .min(3, "Product name must be at least 3 characters"),
+
+  description: z
+    .string()
+    .min(3, "Description must be at least 10 characters"),
+
+  price: z
+    .coerce.number()
+    .positive("Price must be greater than 0"),
+
+  stock: z
+    .coerce.number()
+    .int("Stock must be an integer")
+    .nonnegative("Stock cannot be negative"),
+
+  category: z
+    .string()
+    .min(2, "Category is required"),
+    
+    status:z.enum(["ACTIVE", "DRAFT","ARCHIVED"]),
+
+    tag: z.string().optional(),
+});
+
+export type CreateProductInput = z.infer<
+  typeof createProductSchema
+>;
