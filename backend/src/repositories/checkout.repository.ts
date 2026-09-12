@@ -10,9 +10,7 @@ export class CheckoutRepository {
   static FindCart(userId: string | undefined, guestId: string | undefined) {
       throw new Error("Method not implemented.");
   }
-  static findCart(userId: string | undefined, guestId: string | undefined) {
-      throw new Error("Method not implemented.");
-  }
+ 
   async findCart(userId?: string, guestId?: string) {
     return prisma.cart.findUnique({
       where: userId ? { userId } : { guestId: guestId! },

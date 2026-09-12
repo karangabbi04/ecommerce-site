@@ -1,4 +1,4 @@
-import { Response ,Request,CookieOptions} from "express";
+import { Response, Request, CookieOptions } from "express";
 import crypto from "crypto";
 import { Cart } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
@@ -11,7 +11,8 @@ const GUEST_CART_MAX_AGE = 1000 * 60 * 60 * 24 * 30; // 30 days
 const guestCartCookieOptions: CookieOptions = {
   httpOnly: true,
   sameSite: "none",
-  secure: process.env.NODE_ENV === "production",
+  // secure: process.env.NODE_ENV === "test",
+  secure: true, // Set to true for production
   maxAge: GUEST_CART_MAX_AGE,
 };
 
@@ -36,15 +37,15 @@ export const getOrCreateCart = async ({
   res,
 }: GetOrCreateCartParams): Promise<Cart> => {
 
-console.log("Received Guest ID:", guestId);
+  console.log("Received Guest ID:", guestId);
 
-if (!isValidGuestId(guestId)) {
-  console.log("Creating NEW Guest ID");
-}
+  if (!isValidGuestId(guestId)) {
+    console.log("Creating NEW Guest ID in 1st check");
+  }
 
-if (!isValidGuestId(guestId)) {
-  console.log("Creating NEW Guest ID");
-}
+  if (!isValidGuestId(guestId)) {
+    console.log("Creating NEW Guest ID in 2nd check");
+  }
   if (userId) {
     return prisma.cart.upsert({
       where: {
@@ -61,7 +62,7 @@ if (!isValidGuestId(guestId)) {
 
   if (!isValidGuestId(finalGuestId)) {
 
-      console.log("Creating NEW Guest ID");
+    console.log("Creating NEW Guest ID  in  final guest id ");
     finalGuestId = createGuestId();
 
     res.cookie(

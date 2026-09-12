@@ -18,9 +18,6 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   const  guestId = req.body?.guestId
 
 
-
-
-
 if (
   !checkoutSessionId ||
   Array.isArray(checkoutSessionId)
@@ -38,6 +35,7 @@ if (
     
 
     const order = await createOrderService(dto);
+
 
      res.status(200).json(new ApiResponse( 200,order,"order  created"));
 });
