@@ -19,9 +19,9 @@ export default function ActivityTimeline({
 
       {/* Timeline */}
 
-      <div className="absolute left-5 top-0 bottom-0 w-px bg-border" />
+      <div className="absolute left-8 top-0 bottom-0 w-px bg-border" />
 
-      <div className="space-y-5">
+      <div className="space-y-2 w-100%">
 
         {activities.map((activity) => (
           <ActivityItem

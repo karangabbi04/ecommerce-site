@@ -11,11 +11,11 @@ const NAV_LINKS = [
   },
   {
     label: "About",
-    href: "/",
+    href: "//",
   },
   {
     label: "Contact",
-    href: "/",
+    href: "////",
   },
 ];
 

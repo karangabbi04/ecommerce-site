@@ -20,7 +20,7 @@ export function RecentActivity() {
             Recent Activity
           </h2>
 
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[12px] text-muted-foreground">
             Latest admin actions across your store.
           </p>
         </div>

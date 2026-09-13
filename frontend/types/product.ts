@@ -4,6 +4,7 @@ export interface ProductImage {
 }
 
 export interface Product {
+  tag: string;
   id: number;
   name: string;
   description: string;

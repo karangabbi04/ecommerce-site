@@ -69,15 +69,11 @@ export function DataTable<TData, TValue>({
   });
 
 return (
-  <div className="space-y-2 bg-red-200 p-4 rounded-xl">
+  <div className="space-y-2 p-4 rounded-xl">
     {/* Main Container */}
 
     <div className="flex items-center justify-between bg-orange-200 p-2 rounded">
-      {/* Toolbar Area */}
 
-      {/* <DataTableToolbar table={table} searchKey={searchKey} /> */}
-
-      {/* <DataTableViewOptions table={table} /> */}
     </div>
 
     <div className="rounded-lg border  p-2">
