@@ -55,7 +55,11 @@ const baseSlug = slugify(productData.name, {
     price: Number(productData.price),
     stock: Number(productData.stock),
     status: productData.status,
-
+    categoryId: {
+      connect: {
+        id: productData.category,
+      },
+    },
     images: uploadedImages.map((image) => ({
       url: image.url,
       publicId: image.publicId,
@@ -112,13 +116,7 @@ const getAllProducts = async (
 
 const getProductById = async (id: string) => {
 
-  const product = await productRepository.findById({
-    where: {
-      id,
-    },
-    include
-
-  });
+  const product = await productRepository.findById(id);
 
   if (!product) {
     throw new ApiError(404, "Product not found");
