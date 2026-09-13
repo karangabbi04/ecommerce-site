@@ -19,7 +19,7 @@ const createProduct = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const productData = result.data;
-  const { name, description, tag, price, stock, status } = productData;
+  const { name, description, tag, price, stock, status, category } = productData;
 
   const files = req.files as Express.Multer.File[];
 

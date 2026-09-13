@@ -10,7 +10,11 @@ export const buildProductWhere = (
 
 
   if (query.category) {
-    where.category = query.category;
+    where.category = {
+      is: {
+        name: query.category,
+      },
+    };
   }
 
   if (query.search) {
@@ -29,8 +33,12 @@ export const buildProductWhere = (
       },
       {
         category: {
-          contains: query.search,
-          mode: "insensitive",
+          is: {
+            name: {
+              contains: query.search,
+              mode: "insensitive",
+            },
+          },
         },
       },
       {
@@ -75,4 +83,5 @@ export const buildProductOrderBy = (
 export const buildProductInclude =
   (): Prisma.ProductInclude => ({
     images: true,
+    category: true,
   });

@@ -15,6 +15,7 @@ class ProductRepository {
     tag: string;
     price: number;
     stock: number;
+    categoryId: Prisma.ProductCreateInput['category'];
     status: Prisma.ProductCreateInput['status'];
     images: {
       url: string;
@@ -30,6 +31,7 @@ class ProductRepository {
         price: data.price,
         stock: data.stock,
         status: data.status,
+        category: data.categoryId,
         images: {
           create: data.images.map((image) => ({
             url: image.url,
@@ -68,9 +70,23 @@ class ProductRepository {
     });
   }
   // find by id
-  async findById(args: Prisma.ProductFindUniqueArgs) {
-    return prisma.product.findUnique(args);
+  async findById(id: string) {
+    return prisma.product.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        images: true,
+        category: {
+          select: {
+            name: true,
+            id: true,
+          },
+        },
+      },
+    });
   }
+ 
 
   //update
   async update(args: Prisma.ProductUpdateArgs) {
