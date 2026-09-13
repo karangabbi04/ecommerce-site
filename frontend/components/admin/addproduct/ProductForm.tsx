@@ -17,10 +17,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { productSchema, ProductSchemaType } from "@/validations/addProduct.validation";
-import { useCreateProduct } from "../../../hooks/mutations/use-addProduct";
+
 import ProductCategorySelect from "./productCategorySelect";
 import ImageUpload from "@/components/comman/image-uplaod/imageUplaod";
 import { SelectTrigger,Select,SelectValue,SelectContent, SelectItem} from "@/components/ui/select";
+import { useCreateProduct } from "@/hooks/mutations/use-addProduct";
 export default function ProductForm() {
   const [isSuccess, setIsSuccess] = useState(false);
 
