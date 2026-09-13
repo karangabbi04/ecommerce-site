@@ -14,7 +14,7 @@ import { useQuantity, type UseQuantityReturn,} from "@/hooks/useQuantity";
 type Product = {
   id: string;
   name: string;
-  category: string;
+  category?: { name: string } | string;
   description: string;
   details?: string;
   tag?: string;
@@ -46,6 +46,8 @@ export default function ProductInfo({
     tag,
   } = product;
 
+  console.log("ProductInfo component rendered with product:", product);
+
   const {
     Quantity,
     increment,
@@ -61,12 +63,12 @@ export default function ProductInfo({
       {/* Top Badges */}
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="secondary">
-          {category}
+          {tag}
         </Badge>
 
-        {tag && (
+        {category && (
           <Badge>
-            {tag}
+            {typeof category === "string" ? category : category.name}
           </Badge>
         )}
 
