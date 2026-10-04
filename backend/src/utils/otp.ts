@@ -20,8 +20,12 @@ export function hashOTP(otp: string): string {
 }
 
 export function verifyOTP(otp: string, hashedOTP: string): boolean {
-    const hash = hashOTP(otp);
-    return hash === hashedOTP;
+    const hash = hashOTP(otp.trim());
+    const hashBuffer = Buffer.from(hash, "hex");
+    const storedHashBuffer = Buffer.from(hashedOTP, "hex");
+
+    return hashBuffer.length === storedHashBuffer.length &&
+        crypto.timingSafeEqual(hashBuffer, storedHashBuffer);
 }
 
 export function getOTPExpiryTime(): number {

@@ -22,6 +22,18 @@ class UserRepository {
     });
   }
 
+  async findRefreshTokenByUserId(userId: string) {
+    return prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        refreshToken: true,
+      },
+    });
+  }
+
   async findByEmail(email: string) {
     return prisma.user.findUnique({
       where: {
@@ -41,7 +53,28 @@ class UserRepository {
         email: data.email,
         password: data.password,
         emailVerified: true,
+        refreshToken: "",
       },
+      select: userSelect,
+    });
+  }
+
+  async updateRefreshToken(
+    db: PrismaClient | Prisma.TransactionClient,
+    userId: string,
+    refreshToken: string
+  ) {
+    return db.user.update({
+      where: { id: userId },
+      data: { refreshToken },
+      select: userSelect,
+    });
+  }
+
+  async clearRefreshToken(userId: string) {
+    return prisma.user.update({
+      where: { id: userId },
+      data: { refreshToken: "" },
       select: userSelect,
     });
   }
@@ -57,6 +90,7 @@ class UserRepository {
         email: data.email,
         phone: data.phone,
         emailVerified: false,
+        refreshToken: "",
       },
       select: userSelect,
     });

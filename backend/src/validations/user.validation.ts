@@ -59,6 +59,7 @@ export const registerDuringCheckoutSchema = z.object({
     otp: z 
     .string()
     .trim()
-    .max(6)
+    .length(6, "OTP must contain exactly 6 digits")
+    .regex(/^\d{6}$/, "OTP must contain exactly 6 digits")
 
 })

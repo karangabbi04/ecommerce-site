@@ -4,7 +4,8 @@ import { ApiError } from "../utils/apiError.js";
 import { hashPassword, comparePassword } from "../utils/password.js";
 import {
     generateAccessToken,
-    generateRefreshToken
+    generateRefreshToken,
+    verifyRefreshToken,
 } from "../utils/token.js";
 
 import { userRepository } from "../repositories/user.repository.js";
@@ -87,22 +88,37 @@ const signupData=await redisService.get<SignupCache>(key);
             throw new ApiError(400,"Signup session expired");
             }
 
-            const user= await prisma.$transaction( async(tx)=>{
+            const { user, accessToken, refreshToken } = await prisma.$transaction(async (tx) => {
 
-                    const createdUser= await userRepository.create(tx,{
+                    const createdUser = await userRepository.create(tx, {
                             
                         name:signupData.name,
                         email:signupData.email,
                         password:signupData.password
-                        }
-                    
+                    });
+
+                    const accessToken = generateAccessToken({
+                        userId: createdUser.id,
+                        email: createdUser.email,
+                        role: createdUser.role,
+                    });
+
+                    const refreshToken = generateRefreshToken({
+                        userId: createdUser.id,
+                        email: createdUser.email,
+                        role: createdUser.role,
+                    });
+
+                    const user = await userRepository.updateRefreshToken(
+                        tx,
+                        createdUser.id,
+                        refreshToken
                     );
 
                     await otpRepository.deleteOTPByEmail(tx,email,OtpPurpose.SIGNUP);
 
 
-
-                    return createdUser;
+                    return { user, accessToken, refreshToken };
 
             });
 
@@ -112,20 +128,6 @@ const signupData=await redisService.get<SignupCache>(key);
                 throw new ApiError(400,"user not created at time time ")
             }
                     await redisService.remove(key);
-
-
-                        const accessToken = generateAccessToken({
-                            userId: user.id,
-                            email: user.email,
-                            role:user.role,
-                        });
-
-                        const refreshToken = generateRefreshToken({
-                            userId: user.id,
-                            email: user.email,
-                            role:user.role,
-
-                        });
 
                     return {user,
                         accessToken,refreshToken
@@ -208,13 +210,55 @@ export const  verifyLogin = async (email:string,otp:string) => {
 
                         });
 
+                        await userRepository.updateRefreshToken(prisma, user.id, refreshToken);
+
                     return {userData,
                         accessToken,refreshToken
+                    };
+};
 
+export const refreshAccessToken = async (refreshToken: string) => {
+    let payload;
 
+    try {
+        payload = verifyRefreshToken(refreshToken);
+    } catch {
+        throw new ApiError(401, "Invalid or expired refresh token");
+    }
 
+    const user = await userRepository.findRefreshTokenByUserId(payload.userId);
 
-}
-}
+    if (!user || user.refreshToken !== refreshToken) {
+        throw new ApiError(401, "Refresh token is no longer valid");
+    }
+
+    const accessToken = generateAccessToken({
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+    });
+
+    return { accessToken };
+};
+
+export const logoutUser = async (refreshToken: string) => {
+    let payload;
+
+    try {
+        payload = verifyRefreshToken(refreshToken);
+    } catch {
+        throw new ApiError(401, "Invalid or expired refresh token");
+    }
+
+    const user = await userRepository.findRefreshTokenByUserId(payload.userId);
+
+    if (!user || user.refreshToken !== refreshToken) {
+        throw new ApiError(401, "Refresh token is no longer valid");
+    }
+
+    await userRepository.clearRefreshToken(user.id);
+
+    return { userId: user.id };
+};
 
 

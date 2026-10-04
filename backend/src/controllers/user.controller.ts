@@ -5,7 +5,14 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { prisma } from "../lib/prisma.js";
 import z from "zod";
-import { loginService, registerStart, verifyLogin, verifyRegistrationOTP } from "../services/user.service.js";
+import {
+  loginService,
+  logoutUser,
+  refreshAccessToken,
+  registerStart,
+  verifyLogin,
+  verifyRegistrationOTP,
+} from "../services/user.service.js";
 import { registerUserSchema, userOtpValidSchema } from "../validations/user.validation.js";
 
 
@@ -44,7 +51,13 @@ export const verifyUserUsingOtp = asyncHandler(async (req: Request, res: Respons
     sameSite: "strict",
   });
 
-  res.status(200).json(new ApiResponse(200, user, "OTP verified successfully"));
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      { user, accessToken, refreshToken },
+      "OTP verified successfully"
+    )
+  );
 
    
 
@@ -56,14 +69,14 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     const user = await loginService(email,password)
 
    res.status(200).
-  json(new ApiResponse(200, {user}, "User logged in successfully"));
+  json(new ApiResponse(200, {user}, "User logged in otp send  successfully"));
 
 
 });
 
 
 
-export const loginotpverify = asyncHandler(async (req: Request, res: Response) => {
+export const loginverify = asyncHandler(async (req: Request, res: Response) => {
   const { email, otp } = userOtpValidSchema.parse(req.body);
 
   const {userData,refreshToken,accessToken} = await verifyLogin(email, otp);
@@ -85,6 +98,53 @@ export const loginotpverify = asyncHandler(async (req: Request, res: Response) =
    
 
 });
+
+export const refreshUserAccessToken = asyncHandler(
+  async (req: Request, res: Response) => {
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (typeof refreshToken !== "string") {
+      throw new ApiError(401, "Refresh token is required");
+    }
+
+    const { accessToken } = await refreshAccessToken(refreshToken);
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
+
+     res
+      .status(200)
+      .json(new ApiResponse(200, { accessToken }, "Access token refreshed"));
+  }
+);
+
+export const logoutUserController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (typeof refreshToken !== "string") {
+      throw new ApiError(401, "Refresh token is required");
+    }
+
+    await logoutUser(refreshToken);
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict" as const,
+    };
+
+    res.clearCookie("refreshToken", cookieOptions);
+    res.clearCookie("accessToken", cookieOptions);
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, null, "User logged out successfully"));
+  }
+);
 
 
 
@@ -149,6 +209,7 @@ const registerDuringCheckout = asyncHandler(async (req: Request, res: Response) 
         email,
         phone,
         emailVerified: false,
+        refreshToken: "",
       },
       select: {
         id: true,
