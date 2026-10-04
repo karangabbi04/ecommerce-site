@@ -1,6 +1,6 @@
-// src/middlewares/auth.middleware.ts
 
-import { Request, Response, NextFunction, response } from "express";
+
+import { Request, Response, NextFunction,  } from "express";
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma.js";
 import { ApiError } from "../utils/apiError.js";
