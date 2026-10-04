@@ -14,6 +14,8 @@ import paymentRouter from "./routes/payment.routes.js"
 import paymentwebhook from "./routes/paymentwebhook.route.js"
 import adminRouter from "./routes/admin.routes.js"
 import categoryRouter from "./routes/category.routes.js"
+import couponRouter from "./routes/coupon.routes.js"
+import trackerRouter from "./routes/orderTrack.routes.js"
 import {notFound} from "./middlewares/notFound.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 
@@ -59,6 +61,8 @@ app.use("/api/v1/checkout",checkoutRouter);
 app.use("/api/v1/addresses",addressRouter);
 app.use("/api/v1/order",orderRouter);
 app.use("/api/v1/payment",paymentRouter);
+app.use("/api/v1/coupon",couponRouter);
+app.use("/api/v1/tracking",trackerRouter);
 
 app.use("/api/v1/admin",adminRouter);
 
