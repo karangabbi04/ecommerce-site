@@ -25,9 +25,19 @@ class AdminRepository {
 
   async findAll() {
     return prisma.order.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
       select: {
         id: true,
+        orderNumber: true,
         customerName: true,
+        customerEmail: true,
+        total: true,
+        status: true,
+        currentStatus: true,
+        paymentStatus: true,
+        createdAt: true,
       },
     });
   }
@@ -40,15 +50,16 @@ class AdminRepository {
       },
     });
   }
+
+  
 }
+
+  
 
 export const adminRepository = new AdminRepository();
 
 export class AnalyticsRepository {
-  // static getRevenue(arg0: { groupBy: any; startDate: Date; endDate: Date; }) {
-  //   throw new Error("Method not implemented.");
-  // }
-
+  
   async getRevenue(filter: RevenueFilter) {
     const { groupBy, startDate, endDate } = filter;
 
@@ -84,6 +95,26 @@ export class AnalyticsRepository {
 `;
 
     return result;
+  }
+
+
+  async orderStats() {
+    return prisma.orderItem.groupBy({
+      by: ["productId"],
+      where: {
+        order:{
+          status:{
+            notIn: ["CANCELLED", "REFUNDED"]
+          }
+        }
+      },
+      _sum: {
+        quantity: true,
+      },
+      _count: {
+        productId: true,
+      },
+    });
   }
 }
 

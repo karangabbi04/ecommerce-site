@@ -105,6 +105,7 @@ class AdminService{
                  accessToken,refreshToken }
 }
 
+//fint total number of order by status and total order count
 
    orderDetail = async ()=>{
 
@@ -125,7 +126,17 @@ class AdminService{
    }
 
 
+  //fint all order for admin
+   
+       allOrders = async () => {
+         const order = await adminRepository.findAll();
 
+          if (!order) {
+            throw new ApiError(400, "something went wrong to fetch orders");
+          }
+
+          return order;
+        };
 }
 
 

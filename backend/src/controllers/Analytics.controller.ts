@@ -41,7 +41,7 @@ import {  analyticsService } from "../services/Analytics.service";
   res.status(200).json(new ApiResponse(200, admin, "OTP verified successfully login sucess full "));
 
 })
-
+///fint total number of order by status and total order count
 
   orderInfo = asyncHandler(async (req: Request, res: Response) => {
 
@@ -51,6 +51,13 @@ import {  analyticsService } from "../services/Analytics.service";
       
       res.status(200).json(new ApiResponse(200, orders, "fetch all order succesfully  "));
 
+  })
+
+  allOrders = asyncHandler(async (_req: Request, res: Response) => {
+    const orders = await adminService.allOrders();
+    res
+      .status(200)
+      .json(new ApiResponse(200, orders, "Orders fetched successfully"));
   })
 
 
