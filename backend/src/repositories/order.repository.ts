@@ -1,7 +1,12 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
+import { ordercreateInput } from "../types/order.types.js";
 
 class OrderRepository {
+  
+  getOrderDetails(orderId: string) {
+    throw new Error("Method not implemented.");
+  }
 
   async findCheckoutSession(checkoutSessionId: string) {
     return prisma.checkoutSession.findUnique({
@@ -42,7 +47,7 @@ class OrderRepository {
 
   async createOrder(
     db: Prisma.TransactionClient | PrismaClient,
-    data: Prisma.OrderCreateInput
+    data:ordercreateInput
   ) {
     return db.order.create({
       data,
@@ -79,6 +84,25 @@ class OrderRepository {
       data: {
       //   status,
       },
+    });
+  }
+
+
+  async findOrderQuery(whereClause: any, offset: any, limit: any) {
+    return prisma.order.findMany({
+      where: whereClause,
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip: offset,
+      take: limit,
+    });
+  }
+
+
+  async countOrders(whereClause: any) {
+    return prisma.order.count({
+      where: whereClause,
     });
   }
 }
