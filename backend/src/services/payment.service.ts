@@ -51,16 +51,6 @@ export const  paymentService = async (dto:VerifyPaymentDto)=> {
             throw new ApiError(400,"payment not found ")
         }
 
-        // if (
-        // payment.status ===
-        // PaymentRecordStatus.SUCCESS
-        // ) {
-
-        // return {
-        // success: true
-        // };
-
-        // }
 
         const isValidSignature = verifyRazorpaySignature({
 
