@@ -29,6 +29,7 @@ model Product {
   imageUrl    String?
   images      ProductImage[]
   cartItems   CartItem[]
+  orderItems  OrderItem[]
   status      ProductStatus   @default(ACTIVE)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -88,6 +89,7 @@ model User {
   updatedAt        DateTime   @updatedAt
   orders           Order[]
   checkoutSessions CheckoutSession[]
+  refreshToken     String
 }
 
 //email otp table 
@@ -162,6 +164,9 @@ model CheckoutSession {
   shipping        Decimal         @db.Decimal(10,2)
   total           Decimal         @db.Decimal(10,2)
   tax             Decimal         @db.Decimal(10,2)
+  couponId        String?
+  couponCode      String?
+  discountAmount  Decimal  @default(0)
 
   expiresAt       DateTime
 
@@ -240,8 +245,9 @@ model Address {
 enum OrderStatus {
   PENDING
   CONFIRMED
-  PROCESSING
+  PACKED
   SHIPPED
+  OUT_FOR_DELIVERY
   DELIVERED
   CANCELLED
   REFUNDED
@@ -252,6 +258,18 @@ enum PaymentStatus {
   PAID
   FAILED
   REFUNDED
+}
+
+model OrderTimeline {
+  id          String      @id @default(cuid())
+  orderId     String       
+  order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  status      OrderStatus // Kis status pe change hua
+  note        String?     // Optional message (e.g., "Packed by Ravi")
+  updatedBy   String?     // Kisne update kiya (Admin ID ya System)
+  createdAt   DateTime    @default(now()) // Kab update hua
+   @@index([orderId])
 }
 
 model Order {
@@ -278,6 +296,8 @@ model Order {
   subtotal        Decimal       @db.Decimal(10,2)
   tax             Decimal       @db.Decimal(10,2)
   shipping        Decimal       @db.Decimal(10,2)
+  couponId        String?
+  couponCode      String?
   discount        Decimal       @default(0) @db.Decimal(10,2)
 
   total           Decimal       @db.Decimal(10,2)
@@ -288,8 +308,18 @@ model Order {
   items           OrderItem[]
   payment         Payment?
 
+  currentStatus   OrderStatus   @default(PENDING)
+  
+
+  timeline        OrderTimeline[]
+
   @@index([guestId])
+  @@index([currentStatus])
 }
+// orderstatus
+
+
+
 
 //oder item 
 
@@ -298,6 +328,7 @@ model OrderItem {
 
   orderId       String
   order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product       Product  @relation(fields: [productId], references: [id])
 
   productId     String
 
@@ -350,4 +381,49 @@ model Payment {
 model OrderCounter {
   id            Int             @id
   value         Int             @default(0)
+}
+
+
+model Coupon {
+  id              String   @id @default(cuid())
+
+  code            String   @unique
+  description     String?
+
+  discountType    CouponDiscountType
+  discountValue   Decimal
+
+  minOrderAmount  Decimal?
+  maxDiscount     Decimal?
+
+  usageLimit      Int?
+  usedCount       Int      @default(0)
+
+  startsAt        DateTime
+  expiresAt       DateTime
+
+  isActive        Boolean  @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  usages          CouponUsage[]
+}
+
+enum CouponDiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+model CouponUsage {
+  id        String   @id @default(cuid())
+
+  couponId  String
+  userId    String?
+
+  orderId   String   @unique
+
+  createdAt DateTime @default(now())
+
+  coupon    Coupon   @relation(fields: [couponId], references: [id])
 }
