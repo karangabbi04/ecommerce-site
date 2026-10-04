@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { createOrder } from "../controllers/order.controller.js";
+import { createOrder, updateStatus,orderQuery } from "../controllers/order.controller.js";
 
 const router = Router();
 
 
+router.post("/updateOrderStatus",updateStatus)
 router.post("/:id",createOrder)
 
 

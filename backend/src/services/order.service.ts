@@ -1,291 +1,20 @@
 
-// import { check } from "zod";
-// import { prisma } from "../lib/prisma.js";
-// import { ApiError } from "../utils/ApiError.js";
-// import { generateOrderNumber } from "../utils/generateOrderNumber.js";
-// import Razorpay from "razorpay";
-// import { razorpay } from "../config/razorpay.js";
 
 
-
-
-//  export interface CreateOrderDto {
-//   checkoutSessionId: string;
-//   userId?: string;
-//   guestId?: string;
-// }
-
-
-// export const createOrderService = async(dto:CreateOrderDto)=>{
-
-// const {
-//     checkoutSessionId,
-//     userId,
-//     guestId
-//   } = dto;
-
-// ///checkout session fetch 
-// console.log(checkoutSessionId)
-
-//     const checkoutSession =
-// await prisma.checkoutSession.findFirst({
-//          where: {
-//             id: checkoutSessionId,
-
-//             // status: "ACTIVE"
-//             },
-
-//             include: {
-//                 items: true,
-//                 address: true
-//             }
-// });
-
-
-//         if (!checkoutSession) {
-//             throw new ApiError(
-//               404,"Checkout session not found")}
-
-//         if (!checkoutSession.address) {
-//             throw new ApiError(
-//              400, "Address required" )}
-        
-//         if (checkoutSession.items.length === 0) {
-//             throw new ApiError(
-//              400,"Cart empty")}
-
-//         if (checkoutSession.expiresAt < new Date()) {
-//             throw new ApiError(
-//             400, "Checkout session expired",)}
-
-
-// /////product validation 
-
-//         const products =
-//         await prisma.product.findMany({
-//         where: {
-//             id: {
-//             in: checkoutSession.items.map(
-//                 i => i.productId
-//                 )
-//             }
-//         }
-//         });
-
-
-//         for (const item of checkoutSession.items) {
-
-//             const product = products.find(
-//                 p => p.id === item.productId
-//             );
-
-//             if (!product) {
-//                 throw new ApiError(
-//                 400,"Product not found"
-//                 );
-//             }
-
-//             if (product.stock < item.quantity) {
-//                 throw new Error(
-//                 `${product.name} out of stock`
-//                 );
-//             }
-//             }
-
-
-// ////////// address snapshot create
-
-
-//             const addressSnapshot = {
-//         fullName:
-//             checkoutSession.address.fullName,
-
-//         phone:
-//             checkoutSession.address.phone,
-
-//         addressLine1:
-//             checkoutSession.address.addressLine1,
-
-//         city:
-//             checkoutSession.address.city,
-
-//         state:
-//             checkoutSession.address.state,
-
-//         country:
-//             checkoutSession.address.country,
-
-//         postalCode:
-//             checkoutSession.address.postalCode,
-
-//         latitude:
-//             checkoutSession.address.latitude,
-
-//         longitude:
-//             checkoutSession.address.longitude
-//         };
-
-
-//       const result =   await prisma.$transaction(
-//         async (tx) => {
-
-// /// create couter or order number
-//             const counter =
-//         await tx.orderCounter.update({
-//             where:{
-//                 id:1
-//             },
-
-//             data:{
-//                 value:{
-//                 increment:1
-//                 }
-//             }
-//             });
-
-
-//             const orderNumber =
-//             generateOrderNumber(
-//             counter.value
-//             );
-
-
-// // create order 
-//                 const order =
-//         await tx.order.create({
-//             data: {
-
-//             orderNumber:orderNumber,
-            
-//             customerName:
-//             checkoutSession?.address?.fullName ?? " ",
-
-//             customerPhone:
-//             checkoutSession?.address?.phone ?? " ",
-
-//             addressId:
-//             checkoutSession.address?.id ?? " ",
-
-//             addressSnapshot,
-
-//             subtotal:
-//             checkoutSession.subtotal,
-
-//             tax:
-//             checkoutSession.tax,
-
-//             shipping:
-//             checkoutSession.shipping,
-
-//             total:
-//             checkoutSession.total
-//         }
-//         });
-
-
-//     //create order item 
-
-//         await tx.orderItem.createMany({
-//                  data:
-//                 checkoutSession.items.map(item => ({
-//                 orderId: order.id,
-
-//                 productId:
-//                     item.productId,
-
-//                 productName:
-//                     item.productName,
-
-//                 quantity:
-//                     item.quantity,
-
-//                 unitPrice:
-//                     item.unitPrice,
-
-//                 totalPrice:
-//                     item.unitPrice.mul(
-//                     item.quantity
-//                     )
-//                 }))
-//             });
-
-
-// // create razorpay order 
-
-
-//         const razorpayOrder =
-//         await razorpay.orders.create({
-
-//             amount:
-//                 Math.round(
-//                 Number(checkoutSession.total) * 100
-//                 ),
-
-//             currency: "INR",
-
-//             receipt: order.id
-//             });
-
-
-// /// create paymnet with pending status 
-
-//         await tx.payment.create({
-//             data: {
-//                 orderId: order.id,
-
-//                 gateway: "RAZORPAY",
-
-//                 amount: checkoutSession.total,
-
-//                 razorpayOrderId:
-//                 razorpayOrder.id,
-
-//                 status: "PENDING"
-//             }
-//             });
-
-
-// ///update checkout session with payment pending 
-
-        
-//         await tx.checkoutSession.update({
-//             where: {
-//                 id: checkoutSession.id
-//             },
-
-//             data: {
-//                 status:
-//                 "PAYMENT_PENDING"
-//             }
-//             });
-        
-
-
-//             return {
-//                 orderId: order.id,
-
-//                 amount:
-//                     Number(checkoutSession.total) * 100,
-
-//                 razorpayOrderId:
-//                     razorpayOrder.id,
-
-//                 key:
-//                     process.env.RAZORPAY_KEY_ID
-//                 };
-
-//   },   
-// )
-// return result
-// }
-
-
-
+import { Op } from "sequelize";
 import { ApiError } from "../utils/apiError.js";
 import { generateOrderNumber } from "../utils/generateOrderNumber.js";
 import { razorpay } from "../config/razorpay.js";
 import { orderRepository } from "../repositories/order.repository.js";
 import { prisma } from "../lib/prisma.js";
+import { CouponService } from "./coupon.service.js";
+import { CouponRepository } from "../repositories/coupon.repository.js";
+import { calculateCheckoutPricing } from "./price.service.js";
+import { OrderStatus } from "@prisma/client";
+import { UpdateOrderStatusRequest } from "../types/order.types.js";
+import { orderTrack } from "../controllers/OrderTracking.controller.js";
+import { TrackingRepsitory } from "../repositories/orderTracking.repository.js";
+import { ApiResponse } from "../utils/apiResponse.js";
 
 
 export interface CreateOrderDto {
@@ -293,6 +22,17 @@ export interface CreateOrderDto {
   userId?: string;
   guestId?: string;
 }
+
+const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  PENDING: [OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
+  CONFIRMED: [OrderStatus.PACKED, OrderStatus.CANCELLED],
+  PACKED: [OrderStatus.SHIPPED, OrderStatus.CANCELLED],
+  SHIPPED: [OrderStatus.OUT_FOR_DELIVERY],
+  OUT_FOR_DELIVERY: [OrderStatus.DELIVERED],
+  DELIVERED: [OrderStatus.REFUNDED],
+  CANCELLED: [],
+  REFUNDED: [],
+};
 
 export const createOrderService = async (
   dto: CreateOrderDto
@@ -336,6 +76,8 @@ export const createOrderService = async (
     );
   }
 
+
+
   const products =
     await orderRepository.findProducts(
       checkoutSession.items.map(
@@ -364,7 +106,38 @@ export const createOrderService = async (
     }
   }
 
+  const coupon = checkoutSession.couponCode
+    ? await CouponRepository.findCoupon(
+        prisma,
+        checkoutSession.couponCode,
+      )
+    : null;
+
+    if(!coupon){
+      throw new ApiResponse(400,"coupon not exist please remove it ")
+    }
+
  
+        const pricing =
+  calculateCheckoutPricing({
+    items: checkoutSession.items.map((item) => ({
+      productId: item.productId,
+      productName: item.productName,
+      quantity: item.quantity,
+      unitPrice: Number(item.unitPrice),
+    })),
+
+    coupon: {
+      id: coupon.id,
+      code: coupon.code,
+      discountType: coupon.discountType,
+      discountValue: (coupon.discountValue),
+      maxDiscount: coupon.maxDiscount
+        ? Number(coupon.maxDiscount)
+        : null,
+    },
+  });
+
 
   const addressSnapshot = {
     fullName: address.fullName,
@@ -394,9 +167,13 @@ export const createOrderService = async (
         generateOrderNumber(counter.value);
 
       const order =
-        await tx.order.create({
-          data: {
+        await orderRepository.createOrder(tx,{
+          
             orderNumber,
+
+            guestId:checkoutSession.guestId ?? undefined,
+            
+            userId:checkoutSession.userId ?? undefined,
 
             customerName:
               address.fullName,
@@ -404,27 +181,56 @@ export const createOrderService = async (
             customerPhone:
               address.phone,
 
-            addressId:
-              address.id,
+          addressId:address.id,
 
             addressSnapshot,
 
+            customerEmail: address?.email ?? undefined,
+
+          couponId: coupon?.id ?? null,
+          couponCode: coupon?.code ?? null,
+
+          discount:pricing.discountAmount,
             subtotal:
-              checkoutSession.subtotal,
+              pricing.subtotal,
 
             tax:
-              checkoutSession.tax,
+              pricing.tax,
 
             shipping:
-              checkoutSession.shipping,
+              pricing.shipping,
 
             total:
-              checkoutSession.total,
-          },
+              pricing.total,
+
+              currentStatus:OrderStatus.PENDING
+      
         });
 
+        await tx.orderTimeline.create({
+        data: {
+          orderId: order.id,
+          status: OrderStatus.PENDING,
+          note: "Order placed successfully.",
+          updatedBy: "SYSTEM",
+        },
+      });
+
+        await tx.couponUsage.create({
+          data: {
+            couponId: coupon.id,
+            orderId: order.id,
+            userId: checkoutSession.userId,
+          },
+        })
+
+        await CouponRepository.incrementUsedCount(
+          tx,
+          coupon.id
+        );
+
       await tx.orderItem.createMany({
-        data: checkoutSession.items.map(item => ({
+        data:checkoutSession.items.map(item => ({
           orderId: order.id,
           productId: item.productId,
           productName: item.productName,
@@ -438,7 +244,7 @@ export const createOrderService = async (
       const razorpayOrder =
         await razorpay.orders.create({
           amount: Math.round(
-            Number(checkoutSession.total) * 100
+            Number(pricing.total) * 100
           ),
           currency: "INR",
           receipt: order.id,
@@ -448,7 +254,7 @@ export const createOrderService = async (
         data: {
           orderId: order.id,
           gateway: "RAZORPAY",
-          amount: checkoutSession.total,
+          amount: pricing.total,
           razorpayOrderId:
             razorpayOrder.id,
           status: "PENDING",
@@ -471,7 +277,7 @@ export const createOrderService = async (
           razorpayOrder.id,
         amount:
           Math.round(
-            Number(checkoutSession.total) * 100
+            Number(pricing.total) * 100
           ),
         key:
           process.env.RAZORPAY_KEY_ID,
@@ -482,3 +288,115 @@ export const createOrderService = async (
   return createOrder;
 
 };
+
+
+
+export const updateOrderStatus = async (orderId:string,data:UpdateOrderStatusRequest)=>{
+
+  const currentOrder = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: { currentStatus: true },
+    });
+
+    if (!currentOrder) {
+      throw new ApiError(404, "Order not found");
+    }
+
+
+     const allowedNextStatuses = VALID_TRANSITIONS[currentOrder.currentStatus];
+    if (!allowedNextStatuses.includes(data.status)) {
+      throw new ApiError(400,
+        `cannot  status transition from ${currentOrder.currentStatus} to ${data.status}`
+      );
+
+      
+    }
+
+    // Transaction me update karo
+    await prisma.$transaction(async (tx) => {
+      // 1. Main order ka status update karo
+      await tx.order.update({
+        where: { id: orderId },
+        data: { currentStatus: data.status },
+      });
+
+      // 2. Timeline me naya entry add karo
+      await tx.orderTimeline.create({
+        data: {
+          orderId: orderId,
+          status: data.status,
+          note: data.note || `Status updated to ${data.status}`,
+          updatedBy: data.updatedBy || "SYSTEM",
+        },
+      });
+    });
+
+    return TrackingRepsitory.orderTrackById(orderId);
+
+}
+
+
+export const  getFilteredOrders = async (queryParams: any) => {
+
+  const { status, dateType, startDate, endDate, page = 1, limit = 10 } = queryParams;
+
+  const whereClause: any = {};
+
+  if (status) {
+    whereClause.currentStatus = status;
+  }
+
+     // Filter by Date Logic (PostgreSQL Timestamp handling)
+    if (dateType === 'today') {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+        
+        // Postgres me range ke liye Op.between best hai
+        whereClause.createdAt = {
+            [Op.between]: [startOfDay, endOfDay]
+        };
+    } 
+    else if (dateType === 'yesterday') {
+        const startOfYesterday = new Date();
+        startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+        startOfYesterday.setHours(0, 0, 0, 0);
+
+        const endOfYesterday = new Date();
+        endOfYesterday.setDate(endOfYesterday.getDate() - 1);
+        endOfYesterday.setHours(23, 59, 59, 999);
+
+        whereClause.createdAt = {
+            [Op.between]: [startOfYesterday, endOfYesterday]
+        };
+    } 
+    else if (startDate && endDate) {
+        // Specific Date Range
+        whereClause.createdAt = {
+            [Op.between]: [
+                new Date(startDate), 
+                new Date(endDate + "T23:59:59.999Z")
+            ]
+        };
+    }
+
+    // 2. Calculate pagination offset (skip ki jagah offset use hota hai SQL me)
+    const offset = (page - 1) * limit
+
+
+    // 3. Call repository
+    const orders = await orderRepository.findOrderQuery(whereClause, offset, limit);
+    const totalOrders = await orderRepository.countOrders(whereClause);
+
+    return {
+        orders,
+        pagination: {
+            total: totalOrders,
+            page,
+            limit,
+            totalPages: Math.ceil(totalOrders / limit)
+        }
+    };
+}

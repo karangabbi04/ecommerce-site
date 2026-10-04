@@ -138,6 +138,7 @@ async sendOTP({ email, purpose }: SendOTPInput) {
               otp,
               existingOTP.otpHash
           );
+          console.log(isValid)
 
                 if (!isValid) {
 
