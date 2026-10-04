@@ -129,4 +129,19 @@ export const getAllProducts = asyncHandler(async (req: Request, res: Response) =
   res.status(200).json(new ApiResponse(200, result, "Products fetched successfully"));
 });
 
-export { createProduct, deleteProduct, getProductById, getProductBySlug };
+
+const getallproductsforadmin = asyncHandler(async (req: Request, res: Response) => {
+
+  const products = await productService.getallproductsforadmin();
+    
+    if (!products) {
+      throw new ApiError(404, "some error occured while fetching products");
+    }
+
+    res.status(200).json(new ApiResponse(200, products, "Products fetched successfully"));
+
+});
+
+export { createProduct, deleteProduct, getProductById, getProductBySlug, getallproductsforadmin };
+
+

@@ -98,6 +98,33 @@ class ProductRepository {
     return prisma.product.delete(args);
   }
 
+  async findall(){
+    return prisma.product.findMany({
+        where: {
+          status:{
+            not: "DRAFT"
+          }
+        },
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          oldPrice: true,
+          stock: true,
+          status: true,
+            images: {
+              select: {
+                url: true,
+              },
+            },
+          },
+        orderBy:{
+          createdAt: "desc"
+        }
+      
+  })
+}
+
 }
 
 
