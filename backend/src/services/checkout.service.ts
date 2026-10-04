@@ -20,6 +20,7 @@ import {
 } from "../utils/checkout.utils.js";
 import { check, iso } from "zod";
 import { logger } from "../config/logger.js";
+import { calculateCheckoutPricing } from "./price.service.js";
 
 type CheckoutInput = {
   userId?: string;
@@ -55,47 +56,38 @@ export const createCheckoutSession = async (
     throw new ApiError(400, "Cart is empty.");
   }
 
-  let subtotal = 0;
 
-  const checkoutItems = cart.items.map((item) => {
-    const { product } = item;
+    const checkoutItems = cart.items.map((item) => {
+  const { product } = item;
 
-    if (product.stock <= 0) {
-      throw new ApiError(
-        400,
-        `${product.name} is currently out of stock.`
-      );
-    }
+  if (product.stock <= 0) {
+    throw new ApiError(
+      400,
+      `${product.name} is currently out of stock.`
+    );
+  }
 
-    if (item.quantity > product.stock) {
-      throw new ApiError(
-        400,
-        `${product.name} has only ${product.stock} items available.`
-      );
-    }
+  if (item.quantity > product.stock) {
+    throw new ApiError(
+      400,
+      `${product.name} has only ${product.stock} items available.`
+    );
+  }
 
-    const itemTotal =
-      Number(product.price) * item.quantity;
+  return {
+    productId: product.id,
+    productName: product.name,
+    quantity: item.quantity,
+    unitPrice: Number(product.price),
+  };
+});
 
-    subtotal += itemTotal;
+const pricing = calculateCheckoutPricing({
+  items: checkoutItems,
+});
 
-    return {
-      productId: product.id,
-      productName: product.name,
-      quantity: item.quantity,
-      unitPrice: product.price,
-    };
-  });
 
-  const shipping = calculateShipping(subtotal);
 
-  const tax = calculateTax(subtotal, GST_RATE);
-
-  const total = calculateTotal(
-    subtotal,
-    shipping,
-    tax
-  );
 
   const session = await prisma.$transaction(
     async (tx: Prisma.TransactionClient) => {
@@ -105,10 +97,10 @@ export const createCheckoutSession = async (
           {
             userId: input.userId,
             guestId: input.guestId,
-            subtotal,
-            shipping,
-            tax,
-            total,
+            subtotal: Number(pricing.subtotal),
+            shipping: Number(pricing.shipping),
+            tax: Number(pricing.tax),
+            total: Number(pricing.total),
             expiresAt: new Date(Date.now() + CHECKOUT_EXPIRY_MINUTES * 60 * 1000)
           }
         );console.log(checkoutSession);

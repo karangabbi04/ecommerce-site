@@ -2,6 +2,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 
 import { prisma } from "../../src/lib/prisma.js";
+import { check } from "zod";
 
 export class CheckoutRepository {
   static findPendingCheckout(userId: string | undefined, guestId: string | undefined) {
@@ -96,6 +97,15 @@ export class CheckoutRepository {
         addressId,
       },
     });
+  }
+
+  async updatecheckout(checkoutId:string,data:any){
+    return prisma.checkoutSession.update({
+      where:{
+        id:checkoutId,
+      },
+      data,
+    })
   }
 }
 
