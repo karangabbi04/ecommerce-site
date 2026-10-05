@@ -105,6 +105,29 @@ class OrderRepository {
       where: whereClause,
     });
   }
+
+
+    async findOrderByRazorpayId(RazorId: string) {
+      return prisma.payment.findUnique({
+        where: {
+          razorpayOrderId: RazorId,
+        },
+        include: {
+          order:true
+        },
+         omit: {
+                id: true,
+
+                razorpayPaymentId: true,
+                razorpaySignature: true,
+                status: true,
+            },
+        
+    })
 }
+}
+  
+
+
 
 export const orderRepository = new OrderRepository();

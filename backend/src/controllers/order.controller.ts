@@ -2,7 +2,7 @@ import { Request,Response } from "express";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { ApiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler";
-import { createOrderService , CreateOrderDto, updateOrderStatus,getFilteredOrders } from "../services/order.service.js";
+import { createOrderService , CreateOrderDto,getOrderDetailsByRazorpayId, updateOrderStatus,getFilteredOrders } from "../services/order.service.js";
 import { UpdateOrderStatusRequest } from "../types/order.types.js";
 
 
@@ -95,4 +95,27 @@ export const orderQuery = asyncHandler(async (req: Request, res: Response) => {
         res.status(200).json(new ApiResponse(200, result, "Orders fetched successfully"));
 
 
+})
+
+
+
+export const getOrderByRazorpayOrderId = asyncHandler(async (req: Request, res: Response) => {
+
+  console.log(req.params)
+
+
+  const RazorId = req.params.RazorId;
+  console.log("RazorId", RazorId);
+
+  if (!RazorId || Array.isArray(RazorId)) {
+    throw new ApiError(400, "Invalid Razorpay order id");
+  }
+
+  const order = await getOrderDetailsByRazorpayId(RazorId);
+
+  if (!order) {
+    throw new ApiError(404, "Order not found");
+  }
+
+  res.status(200).json(new ApiResponse(200, order, "Order fetched successfully"));
 })

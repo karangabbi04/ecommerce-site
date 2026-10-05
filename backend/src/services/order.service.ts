@@ -14,7 +14,6 @@ import { OrderStatus } from "@prisma/client";
 import { UpdateOrderStatusRequest } from "../types/order.types.js";
 import { orderTrack } from "../controllers/OrderTracking.controller.js";
 import { TrackingRepsitory } from "../repositories/orderTracking.repository.js";
-import { ApiResponse } from "../utils/apiResponse.js";
 
 
 export interface CreateOrderDto {
@@ -113,12 +112,11 @@ export const createOrderService = async (
       )
     : null;
 
-    if(!coupon){
-      throw new ApiResponse(400,"coupon not exist please remove it ")
+    if (checkoutSession.couponCode && !coupon) {
+      throw new ApiError(400, "Applied coupon is no longer valid. Remove it and try again.");
     }
 
- 
-        const pricing =
+  const pricing =
   calculateCheckoutPricing({
     items: checkoutSession.items.map((item) => ({
       productId: item.productId,
@@ -127,15 +125,17 @@ export const createOrderService = async (
       unitPrice: Number(item.unitPrice),
     })),
 
-    coupon: {
-      id: coupon.id,
-      code: coupon.code,
-      discountType: coupon.discountType,
-      discountValue: (coupon.discountValue),
-      maxDiscount: coupon.maxDiscount
-        ? Number(coupon.maxDiscount)
-        : null,
-    },
+    coupon: coupon
+      ? {
+          id: coupon.id,
+          code: coupon.code,
+          discountType: coupon.discountType,
+          discountValue: coupon.discountValue,
+          maxDiscount: coupon.maxDiscount
+            ? Number(coupon.maxDiscount)
+            : null,
+        }
+      : null,
   });
 
 
@@ -216,18 +216,17 @@ export const createOrderService = async (
         },
       });
 
-        await tx.couponUsage.create({
-          data: {
-            couponId: coupon.id,
-            orderId: order.id,
-            userId: checkoutSession.userId,
-          },
-        })
+        if (coupon) {
+          await tx.couponUsage.create({
+            data: {
+              couponId: coupon.id,
+              orderId: order.id,
+              userId: checkoutSession.userId,
+            },
+          });
 
-        await CouponRepository.incrementUsedCount(
-          tx,
-          coupon.id
-        );
+          await CouponRepository.incrementUsedCount(tx, coupon.id);
+        }
 
       await tx.orderItem.createMany({
         data:checkoutSession.items.map(item => ({
@@ -399,4 +398,17 @@ export const  getFilteredOrders = async (queryParams: any) => {
             totalPages: Math.ceil(totalOrders / limit)
         }
     };
+}
+
+
+
+export const getOrderDetailsByRazorpayId = async (razorpayOrderId: string) => {
+
+  const orderDetails = await orderRepository.findOrderByRazorpayId(razorpayOrderId);
+
+  if (!orderDetails) {
+    throw new ApiError(404, "Order not found for the given Razorpay Order ID");
+  }
+
+  return orderDetails;
 }

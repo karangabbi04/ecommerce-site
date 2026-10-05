@@ -24,8 +24,8 @@ export interface ordercreateInput {
   subtotal:Decimal
   tax:Decimal             
   shipping:Decimal    
-  couponId?:string
-  couponCode?:string
+  couponId?:string | null
+  couponCode?:string | null
   discount?:Decimal
 
   total:Decimal
