@@ -1,7 +1,6 @@
 
 
 
-import { Op } from "sequelize";
 import { ApiError } from "../utils/apiError.js";
 import { generateOrderNumber } from "../utils/generateOrderNumber.js";
 import { razorpay } from "../config/razorpay.js";
@@ -10,7 +9,7 @@ import { prisma } from "../lib/prisma.js";
 import { CouponService } from "./coupon.service.js";
 import { CouponRepository } from "../repositories/coupon.repository.js";
 import { calculateCheckoutPricing } from "./price.service.js";
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus, Prisma } from "@prisma/client";
 import { UpdateOrderStatusRequest } from "../types/order.types.js";
 import { orderTrack } from "../controllers/OrderTracking.controller.js";
 import { TrackingRepsitory } from "../repositories/orderTracking.repository.js";
@@ -335,51 +334,35 @@ export const updateOrderStatus = async (orderId:string,data:UpdateOrderStatusReq
 }
 
 
-export const  getFilteredOrders = async (queryParams: any) => {
+export const getFilteredOrders = async (queryParams: any) => {
 
   const { status, dateType, startDate, endDate, page = 1, limit = 10 } = queryParams;
 
-  const whereClause: any = {};
+  const whereClause: Prisma.OrderWhereInput = {};
 
   if (status) {
     whereClause.currentStatus = status;
   }
 
-     // Filter by Date Logic (PostgreSQL Timestamp handling)
-    if (dateType === 'today') {
-        const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
-        
-        const endOfDay = new Date();
-        endOfDay.setHours(23, 59, 59, 999);
-        
-        // Postgres me range ke liye Op.between best hai
-        whereClause.createdAt = {
-            [Op.between]: [startOfDay, endOfDay]
-        };
-    } 
-    else if (dateType === 'yesterday') {
-        const startOfYesterday = new Date();
-        startOfYesterday.setDate(startOfYesterday.getDate() - 1);
-        startOfYesterday.setHours(0, 0, 0, 0);
+  const startOfDay = (date: Date) =>
+    new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-        const endOfYesterday = new Date();
-        endOfYesterday.setDate(endOfYesterday.getDate() - 1);
-        endOfYesterday.setHours(23, 59, 59, 999);
-
-        whereClause.createdAt = {
-            [Op.between]: [startOfYesterday, endOfYesterday]
-        };
-    } 
-    else if (startDate && endDate) {
-        // Specific Date Range
-        whereClause.createdAt = {
-            [Op.between]: [
-                new Date(startDate), 
-                new Date(endDate + "T23:59:59.999Z")
-            ]
-        };
-    }
+  if (dateType === "today") {
+    const start = startOfDay(new Date());
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+    whereClause.createdAt = { gte: start, lt: end };
+  } else if (dateType === "yesterday") {
+    const end = startOfDay(new Date());
+    const start = new Date(end);
+    start.setDate(start.getDate() - 1);
+    whereClause.createdAt = { gte: start, lt: end };
+  } else if (startDate && endDate) {
+    const start = new Date(`${startDate}T00:00:00`);
+    const end = new Date(`${endDate}T00:00:00`);
+    end.setDate(end.getDate() + 1);
+    whereClause.createdAt = { gte: start, lt: end };
+  }
 
     // 2. Calculate pagination offset (skip ki jagah offset use hota hai SQL me)
     const offset = (page - 1) * limit
