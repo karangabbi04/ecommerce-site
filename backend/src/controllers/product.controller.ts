@@ -5,7 +5,7 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import { prisma } from "../lib/prisma.js";
 import { uploadToCloudinary } from "../utils/CloudinaryUpload.js";
 
-import { productQuerySchema,productIdParamsSchema,createProductSchema } from "../validations/product-validation.js";
+import { adminProductQuerySchema, productQuerySchema,productIdParamsSchema,createProductSchema } from "../validations/product-validation.js";
 
 import { productService } from "../services/product.service.js";
 
@@ -131,14 +131,14 @@ export const getAllProducts = asyncHandler(async (req: Request, res: Response) =
 
 
 const getallproductsforadmin = asyncHandler(async (req: Request, res: Response) => {
+  const parsedQuery = adminProductQuerySchema.safeParse(req.query);
+  if (!parsedQuery.success) {
+    throw new ApiError(400, JSON.stringify(parsedQuery.error.flatten()));
+  }
 
-  const products = await productService.getallproductsforadmin();
-    
-    if (!products) {
-      throw new ApiError(404, "some error occured while fetching products");
-    }
+  const products = await productService.getallproductsforadmin(parsedQuery.data);
 
-    res.status(200).json(new ApiResponse(200, products, "Products fetched successfully"));
+  res.status(200).json(new ApiResponse(200, products, "Products fetched successfully"));
 
 });
 

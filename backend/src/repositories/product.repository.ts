@@ -98,20 +98,31 @@ class ProductRepository {
     return prisma.product.delete(args);
   }
 
-  async findall(){
+  async findall(
+    where: Prisma.ProductWhereInput = {},
+    skip = 0,
+    take = 10
+  ) {
     return prisma.product.findMany({
-        where: {
-          status:{
-            not: "DRAFT"
-          }
-        },
+        where,
+        skip,
+        take,
         select: {
           id: true,
           name: true,
+          slug: true,
+          description: true,
           price: true,
           oldPrice: true,
           stock: true,
           status: true,
+          categoryId: true,
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
             images: {
               select: {
                 url: true,
@@ -124,6 +135,10 @@ class ProductRepository {
       
   })
 }
+
+  async countAll(where: Prisma.ProductWhereInput = {}) {
+    return prisma.product.count({ where });
+  }
 
 }
 

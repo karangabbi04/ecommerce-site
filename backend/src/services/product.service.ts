@@ -11,6 +11,8 @@ import { transformProduct, transformProducts,} from "../helper/product-transform
 import { productRepository } from "../repositories/product.repository.js";
 import {CreateProductInput} from "../validations/product-validation.js"
 import { analyticsRepository } from "../repositories/Analytics.repository.js";
+import type { AdminProductQueryDto } from "../validations/product-validation.js";
+import { Prisma } from "@prisma/client";
 
 interface CreateProductParams {
   productData: CreateProductInput;
@@ -126,45 +128,60 @@ const getProductById = async (id: string) => {
   return product;
 };
 
- const getallproductsforadmin = async () => {
+const getallproductsforadmin = async (query: AdminProductQueryDto) => {
+  const where: Prisma.ProductWhereInput = {};
+  const { skip, take } = getPagination(query);
 
-  const products = await productRepository.findall();
-  const orderItemsCount = await analyticsRepository.orderStats();
+  if (query.status && query.status !== "ALL") {
+    where.status = query.status;
+  }
 
- 
-    if (!products) {
-      throw new ApiError(404, "some error occured while fetching products");
-    }
+  if (query.categoryId) {
+    where.categoryId = query.categoryId;
+  }
 
-   
+  if (query.search) {
+    where.name = { contains: query.search, mode: "insensitive" };
+  }
 
-    const productsWithOrderCount = products.map((product) => {
-      const orderItem = orderItemsCount.find(
-        (item) => item.productId === product.id
-      );
+  if (query.stockStatus === "LOW_STOCK") {
+    where.stock = { gt: 0, lt: query.lowStockThreshold };
+  } else if (query.stockStatus === "OUT_OF_STOCK") {
+    where.stock = 0;
+  } else if (query.stockStatus === "IN_STOCK") {
+    where.stock = { gte: query.lowStockThreshold };
+  }
 
-      let stockStatus: "OUT_OF_STOCK" | "LOW_STOCK" | "IN_STOCK";
+  const [products, totalProducts, orderItemsCount] = await Promise.all([
+    productRepository.findall(where, skip, take),
+    productRepository.countAll(where),
+    analyticsRepository.orderStats(),
+  ]);
 
-        if (product.stock === 0) {
-          stockStatus = "OUT_OF_STOCK";
-        } else if (product.stock < 10) {
-          stockStatus = "LOW_STOCK";
-        } else {
-          stockStatus = "IN_STOCK";
-        }
+  return {
+    products: products.map((product) => {
+    const orderItem = orderItemsCount.find(
+      (item) => item.productId === product.id
+    );
+    const stockStatus = product.stock === 0
+      ? "OUT_OF_STOCK"
+      : product.stock < query.lowStockThreshold
+        ? "LOW_STOCK"
+        : "IN_STOCK";
 
-      const orderCount = orderItem ? orderItem._count.productId : 0;
-      return {
-        ...product,
-        orderCount,
-        stockStatus
-      };
-    });
-
-    return productsWithOrderCount;
-
-    
-}
+    return {
+      ...product,
+      orderCount: orderItem?._count.productId ?? 0,
+      stockStatus,
+    };
+    }),
+    pagination: createPagination({
+      page: query.page,
+      limit: query.limit,
+      total: totalProducts,
+    }),
+  };
+};
 
 
 export const productService = {
