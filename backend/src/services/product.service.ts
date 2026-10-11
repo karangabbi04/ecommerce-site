@@ -128,6 +128,18 @@ const getProductById = async (id: string) => {
   return product;
 };
 
+const updateProductStatus = async (
+  id: string,
+  status: Prisma.ProductUpdateInput["status"]
+) => {
+  const product = await productRepository.findById(id);
+  if (!product) {
+    throw new ApiError(404, "Product not found");
+  }
+
+  return productRepository.updateStatus(id, status);
+};
+
 const getallproductsforadmin = async (query: AdminProductQueryDto) => {
   const where: Prisma.ProductWhereInput = {};
   const { skip, take } = getPagination(query);
@@ -183,12 +195,57 @@ const getallproductsforadmin = async (query: AdminProductQueryDto) => {
   };
 };
 
+const updateProductPrice = async (id: string, price: number, reason:string) => {
+  const product = await productRepository.findById(id);
+  if (!product) {
+    throw new ApiError(404, "Product not found");
+  }
+
+
+  const oldPrice = Number(product.price);
+
+  if (!Number.isFinite(price) || price <= 0) {
+    throw new ApiError(400, "Price must be a positive number");
+  }
+
+  return prisma.$transaction(async (tx) => {
+
+    const updatedProduct = await productRepository.updatePrice(tx, id, price, oldPrice);
+
+    if (oldPrice !== price) {
+      await tx.priceHistory.create({
+        data: {
+          productId: id,
+          oldPrice,
+          newPrice: price,
+          reason: reason ,
+          changedBy: "SYSTEM",
+        },
+      });
+    }
+
+    return updatedProduct;
+  });
+};
+
+
+const priceHistory = async (id: string) => {
+  const product = await productRepository.findById(id);
+  if (!product) {
+    throw new ApiError(404, "Product not found");
+  }
+    const history = await productRepository.pricehistory(prisma, id);
+    return history;
+  };
 
 export const productService = {
 
   getAllProducts,
   getProductById,
+  updateProductStatus,
   createProducts,
   getallproductsforadmin,
+  updateProductPrice,
+  priceHistory,
 
 };

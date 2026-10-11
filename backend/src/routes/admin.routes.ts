@@ -2,7 +2,7 @@ import { Router } from "express";
 import { adminController } from "../controllers/Analytics.controller";
 import { verifyJWT } from "../middlewares/verifyJWT.middleware";
 import { createCategory,deleteCategory } from "../controllers/category.controller";
-import {getallproductsforadmin} from "../controllers/product.controller";
+import {getallproductsforadmin, updateProductStatus,updateProductPrice,getProductPriceHistory} from "../controllers/product.controller";
 import { orderQuery } from "../controllers/order.controller";
 const router =Router()
 
@@ -16,6 +16,9 @@ router.get("/revenue",adminController.revenueDetail)
 router.post("/add-category",createCategory)
 router.delete("/categories/:id",deleteCategory);
 router.get("/products",getallproductsforadmin);
+router.patch("/products/:id/status", updateProductStatus);
+router.patch("/products/:id/price", updateProductPrice);
+router.get("/products/:id/history", getProductPriceHistory);
 
 router.get("/order-query",orderQuery)
 

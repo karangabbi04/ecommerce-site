@@ -5,7 +5,7 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import { prisma } from "../lib/prisma.js";
 import { uploadToCloudinary } from "../utils/CloudinaryUpload.js";
 
-import { adminProductQuerySchema, productQuerySchema,productIdParamsSchema,createProductSchema } from "../validations/product-validation.js";
+import { adminProductQuerySchema, productQuerySchema,productIdParamsSchema,createProductSchema, productStatusUpdateSchema } from "../validations/product-validation.js";
 
 import { productService } from "../services/product.service.js";
 
@@ -142,6 +142,74 @@ const getallproductsforadmin = asyncHandler(async (req: Request, res: Response) 
 
 });
 
-export { createProduct, deleteProduct, getProductById, getProductBySlug, getallproductsforadmin };
+const updateProductStatus = asyncHandler(async (req: Request, res: Response) => {
+  const params = productIdParamsSchema.safeParse(req.params);
+  if (!params.success) {
+    throw new ApiError(400, JSON.stringify(params.error.flatten()));
+  }
+
+  const body = productStatusUpdateSchema.safeParse(req.body);
+  if (!body.success) {
+    throw new ApiError(400, JSON.stringify(body.error.flatten()));
+  }
+
+  const product = await productService.updateProductStatus(
+    params.data.id,
+    body.data.status
+  );
+
+  res.status(200).json(
+    new ApiResponse(200, product, "Product status updated successfully")
+  );
+});
+
+const updateProductPrice = asyncHandler(async (req: Request, res: Response) => {
+  const params = productIdParamsSchema.safeParse(req.params);
+  if (!params.success) {
+    throw new ApiError(400, JSON.stringify(params.error.flatten()));
+  }
+
+  const { price } = req.body;
+  if (typeof price !== "number" || price < 0) {
+    throw new ApiError(400, "Invalid price value");
+  }
+
+  const reason = req.body.reason ;
+  console.log("Reason for price change:", reason);
+
+  if (!reason || typeof reason !== "string" || reason.trim() === "") {
+    throw new ApiError(400, "Reason for price change is required and must be a non-empty string");
+  }
+
+  const product = await productService.updateProductPrice(params.data.id, price,reason);
+
+  res.status(200).json(
+    new ApiResponse(200, product, "Product price updated successfully")
+  );
+});
+
+const getProductPriceHistory = asyncHandler(async (req: Request, res: Response) => {
+  const params = productIdParamsSchema.safeParse(req.params);
+  if (!params.success) {
+    throw new ApiError(400, JSON.stringify(params.error.flatten()));
+  }
+
+  const history = await productService.priceHistory(params.data.id);
+
+  res.status(200).json(
+    new ApiResponse(200, history, "Product price history fetched successfully")
+  );
+});
+
+export { 
+    createProduct,
+    updateProductPrice,
+     deleteProduct,
+     getProductById,
+     getProductBySlug,
+     getallproductsforadmin,
+      updateProductStatus,
+      getProductPriceHistory 
+  };
 
 

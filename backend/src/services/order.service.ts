@@ -30,6 +30,7 @@ const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   DELIVERED: [OrderStatus.REFUNDED],
   CANCELLED: [],
   REFUNDED: [],
+  PROCESSING: []
 };
 
 export const createOrderService = async (

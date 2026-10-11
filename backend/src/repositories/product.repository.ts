@@ -93,6 +93,19 @@ class ProductRepository {
     return prisma.product.update(args);
   }
 
+  async updateStatus(id: string, status: Prisma.ProductUpdateInput["status"]) {
+    return prisma.product.update({
+      where: { id },
+      data: { status },
+      include: {
+        images: true,
+        category: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+  }
+
   //delete
   async remove(args: Prisma.ProductDeleteArgs) {
     return prisma.product.delete(args);
@@ -138,6 +151,31 @@ class ProductRepository {
 
   async countAll(where: Prisma.ProductWhereInput = {}) {
     return prisma.product.count({ where });
+  }
+
+
+  async updatePrice(
+    db: Prisma.TransactionClient | PrismaClient,
+    id: string,
+    price: number,
+    oldPrice: number,
+  ) {
+    return db.product.update({
+      where: { id },
+      data: {
+        price,
+        oldPrice,
+      },
+    });
+  }
+
+
+  async pricehistory(db: Prisma.TransactionClient | PrismaClient,productId: string) { 
+      return db.priceHistory.findMany({
+        where: { productId },
+        orderBy: { changedAt: "desc" },
+        take: 10,
+      });
   }
 
 }

@@ -66,6 +66,12 @@ export const productIdParamsSchema = z.object({
 })
 export type productId = z.infer<typeof productIdParamsSchema>;
 
+export const productStatusUpdateSchema = z.object({
+  status: z.enum(["ACTIVE", "ARCHIVED"]),
+});
+
+export type ProductStatusUpdateInput = z.infer<typeof productStatusUpdateSchema>;
+
 
 export const createProductSchema = z.object({
   name: z
