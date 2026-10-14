@@ -44,7 +44,7 @@ class AdminRepository {
 
   async findTotalOrder() {
     return prisma.order.groupBy({
-      by: ["status"],
+      by: ["currentStatus"],
       _count: {
         id: true,
       },

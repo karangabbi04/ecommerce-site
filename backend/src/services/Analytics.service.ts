@@ -117,7 +117,7 @@ class AdminService{
 
        // findTotalOrder returns an array grouped by status; map to a more usable shape
        const orderData = order.map(o => ({
-         status: o.status,
+         status: o.currentStatus,
          count: o._count?.id ?? 0,
        }));
 
