@@ -51,6 +51,7 @@ export const adminProductQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(DEFAULT_PAGE),
   limit: z.coerce.number().int().min(1).max(MAX_LIMIT).default(DEFAULT_LIMIT),
   status: z.enum(["ALL", "ACTIVE", "DRAFT", "ARCHIVED"]).optional(),
+  sort: z.enum(PRODUCT_SORT_VALUES as [string, ...string[]]).optional(),
   stockStatus: z.enum(["LOW_STOCK", "OUT_OF_STOCK", "IN_STOCK"]).optional(),
   categoryId: z.string().trim().min(1).optional(),
   search: z.string().trim().optional(),

@@ -143,6 +143,7 @@ const updateProductStatus = async (
 const getallproductsforadmin = async (query: AdminProductQueryDto) => {
   const where: Prisma.ProductWhereInput = {};
   const { skip, take } = getPagination(query);
+  const orderBy = buildProductOrderBy(query.sort);
 
   if (query.status && query.status !== "ALL") {
     where.status = query.status;
@@ -165,7 +166,7 @@ const getallproductsforadmin = async (query: AdminProductQueryDto) => {
   }
 
   const [products, totalProducts, orderItemsCount] = await Promise.all([
-    productRepository.findall(where, skip, take),
+    productRepository.findall(where, skip, take, orderBy),
     productRepository.countAll(where),
     analyticsRepository.orderStats(),
   ]);
