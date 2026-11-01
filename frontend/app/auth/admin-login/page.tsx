@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, FormEvent, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, FormEvent } from "react";
+import { toast } from "react-hot-toast";
 import {
   Card,
   CardContent,
@@ -13,82 +13,50 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
 import { OtpDialog } from "@/components/signup/otp-dialog";
+import {
+  useAdminLogin,
+  useAdminLoginVerify,
+} from "@/hooks/mutations/use-admin-signup";
 
 export default function AdminLogin() {
-  const router = useRouter();
-  
-  // States for Login Form
+  const loginMutation = useAdminLogin();
+  const verifyMutation = useAdminLoginVerify();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoginLoading, setIsLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
-
-  // States for OTP Dialog
   const [isOtpDialogOpen, setIsOtpDialogOpen] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [isOtpLoading, setIsOtpLoading] = useState(false);
-  const [otpError, setOtpError] = useState("");
-  const otpInputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-focus OTP input when dialog opens
-  useEffect(() => {
-    if (isOtpDialogOpen && otpInputRef.current) {
-      otpInputRef.current.focus();
-    }
-  }, [isOtpDialogOpen]);
-
-  // 1. Handle Email/Password Login
   const handleLoginSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoginError("");
 
-    // Basic Validation
     if (!email || !password) {
       setLoginError("Please enter both email and password.");
       return;
     }
 
-    setIsLoginLoading(true);
-
     try {
-      // TODO: Yahan apna actual API call lagana (e.g., axios or fetch)
-      // const response = await fetch('/api/admin/login', { ... })
-      
-      // Mock API call (Replace with actual logic)
-      await new Promise((resolve) => setTimeout(resolve, 1000)); 
-      
-      // Agar credentials sahi hain, to OTP dialog open karo
-      // (Backend se OTP send karne ka logic yahan trigger hoga)
+      await loginMutation.mutateAsync({ email, password });
       setIsOtpDialogOpen(true);
     } catch (error) {
-      setLoginError("Invalid credentials. Please try again.");
-    } finally {
-      setIsLoginLoading(false);
+      setLoginError(
+        error instanceof Error ? error.message : "Unable to log in. Please try again.",
+      );
     }
   };
 
-  // 2. Handle OTP Verification
-async function handleVerify(otp: string) {
-    // Implement OTP verification logic using stored email
+  async function handleVerify(otp: string) {
     try {
-      await verifySignup.mutateAsync({ otp, email });
-      toast.success("Account created successfully.");
-    //   router.push("/login")
-    } catch (error: any) {
-      toast.error(error.message);
+      await verifyMutation.mutateAsync({ email, otp });
+      toast.success("Admin login verified successfully.");
+      setIsOtpDialogOpen(false);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "OTP verification failed.",
+      );
     }
-  }
-
-    async function handleResend() {
-    // Implement OTP resend logic
   }
 
   return (
@@ -117,7 +85,7 @@ async function handleVerify(otp: string) {
                 placeholder="admin@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoginLoading}
+                disabled={loginMutation.isPending}
                 required
               />
             </div>
@@ -130,7 +98,7 @@ async function handleVerify(otp: string) {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoginLoading}
+                disabled={loginMutation.isPending}
                 required
               />
             </div>
@@ -140,9 +108,9 @@ async function handleVerify(otp: string) {
             <Button 
               type="submit" 
               className="w-full" 
-              disabled={isLoginLoading}
+              disabled={loginMutation.isPending}
             >
-              {isLoginLoading ? "Authenticating..." : "Login"}
+              {loginMutation.isPending ? "Authenticating..." : "Login"}
             </Button>
           </CardFooter>
         </form>
@@ -153,10 +121,9 @@ async function handleVerify(otp: string) {
       <OtpDialog
               open={isOtpDialogOpen}
               email={email}
-              // isLoading={isVerifyingOtp}
+              isLoading={verifyMutation.isPending}
               onOpenChange={setIsOtpDialogOpen}
               onVerify={handleVerify}
-              onResend={handleResend}
             />
     </div>
   );
