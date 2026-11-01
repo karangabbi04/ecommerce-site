@@ -76,21 +76,17 @@ export default function ImageUpload<
   /*
    * Create previews whenever files change.
    */
-  useEffect(() => {
-    const urls = files.map((file) => URL.createObjectURL(file));
-
-    setPreviewUrls(urls);
-
-    /*
-     * Cleanup object URLs when files change
-     * or component unmounts.
-     */
-    return () => {
-      urls.forEach((url) => {
-        URL.revokeObjectURL(url);
-      });
-    };
-  }, [files]);
+ useEffect(() => {
+  const urls = files
+    .filter((file) => file instanceof File) // ✅ Sirf File objects ko filter karo
+    .map((file) => URL.createObjectURL(file));
+  
+  setPreviewUrls(urls);
+  
+  return () => {
+    urls.forEach((url) => URL.revokeObjectURL(url));
+  };
+}, [files]);
 
   /*
    * Handle rejected files from react-dropzone.
