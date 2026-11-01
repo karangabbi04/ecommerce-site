@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -58,6 +58,22 @@ const columns: ColumnConfig<AdminOrder>[] = [
 ];
 
 export default function OrdersPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="space-y-6 p-6">
+          <div className="rounded-md border bg-background p-8 text-center text-muted-foreground">
+            Loading orders...
+          </div>
+        </main>
+      }
+    >
+      <OrdersContent />
+    </Suspense>
+  );
+}
+
+function OrdersContent() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
