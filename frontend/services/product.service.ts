@@ -52,7 +52,44 @@ import { ProductSchemaType } from "@/validations/addProduct.validation";
    
     
 
+    },
+
+    getAllProductForAdmin: async (searchPrams: Record<string, string | number | undefined>) => {
+
+     const res = await api.get("/admin/products", {
+            params: searchPrams,
+  });
+    if(!res){
+        console.log("No response from server");
     }
+    console.log("Products fetched from API:", res.data.data);
+
+    // agar backend response { success:true, data:[...] } deta hai
+    return res.data.data;
+  },
+
+  updateProductStatus: async (payload: {
+    productId: string;
+    status: "ACTIVE" | "ARCHIVED";
+  }) => {
+    const res = await api.patch(
+      `/admin/products/${payload.productId}/status`,
+      { status: payload.status }
+    );
+    return res.data.data;
+  },
+
+  updateProductPrice: async (payload: {
+    productId: string;
+    price: number;
+    reason: string;
+  }) => {
+    const res = await api.patch(
+      `/admin/products/${payload.productId}/price`,
+      { price: payload.price, reason: payload.reason }
+    );
+    return res.data.data;
+  },
  
 };
 
