@@ -30,6 +30,7 @@ model Product {
   images      ProductImage[]
   cartItems   CartItem[]
   orderItems  OrderItem[]
+  priceHistory PriceHistory[]
   status      ProductStatus   @default(ACTIVE)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -39,6 +40,24 @@ enum ProductStatus {
     ACTIVE
     DRAFT
     ARCHIVED
+}
+
+model PriceHistory {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  oldPrice    Float
+  newPrice    Float
+  reason      String?
+  changedBy   String   // User ID or "system"
+  changedAt   DateTime @default(now())
+  
+
+
+  
+  @@index([productId])
+  @@index([changedAt])
 }
 
 model category {
@@ -242,16 +261,7 @@ model Address {
 
 //order table 
 
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  PACKED
-  SHIPPED
-  OUT_FOR_DELIVERY
-  DELIVERED
-  CANCELLED
-  REFUNDED
-}
+
 
 enum PaymentStatus {
   PENDING
@@ -316,9 +326,19 @@ model Order {
   @@index([guestId])
   @@index([currentStatus])
 }
-// orderstatus
 
 
+enum OrderStatus {
+  PROCESSING
+  PENDING
+  CONFIRMED
+  PACKED
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
 
 
 //oder item 
