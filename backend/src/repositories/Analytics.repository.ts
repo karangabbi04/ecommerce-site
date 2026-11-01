@@ -86,9 +86,9 @@ export class AnalyticsRepository {
   SELECT
     DATE_TRUNC(${dateFormat}, "createdAt") AS period,
     SUM("total")::float AS revenue,
-    COUNT(id)::int AS orders
+    COUNT("id")::int AS orders
   FROM "Order"
-  WHERE status = 'DELIVERED'
+  WHERE "currentStatus" = 'DELIVERED'::"OrderStatus" 
     AND "createdAt" BETWEEN ${startDate} AND ${endDate}
   GROUP BY period
   ORDER BY period ASC;
