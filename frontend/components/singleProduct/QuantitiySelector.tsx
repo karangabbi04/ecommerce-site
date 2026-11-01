@@ -27,7 +27,7 @@ export default function QuantitySelector({
   return (
     <div
       className={cn(
-        "inline-flex h-12 items-center rounded-xl border bg-background shadow-sm",
+        "inline-flex h-10 items-center rounded-xl border bg-background shadow-sm",
         className
       )}
     >
@@ -39,13 +39,13 @@ export default function QuantitySelector({
         aria-label="Decrease quantity"
         disabled={disabled || !canDecrease}
         onClick={onDecrease}
-        className="h-full w-12 rounded-r-none"
+        className="h-full w-8 rounded-r-none"
       >
         <Minus className="h-4 w-4" />
       </Button>
 
       {/* Quantity */}
-      <div className="flex h-full min-w-14 items-center justify-center border-x px-4">
+      <div className="flex h-full min-w-8 items-center justify-center border-x px-4">
         <span className="text-sm font-semibold tabular-nums">
           {value}
         </span>
@@ -59,7 +59,7 @@ export default function QuantitySelector({
         aria-label="Increase quantity"
         disabled={disabled || !canIncrease}
         onClick={onIncrease}
-        className="h-full w-12 rounded-l-none"
+        className="h-full w-8 rounded-l-none"
       >
         <Plus className="h-4 w-4" />
       </Button>

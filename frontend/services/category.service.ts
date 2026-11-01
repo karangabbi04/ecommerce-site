@@ -2,14 +2,17 @@ import { api } from "@/lib/api";
   
  export const categoryService = {
 
+  createCategory: async (payload: { name: string }) => {
+    const res = await api.post("/admin/add-category", payload);
+    return res.data;
+  },
+
   getAllCategory: async () => {
      try {
     const res = await api.get("/categories", {
     });
 
-    console.log("get categories via API:", res.data.data);
-
-    return res.data;
+    return res.data.data;
     } catch (error: any) {
     
     console.error("FULL ERROR:", error);

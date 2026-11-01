@@ -12,7 +12,7 @@ export function KPIGrid({ children, className }: KPIGridProps) {
     <section
       aria-label="Key Performance Indicators"
       className={cn( 
-        "grid gap-4 bg-lime-400 p-2  w-full ",
+        "grid gap-4 p-2  w-full ",
         "grid-cols-1",
         "sm:grid-cols-2",
         "xl:grid-cols-4 flex justify-between",

@@ -28,8 +28,8 @@ export default function SuccessHero({
       }}
       className="space-y-6 text-center"
     >
-      <div className="space-y-3">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+      <div className="space-y-3 p-2">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl pt-5">
           {SUCCESS_MESSAGES.TITLE}
         </h1>
 

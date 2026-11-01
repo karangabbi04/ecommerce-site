@@ -1,37 +1,37 @@
-import Link from "next/link";
+// components/admin/dashboard/QuickAction/quick-action-card.tsx
+"use client";
+
 import { ArrowUpRight } from "lucide-react";
-
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import type { QuickAction } from "./types";
+import type { QuickAction, ModalAction } from "./types";
 
 interface QuickActionCardProps {
   action: QuickAction;
+  onClick: (actionType: ModalAction) => void; // <-- onClick handler add kiya
 }
 
-export function QuickActionCard({ action }: QuickActionCardProps) {
+export function QuickActionCard({ action, onClick }: QuickActionCardProps) {
   const Icon = action.icon;
 
   return (
-    <Link href="/" className="group block">
+    // Link ki jagah button use kiya for accessibility and no-navigation
+    <button
+      onClick={() => onClick(action.actionType)}
+      className="group block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-xl"
+    >
       <Card
         className={cn(
-          "relative w-30 h-32 py-2 px-0 bg-gray-100 overflow-hidden border transition-all duration-300",
-          "hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg",
-          "focus-visible:ring-2 focus-visible:ring-ring"
+          "relative w-full h-32 py-3 px-4 bg-card overflow-hidden border transition-all duration-300",
+          "hover:-translate-y-1 hover:border-primary/40 hover:shadow-md",
+          "active:scale-95" // Mobile pe tap ka feel dene ke liye
         )}
       >
-        <CardHeader className="space-y-1">
+        <CardHeader className="space-y-2 p-0 h-full flex flex-col justify-between">
           <div className="flex items-start justify-between">
             <div
               className={cn(
-                "flex h-6 w-6 items-center justify-center rounded-xl transition-colors",
+                "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
                 action.color
               )}
             >
@@ -47,16 +47,15 @@ export function QuickActionCard({ action }: QuickActionCardProps) {
           </div>
 
           <div className="space-y-1">
-            <CardTitle className="text-base text-[14px] font-semibold">
+            <CardTitle className="text-sm font-semibold leading-tight">
               {action.title}
             </CardTitle>
-
-            <CardDescription className="text-[12px]">
+            <CardDescription className="text-xs line-clamp-2">
               {action.description}
             </CardDescription>
           </div>
         </CardHeader>
       </Card>
-    </Link>
+    </button>
   );
 }

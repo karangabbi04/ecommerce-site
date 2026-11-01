@@ -9,7 +9,7 @@ export default function ProductList({
 }: ProductListProps) {
   if (!items?.length) {
     return (
-      <div className="rounded-xl border bg-white p-6 text-center">
+      <div className="rounded-xl border bg-white p-2 text-center">
         No products found
       </div>
     );

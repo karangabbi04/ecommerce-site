@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { isAxiosError } from "axios";
 
 import {
   Form,
@@ -20,7 +22,8 @@ import CurrentLocationButton from "./CurrentLocationButton";
 import CityAutocompleteField from "./CityAutocompleteField";
 import { OtpPayload } from "@/services/otp.service";
 interface AddressFormProps {
-  onSubmit: (data: CheckoutFormValues) => void;
+  onSubmit: (data: CheckoutFormValues) => Promise<boolean> | boolean;
+  draftKey: string;
   isSubmitting?: boolean;
   onSendOtp:(email:string) => void;
   otpSent: boolean
@@ -29,6 +32,7 @@ interface AddressFormProps {
 
 export default function AddressForm({
   onSubmit,
+  draftKey,
   isSubmitting = false,
   onSendOtp,
   otpSent,
@@ -36,8 +40,6 @@ export default function AddressForm({
 
 }: AddressFormProps) {
 
-  console.log(onSendOtp);
-  console.log(typeof onSendOtp);
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutAddressSchema),
     defaultValues: {
@@ -55,20 +57,82 @@ export default function AddressForm({
     },
   });
 
+  useEffect(() => {
+    try {
+      const savedDraft = sessionStorage.getItem(draftKey);
+      if (savedDraft) {
+        const values = JSON.parse(savedDraft) as Partial<CheckoutFormValues>;
+        form.reset({
+          ...form.getValues(),
+          ...values,
+          otp: "",
+        });
+      }
+    } catch {
+      sessionStorage.removeItem(draftKey);
+    }
+
+    const subscription = form.watch((values) => {
+      try {
+        sessionStorage.setItem(
+          draftKey,
+          JSON.stringify({
+            fullName: values.fullName ?? "",
+            phone: values.phone ?? "",
+            addressLine1: values.addressLine1 ?? "",
+            landmark: values.landmark ?? "",
+            city: values.city ?? "",
+            state: values.state ?? "",
+            pincode: values.pincode ?? "",
+            latitude: values.latitude,
+            longitude: values.longitude,
+            email: values.email ?? "",
+          })
+        );
+      } catch {
+        // Ignore storage failures so form entry remains usable.
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [draftKey, form]);
+
+  const handleFormSubmit = async (data: CheckoutFormValues) => {
+    try {
+      const completed = await onSubmit(data);
+      if (completed) {
+        sessionStorage.removeItem(draftKey);
+      }
+    } catch (error) {
+      const responseMessage = isAxiosError<{ message?: string }>(error)
+        ? error.response?.data?.message
+        : undefined;
+      const message =
+        responseMessage ??
+        (error instanceof Error ? error.message : "Unable to verify OTP.");
+
+      form.setError("otp", {
+        type: "server",
+        message,
+      });
+      form.setFocus("otp");
+    }
+  };
+
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(handleFormSubmit)}
         noValidate
-        className="sticky top-6 rounded-2xl border bg-white p-6 shadow-sm"
+        className="rounded-xl border bg-white p-4 shadow-sm sm:sticky sm:top-6 sm:rounded-2xl sm:p-6 [&_label]:text-xs sm:[&_label]:text-sm [&_.space-y-2]:space-y-1 sm:[&_.space-y-2]:space-y-2"
       >
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between gap-2 sm:mb-6">
           <div>
-            <h2 className="text-xl font-semibold">
+            <h2 className="text-lg font-semibold sm:text-xl">
               Delivery Address
             </h2>
 
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground sm:text-sm">
               Enter your shipping details.
             </p>
           </div>
@@ -78,7 +142,7 @@ export default function AddressForm({
           />
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-3 sm:gap-5 md:grid-cols-2">
 
           {/* Full Name */}
 
@@ -212,7 +276,7 @@ export default function AddressForm({
       <FormItem>
         <FormLabel>Email Address</FormLabel>
 
-        <div className="flex gap-2">
+        <div className="flex gap-1.5 sm:gap-2">
           <FormControl>
             <Input
               type="email"
@@ -254,6 +318,12 @@ export default function AddressForm({
                     <Input
                         maxLength={6}
                         {...field}
+                        onChange={(event) => {
+                          field.onChange(event);
+                          if (form.formState.errors.otp?.type === "server") {
+                            form.clearErrors("otp");
+                          }
+                        }}
                     />
                 </FormControl>
 
@@ -266,7 +336,7 @@ export default function AddressForm({
 
         {/* Complete Address */}
 
-        <div className="mt-5">
+        <div className="mt-3 sm:mt-5">
           <FormField
             control={form.control}
             name="addressLine1"
@@ -277,6 +347,7 @@ export default function AddressForm({
                 <FormControl>
                   <Textarea
                     rows={4}
+                    className="h-20 text-sm sm:h-auto sm:text-base"
                     placeholder="House No, Street, Area..."
                     autoComplete="street-address"
                     {...field}
@@ -291,7 +362,7 @@ export default function AddressForm({
 
         <Button
           type="submit"
-          className="mt-6 w-full"
+          className="mt-4 h-10 w-full text-sm sm:mt-6 sm:h-11 sm:text-base"
           disabled={isSubmitting}
         >
           {isSubmitting

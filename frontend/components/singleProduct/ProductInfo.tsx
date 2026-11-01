@@ -59,10 +59,10 @@ export default function ProductInfo({
   const discount = calculateDiscount(price, oldPrice);
 
   return (
-    <section className="flex h-fit flex-col rounded-[2rem] border border-border bg-background p-6 shadow-sm lg:sticky lg:top-8 lg:p-8">
+    <section className="flex h-fit min-w-0 flex-col rounded-2xl border border-border bg-background p-4 shadow-sm sm:rounded-[2rem] sm:p-6 lg:sticky lg:top-8 lg:p-8">
       {/* Top Badges */}
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="secondary">
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        <Badge>
           {tag}
         </Badge>
 
@@ -82,43 +82,43 @@ export default function ProductInfo({
         )}
       </div>
 
-      {/* Product Name */}
-      <h1 className="mt-5 text-3xl font-bold tracking-tight lg:text-5xl">
-        {name}
-      </h1>
+      {/* Product Name and Quantity */}
+      <div className="mt-3 flex items-center justify-between gap-3 sm:mt-5">
+        <h1 className="min-w-0 flex-1 wrap-break-word text-2xl font-bold tracking-tight sm:text-3xl lg:text-5xl">
+          {name}
+        </h1>
+
+        <div className="shrink-0">
+          <h3 className="mb-1 text-xs font-medium text-muted-foreground sm:mb-2 sm:text-sm">
+            Quantity
+          </h3>
+          <QuantitySelector
+            value={Quantity}
+            onIncrease={increment}
+            onDecrease={decrement}
+            canIncrease={canIncrement}
+            canDecrease={canDecrement}
+          />
+        </div>
+      </div>
 
       {/* Price */}
       <ProductPrice
-        className="mt-6"
+        className="mt-3 sm:mt-6"
         price={price}
         oldPrice={oldPrice}
       />
 
-      {/* Quantity */}
-      <div className="mt-8">
-        <h3 className="mb-3 text-sm font-medium text-muted-foreground">
-          Quantity
-        </h3>
-
-        <QuantitySelector
-          value={Quantity}
-          onIncrease={increment}
-          onDecrease={decrement}
-          canIncrease={canIncrement}
-          canDecrease={canDecrement}
-        />
-      </div>
-
       {/* Actions */}
       <ProductActions
-        className="mt-8"
+        className="mt-4 sm:mt-8"
         productId={id}
         quantity={Quantity}
       />
 
       {/* Tabs */}
       <ProductTabs
-        className="mt-10"
+        className="mt-5 sm:mt-10"
         description={description}
         details={details}
       />

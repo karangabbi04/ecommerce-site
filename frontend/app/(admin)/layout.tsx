@@ -9,6 +9,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b ">
+          <SidebarTrigger className="px-2 py-1 hidden max-[768]:block"/>
+            <span className="sr-only">Toggle sidebar</span>
           <Navbar/>
         </header>
         <div className="flex flex-1 flex-col gap-4 ">

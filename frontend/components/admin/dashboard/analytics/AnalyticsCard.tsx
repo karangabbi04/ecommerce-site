@@ -1,39 +1,18 @@
 "use client";
 
-import React from 'react'
 import { useState } from 'react';
 import AnalyticsSelect from './AnalyticsSelect';
 import { metricOptions,dateOptions,chartOptions } from './options';
 import AnalyticsChart from './AnalyticsChart';
-
-
-const data = [
-  { month: "Jan", revenue: 12000 },
-  { month: "Feb", revenue: 18000 },
-  { month: "Mar", revenue: 15000 },
-  { month: "Apr", revenue: 22000 },
-  { month: "May", revenue: 30000 },
-  { month: "Jun", revenue: 25000 },
-  { month: "jul", revenue: 25000 },
-  { month: "aug", revenue: 23000 },
-  { month: "sep", revenue: 25000 },
-  { month: "oct", revenue: 22000 },
-  { month: "nov", revenue: 20000 },
-  { month: "dec", revenue: 56000 },
-];
-
-
+import { useanalytics } from '@/hooks/queries/use-analytics';
 
 
 function AnalyticsCard() {
 
-      const [metric, setMetric] = useState("revenue");
-
-  const [dateRange, setDateRange] = useState("thisMonth");
-
-const [chartType, setChartType] = useState<"line" | "bar" | "area">("line");
-
-
+    const [metric, setMetric] = useState("revenue");
+    const [dateRange, setDateRange] = useState("thisMonth");
+    const [chartType, setChartType] = useState<"line" | "bar" | "area">("line");
+    const { data, isError, isLoading } = useanalytics(dateRange);
 
     return (
         <main className='flex w-full h-full bg-gray-800 rounded-2xl flex-wrap p-4'>
@@ -57,12 +36,20 @@ const [chartType, setChartType] = useState<"line" | "bar" | "area">("line");
                 />
              </div>
 
-            <div className='w-full h-fit'>
-                     <AnalyticsChart
-                        type={chartType}
-                        data={data}
-                        dataKey={metric}
-                    />
+                        <div className='w-full h-fit'>
+                            {isLoading ? (
+                                <p className="py-8 text-center text-sm text-slate-300">Loading analytics...</p>
+                            ) : isError ? (
+                                <p role="alert" className="py-8 text-center text-sm text-red-300">
+                                    Could not load revenue analytics.
+                                </p>
+                            ) : (
+                                <AnalyticsChart
+                                    type={chartType}
+                                    data={data ?? []}
+                                    dataKey={metric}
+                                />
+                            )}
             </div>
         </main>
     )

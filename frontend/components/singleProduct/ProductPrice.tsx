@@ -20,15 +20,15 @@ export default function ProductPrice({
 
   return (
     <div className={className}>
-      <div className="flex flex-wrap items-end gap-x-3 gap-y-2">
+      <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
         {/* Current Price */}
-        <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+        <h2 className="text-xl  font-bold tracking-tight text-foreground  md:text-4xl">
           {formatPrice(price)}
         </h2>
 
         {/* Old Price */}
         {hasDiscount && oldPrice && (
-          <span className="pb-1 text-lg font-medium text-muted-foreground line-through">
+          <span className="pb-1 text-base font-medium text-muted-foreground line-through sm:text-lg">
             {formatPrice(oldPrice)}
           </span>
         )}

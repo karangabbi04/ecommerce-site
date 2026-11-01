@@ -9,10 +9,6 @@ export const metricOptions: SelectOption[] = [
     label: "Orders",
     value: "orders",
   },
-  {
-    label: "Users",
-    value: "users",
-  },
 ];
 
 export const dateOptions: SelectOption[] = [

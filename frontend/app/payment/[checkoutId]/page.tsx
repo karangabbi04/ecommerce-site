@@ -25,7 +25,6 @@ export default function PaymentPage() {
 
   const checkoutId = params.checkoutId as string;
 
-  const check = "lksdfjlkal"
 
   const {
     data: checkout,
@@ -71,7 +70,7 @@ export default function PaymentPage() {
       /**
        * Open Razorpay
        */
-      openRazorpay({
+       await openRazorpay({
         orderId: order.orderId,
 
         razorpayOrderId:
@@ -103,10 +102,14 @@ export default function PaymentPage() {
              * Redirect
              */
             router.push(
-              `/payment/order-success/${checkoutId}`as any
+              `/payment/order-success/${order.data.razorpayOrderId}`as any
             );
           } catch (error) {
-            console.error(error);
+            console.error(
+              "Payment verification failed:",
+              error instanceof Error ? error.message : error,
+              error
+            );
 
             alert(
               "Payment verification failed."
@@ -115,7 +118,11 @@ export default function PaymentPage() {
         },
       });
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Unable to process payment:",
+        error instanceof Error ? error.message : error,
+        error
+      );
 
       alert("Unable to process payment.");
     } finally {
@@ -150,7 +157,6 @@ export default function PaymentPage() {
     <button onClick={()=>{
               router.push(`/payment/order-success/${checkoutId}` as Route)
           }}>
-            order success 
           </button>
     <div className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
 
@@ -174,15 +180,15 @@ export default function PaymentPage() {
 
         {/* LEFT */}
 
-        <main className="space-y-6 lg:col-span-2">
-
+        <main className="space-y-3 lg:col-span-2">
+{/* 
           <AddressCard
             address={checkout.address}
             showChangeButton
             onChange={() =>
               router.push("/checkout" as Route)
             }
-          />
+          /> */}
 
           <ProductList
             items={checkout.items}

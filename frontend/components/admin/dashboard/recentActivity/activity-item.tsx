@@ -14,15 +14,15 @@ export default function ActivityItem({
   const Icon = activity.icon;
 
   return (
-    <div className="relative flex gap-4">
+    <div className="relative flex gap-2">
       {/* Timeline Icon */}
       <div
         className={cn(
-          "relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full ring-4 ring-background",
+          "relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ring-4 ring-background",
           activity.iconColor
         )}
       >
-        <Icon className="h-5 w-5" />
+        <Icon className="h-4 w-4" />
       </div>
 
       {/* Card */}
@@ -38,12 +38,12 @@ export default function ActivityItem({
 
           <div className=" w-full">
 
-            <div className=" flex  justify-between  font-semibold text-sm w-full">
+            <div className=" flex  justify-between  font-semibold text-[12px] w-full">
               <span >{activity.title}</span> 
               <span >{activity.time}</span>
             </div>
 
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-[13px] text-muted-foreground">
               {activity.description}
             </p>
 

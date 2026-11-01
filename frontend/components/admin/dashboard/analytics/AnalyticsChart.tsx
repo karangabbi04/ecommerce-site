@@ -87,7 +87,7 @@ console.log(data);
           borderColor: 'var(--color-border-2)',
         }}
       />
-
+  
     <Graph
       dataKey={dataKey}
       {...config.props}

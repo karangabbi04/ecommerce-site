@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import CartButton from "./CartButton";
 import MiniCartContent from "./miniCartContent";
@@ -23,6 +23,17 @@ import {
 
 export default function CartDropdown() {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem("open-cart-after-checkout-expiry") === "true") {
+        sessionStorage.removeItem("open-cart-after-checkout-expiry");
+        setOpen(true);
+      }
+    } catch {
+      // The cart remains available through its button if storage is unavailable.
+    }
+  }, []);
 
   const isDesktop = useMediaQuery("(min-width:768px)");
 

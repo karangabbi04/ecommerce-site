@@ -114,7 +114,8 @@ class ProductRepository {
   async findall(
     where: Prisma.ProductWhereInput = {},
     skip = 0,
-    take = 10
+    take = 10,
+    orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: "desc" }
   ) {
     return prisma.product.findMany({
         where,
@@ -142,9 +143,7 @@ class ProductRepository {
               },
             },
           },
-        orderBy:{
-          createdAt: "desc"
-        }
+        orderBy
       
   })
 }

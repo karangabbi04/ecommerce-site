@@ -60,15 +60,15 @@ export default function ProductPage() {
 
     return (
     <main className="min-h-screen flex justify-center bg-background">
-      <div className="container py-8 lg:py-12">
+      <div className="container py-8 lg:py-8">
         {/* Breadcrumb */}
         {/* TODO: Replace with reusable Breadcrumb component */}
-        <div className="mb-8">
+        <div className="mb-1">
           {/* <ProductBreadcrumb product={product} /> */}
         </div>
 
         {/* Product Section */}
-        <section className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+        <section className="grid gap-3  lg:bg-amber-300 lg:grid-cols-[1.05fr_0.95fr]">
           <ProductGallery
             images={product.images}
             productName={product.name}

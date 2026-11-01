@@ -49,6 +49,7 @@ export default function OrderInfoCard({
             />
           }
           label="Amount Paid"
+          // value="500"
           value={`₹${amount.toLocaleString("en-IN")}`}
         />
 

@@ -1,138 +1,134 @@
 "use client";
 
-
-
-type OrderStatus = {
-  title: string;
-  value: number;
-  change: number;
-  icon: React.ElementType;
-  iconColor: string; // hex color like #facc15
-  iconBg: string; // rgba color like rgba(234, 179, 8, 0.15)
-  border: string; // Tailwind class
-  hover: string; // Tailwind class
-  changeColor: string; // hex color like #facc15
-};
-
 import {
-  Clock3,
-  Loader2,
-  Package,
   CheckCircle2,
+  Clock3,
+  Package,
+  RotateCcw,
+  Truck,
   XCircle,
 } from "lucide-react";
 
-const orderData = [
+type OrderStatusCount = {
+  status: string;
+  count: number;
+};
+
+type OrderStatusCardProps = {
+  orderStatusData: OrderStatusCount[];
+};
+
+const STATUS_STYLES: Record<
+  string,
   {
-    title: "Pending",
-    value: 32,
-    change: 5,
+    icon: typeof Clock3;
+    iconColor: string;
+    iconBg: string;
+    border: string;
+    hover: string;
+  }
+> = {
+  PENDING: {
     icon: Clock3,
     iconColor: "#facc15",
     iconBg: "rgba(234, 179, 8, 0.15)",
     border: "border-yellow-500/20",
     hover: "hover:border-yellow-400/60 hover:shadow-yellow-500/20",
-    changeColor: "#facc15",
   },
-  {
-    title: "Processing",
-    value: 45,
-    change: 8,
-    icon: Loader2,
+  CONFIRMED: {
+    icon: CheckCircle2,
     iconColor: "#60a5fa",
     iconBg: "rgba(59, 130, 246, 0.15)",
     border: "border-blue-500/20",
     hover: "hover:border-blue-400/60 hover:shadow-blue-500/20",
-    changeColor: "#60a5fa",
   },
-  {
-    title: "Shipped",
-    value: 78,
-    change: 12,
+  PACKED: {
     icon: Package,
+    iconColor: "#38bdf8",
+    iconBg: "rgba(56, 189, 248, 0.15)",
+    border: "border-sky-500/20",
+    hover: "hover:border-sky-400/60 hover:shadow-sky-500/20",
+  },
+  SHIPPED: {
+    icon: Truck,
     iconColor: "#a78bfa",
     iconBg: "rgba(168, 85, 247, 0.15)",
     border: "border-purple-500/20",
     hover: "hover:border-purple-400/60 hover:shadow-purple-500/20",
-    changeColor: "#a78bfa",
   },
-  {
-    title: "Delivered",
-    value: 1023,
-    change: 20,
+  OUT_FOR_DELIVERY: {
+    icon: Truck,
+    iconColor: "#fb923c",
+    iconBg: "rgba(251, 146, 60, 0.15)",
+    border: "border-orange-500/20",
+    hover: "hover:border-orange-400/60 hover:shadow-orange-500/20",
+  },
+  DELIVERED: {
     icon: CheckCircle2,
     iconColor: "#4ade80",
     iconBg: "rgba(74, 222, 128, 0.15)",
     border: "border-green-500/20",
     hover: "hover:border-green-400/60 hover:shadow-green-500/20",
-    changeColor: "#4ade80",
   },
-  {
-    title: "Cancelled",
-    value: 56,
-    change: -3,
+  CANCELLED: {
     icon: XCircle,
     iconColor: "#f87171",
     iconBg: "rgba(248, 113, 113, 0.15)",
     border: "border-red-500/20",
     hover: "hover:border-red-400/60 hover:shadow-red-500/20",
-    changeColor: "#f87171",
   },
-];
+  REFUNDED: {
+    icon: RotateCcw,
+    iconColor: "#94a3b8",
+    iconBg: "rgba(148, 163, 184, 0.15)",
+    border: "border-slate-500/20",
+    hover: "hover:border-slate-400/60 hover:shadow-slate-500/20",
+  },
+};
 
-export default function OrderStatusCard() {
+export default function OrderStatusCard({ orderStatusData }: OrderStatusCardProps) {
   return (
-<div className="rounded-3xl border border-slate-800/80 bg-linear-to-b from-[#121826] to-[#0F172A] p-6 shadow-[0_10px_40px_rgba(0,0,0,.45)]">
-     <div className="mb-6 flex items-center justify-between">
-  <div>
-    <h2 className="text-xl font-bold text-white">
-      Order Status
-    </h2>
-    <p className="text-sm text-slate-400">
-      Monitor today's order activity
-    </p>
-  </div>
-
-        <button className="text-violet-400 hover:bg-violet-500/10 hover:text-violet-300"
-  >
-          View All
-        </button>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
-     {orderData.map((item) => {
-  const Icon = item.icon;
-
-  return (
-    <div
-      key={item.title}
-      className={`relative overflow-hidden rounded-2xl border bg-gray-500 p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${item.border} ${item.hover}`}
-    >
-      <div className="flex  items-center justify-between">
+    <section className="rounded-3xl p-6">
+      <div className="mb-6 flex items-center justify-between">
         <div>
-          <p className="text-[11px] text-gray-400">{item.title}</p>
-
-          <h2 className="mt-2 text-1xl font-bold text-white">
-            {item.value.toLocaleString()}
-          </h2>
-
-          <p className="mt-1 text-sm font-semibold" style={{ color: item.changeColor }}>
-            {item.change > 0 ? "+" : ""}
-            {item.change}
-          </p>
-        </div>
-
-        <div
-          className={`flex h-10 w-10 items-center justify-center rounded-full`}
-          style={{ backgroundColor: item.iconBg }}
-        >
-          <Icon className="h-4 w-5" style={{ color: item.iconColor }} />
+          <h2 className="text-xl font-bold text-white">Order Status</h2>
+          <p className="text-sm text-slate-400">Monitor order activity</p>
         </div>
       </div>
-    </div>
-  );
-})}
-      </div>
-    </div>
+
+      {orderStatusData.length === 0 ? (
+        <p className="text-sm text-slate-400">No order status data available.</p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
+          {orderStatusData.map(({ status, count }) => {
+            const style = STATUS_STYLES[status] ?? STATUS_STYLES.PENDING;
+            const Icon = style.icon;
+            const title = status.toLowerCase().replaceAll("_", " ");
+
+            return (
+              <div
+                key={status}
+                className={`relative overflow-hidden rounded-2xl border p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${style.border} ${style.hover}`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] capitalize">{title}</p>
+                    <p className="mt-2 text-xl font-bold">
+                      {count.toLocaleString()}
+                    </p>
+                  </div>
+                  <div
+                    className="flex size-10 items-center justify-center rounded-full"
+                    style={{ backgroundColor: style.iconBg }}
+                  >
+                    <Icon className="size-5" style={{ color: style.iconColor }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable } from "@/components/data-table/data-table";
+import { DataTable } from "../data-table/data-table";
 
 import { columns } from "./columns";
 import { products } from "./data";

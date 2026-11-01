@@ -7,7 +7,7 @@ import Footer from "@/components/Home/footer/footer";
 export default function Home() {
   return (
     <>
-    <main className="relative overflow-hidden bg-gradient-to-b from-[#f5f5f7] via-white to-[#f5f5f7] text-zinc-950">
+    <main className="relative overflow-hidden bg-linear-to-b from-[#f5f5f7] via-white to-[#f5f5f7] text-zinc-950">
   <HeroSection />
    <FeaturedProducts />
    <WhyChooseUs />

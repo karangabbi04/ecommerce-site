@@ -53,7 +53,7 @@ export default function ProductActions({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 sm:flex-row",
+        "flex flex-row gap-2 sm:gap-3",
         className
       )}
     >
@@ -64,7 +64,7 @@ export default function ProductActions({
         variant="default"
         disabled={disabled || isPending}
         onClick={handleAddToCart}
-        className="flex-1"
+        className="h-12 min-w-0 flex-1 px-2 text-xs sm:h-14 sm:px-4 sm:text-sm"
       >
         {isPending ? (
           <>
@@ -86,7 +86,7 @@ export default function ProductActions({
         variant="secondary"
         disabled={disabled || isPending}
         onClick={handleBuyNow}
-        className="flex-1"
+        className="h-12 min-w-0 flex-1 px-2 text-xs sm:h-14 sm:px-4 sm:text-sm"
       >
         <CreditCard className="mr-2 h-4 w-4" />
         Buy Now

@@ -23,15 +23,7 @@ export default function NavbarActions({
 
       {/* Desktop Location */}
 
-      <Button
-        variant="outline"
-        className="hidden lg:flex"
-      >
-        <MapPin className="mr-2 h-4 w-4" />
-
-        Ludhiana, PB
-
-      </Button>
+  
 
       {/* Desktop User */}
 
