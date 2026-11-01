@@ -21,8 +21,7 @@ import { useCategories } from "@/hooks/queries/use-category";
 export default function ProductCategorySelect() {
   const form = useFormContext<ProductSchemaType>();
   const { data: categories, isLoading } = useCategories();
-  
-  console.log("categories", categories);
+  const categoryOptions = Array.isArray(categories) ? categories : categories?.data ?? [];
 
   return (
     <FormField
@@ -33,8 +32,8 @@ export default function ProductCategorySelect() {
           <FormLabel>Category</FormLabel>
 
           <FormControl>
-            <Select  onValueChange={field.onChange} value={field.value}>
-              <SelectTrigger className="w-full"> 
+            <Select onValueChange={field.onChange} value={field.value ?? ""}>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
 
@@ -44,8 +43,8 @@ export default function ProductCategorySelect() {
                     Loading...
                   </SelectItem>
                 ) : (
-                  categories?.data?.map((category: any) => (
-                    <SelectItem  key={category.id} value={category.id} className="mt-2">
+                  categoryOptions.map((category: any) => (
+                    <SelectItem key={category.id} value={category.id} className="mt-2">
                       {category.name}
                     </SelectItem>
                   ))
