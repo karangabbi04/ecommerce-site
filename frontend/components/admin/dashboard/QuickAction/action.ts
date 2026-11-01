@@ -16,6 +16,7 @@ export const quickActions: QuickAction[] = [
     href: "/admin/products/create",
     icon: PackagePlus,
     color: "bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400",
+    actionType: "create-category"
   },
   {
     id: "add-category",
@@ -24,6 +25,7 @@ export const quickActions: QuickAction[] = [
     href: "/admin/categories/create",
     icon: FolderPlus,
     color: "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400",
+    actionType: "create-category"
   },
   {
     id: "create-coupon",
@@ -32,6 +34,7 @@ export const quickActions: QuickAction[] = [
     href: "/admin/coupons/create",
     icon: TicketPercent,
     color: "bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400",
+    actionType: "create-category"
   },
   {
     id: "add-brand",
@@ -40,6 +43,7 @@ export const quickActions: QuickAction[] = [
     href: "/admin/brands/create",
     icon: Tags,
     color: "bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400",
+    actionType: "create-category"
   },
   {
     id: "view-orders",
@@ -48,5 +52,6 @@ export const quickActions: QuickAction[] = [
     href: "/admin/orders",
     icon: ShoppingCart,
     color: "bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400",
+    actionType: "create-category"
   },
 ];
