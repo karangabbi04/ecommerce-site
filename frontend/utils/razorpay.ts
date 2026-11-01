@@ -38,9 +38,14 @@ export const openRazorpay = ({
     },
   };
 
-  const razorpay = new window.Razorpay(options);
+    const razorpay = new window.Razorpay(options);
 
   console.log(razorpay)
+  
+
+
 
   razorpay.open();
+
+  return razorpay;
 };
