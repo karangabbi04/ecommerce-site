@@ -5,6 +5,7 @@ import { hashPassword, comparePassword } from "../utils/password.js";
 import {
     generateAccessToken,
     generateRefreshToken,
+    verifyAccessToken,
     verifyRefreshToken,
 } from "../utils/token.js";
 
@@ -260,5 +261,34 @@ export const logoutUser = async (refreshToken: string) => {
 
     return { userId: user.id };
 };
+
+export const checkAdminAccess = async (accessToken: string) => {
+    if (!accessToken) {
+        throw new ApiError(401, "Access token is required");
+    }
+
+    let payload;
+    try {
+        payload = verifyAccessToken(accessToken);
+    } catch {
+        throw new ApiError(401, "Invalid or expired access token");
+    }
+
+    const user = await userRepository.findById(payload.userId);
+
+    if (!user) {
+        throw new ApiError(401, "Invalid access token");
+    }
+
+    if (user.role !== "ADMIN") {
+        throw new ApiError(403, "Access denied");
+    }
+
+    return {
+        success: true,
+        message: "Admin access granted",
+    };
+};
+
 
 

@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { prisma } from "../lib/prisma.js";
+import {checkAdminAccess} from "../services/user.service.js";
 import z from "zod";
 import {
   loginService,
@@ -229,4 +230,19 @@ const registerDuringCheckout = asyncHandler(async (req: Request, res: Response) 
 
 });
 
-export { registerUser, loginUser ,getCurrentUser };
+const  checkUserExist = asyncHandler(async (req: Request, res: Response) => {
+
+  const token = req.cookies?.accessToken || req.headers?.authorization?.split(" ")[1];
+
+  if (!token) {
+    throw new ApiError(401, "Access token is required");
+  }
+
+  const user = await checkAdminAccess(token);
+
+  res.status(200).json(new ApiResponse(200, user, "User access verified successfully"));
+});
+
+export { registerUser, loginUser ,getCurrentUser,registerDuringCheckout,checkUserExist };
+
+// export { registerUser, loginUser ,getCurrentUser };

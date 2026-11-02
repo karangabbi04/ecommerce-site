@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { adminController } from "../controllers/Analytics.controller";
 import { verifyJWT } from "../middlewares/verifyJWT.middleware";
+import { authorize } from "../middlewares/authorize.middleware";
 import { createCategory,deleteCategory } from "../controllers/category.controller";
 import {getallproductsforadmin, updateProductStatus,updateProductPrice,getProductPriceHistory} from "../controllers/product.controller";
 import { orderQuery } from "../controllers/order.controller";
@@ -10,7 +11,7 @@ router.post("/login",adminController.adminLogin)
 
 router.post("/verify",adminController.adminVerify)
 router.get("/orders-count",adminController.orderInfo) // for order count via status and total
-router.get("/orders/all",adminController.allOrders)
+router.get("/orders/all",verifyJWT,authorize("ADMIN"),adminController.allOrders)
 router.get("/revenue",adminController.revenueDetail)
 
 router.post("/add-category",createCategory)
