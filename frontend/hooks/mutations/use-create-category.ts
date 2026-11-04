@@ -8,6 +8,7 @@ export function useCreateCategory() {
     mutationFn: categoryService.createCategory,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "categories"] });
     },
   });
 }

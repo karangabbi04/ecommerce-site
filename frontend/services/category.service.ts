@@ -33,5 +33,15 @@ import { api } from "@/lib/api";
       console.error("UNKNOWN ERROR:", error.message);
       throw new Error(error.message);
     }
-  }}
+  }},
+
+  getAdminCategories: async () => {
+    const res = await api.get("/admin/categories");
+    return res.data.data;
+  },
+
+  deleteCategory: async (id: string) => {
+    const res = await api.delete(`/admin/categories/${id}`);
+    return res.data;
+  },
 };
