@@ -108,6 +108,7 @@ model User {
   updatedAt        DateTime   @updatedAt
   orders           Order[]
   checkoutSessions CheckoutSession[]
+  auditLogs        AuditLog[]
   refreshToken     String
 }
 
@@ -446,4 +447,56 @@ model CouponUsage {
   createdAt DateTime @default(now())
 
   coupon    Coupon   @relation(fields: [couponId], references: [id])
+}
+
+
+
+
+
+
+///auditlog
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  STATUS_CHANGE
+  LOGIN
+  LOGOUT
+}
+
+enum AuditEntityType {
+  PRODUCT
+  ORDER
+  CATEGORY
+  COUPON
+  USER
+  ADMIN
+}
+
+
+model AuditLog {
+  id              String   @id @default(uuid())
+  adminId         String?         
+  admin            User?             @relation(fields: [adminId], references: [id] )
+  adminEmail       String  
+  action            AuditAction
+  entityType        AuditEntityType
+  entityId          String
+  entityName        String 
+   oldValue         Json?          
+  newValue          Json?           
+  changes           Json?
+
+  ipAddress         String
+  userAgent          String
+  timestamp          DateTime        @default(now()) @db.Timestamptz 
+  metadata            Json?
+
+   // --- INDEXES (Performance ke liye zaroori hain) ---
+  @@index([adminId])                 // Admin ki logs jaldi fetch karne ke liye
+  @@index([entityType, entityId])    // Kisi specific entity (e.g., Product) ki history dekhne ke liye
+  @@index([timestamp])               // Time ke hisaab se logs sort/filter karne ke liye
+  @@index([action]) 
+
 }
