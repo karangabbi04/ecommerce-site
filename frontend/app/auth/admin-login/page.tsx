@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import {
   Card,
@@ -21,6 +22,7 @@ import {
 } from "@/hooks/mutations/use-admin-signup";
 
 export default function AdminLogin() {
+  const router = useRouter();
   const loginMutation = useAdminLogin();
   const verifyMutation = useAdminLoginVerify();
   const [email, setEmail] = useState("");
@@ -52,6 +54,7 @@ export default function AdminLogin() {
       await verifyMutation.mutateAsync({ email, otp });
       toast.success("Admin login verified successfully.");
       setIsOtpDialogOpen(false);
+      router.replace("/dashboard");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "OTP verification failed.",
