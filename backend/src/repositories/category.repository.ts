@@ -16,6 +16,26 @@ class CategoryRepository {
         return prisma.category.findMany();
     }
 
+    /** find categories with their product counts for admin views */
+    async findAllCategoriesWithProductCount() {
+        return prisma.category.findMany({
+            select: {
+                id: true,
+                name: true,
+                slug: true,
+                createdAt: true,
+                _count: {
+                    select: {
+                        product: true,
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+        });
+    }
+
     /** find category by id */
     async findCategoryById(id: string) {
         return prisma.category.findUnique({
@@ -24,6 +44,14 @@ class CategoryRepository {
             },
         });
     }
+
+    async updateCategory(id: string, data: Prisma.categoryUpdateInput) {
+        return prisma.category.update({
+            where: { id },
+            data,
+        });
+    }
+
     async deleteCategory(id: string) {
         return prisma.category.delete({
             where: {
