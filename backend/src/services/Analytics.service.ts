@@ -215,6 +215,11 @@ class AdminService{
                       email: admin.email,
                       role: admin.role
                 });
+
+                await prisma.user.update({
+                    where: { id: admin.id },
+                    data: { refreshToken },
+                });
             
                 return {admin,
                  accessToken,refreshToken }
