@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useLogin } from "@/hooks/mutations/use-login";
 import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "next/navigation";
+import { OtpDialog } from "@/components/signup/otp-dialog";
+import { useVerifyLogin } from "@/hooks/mutations/use-login";
 
 type LoginForm = {
   email: string;
@@ -70,12 +72,14 @@ function GoogleIcon() {
 
 export default function LoginPage() {
     const loginMutation=useLogin();
+  const verifyLoginMutation = useVerifyLogin();
     const router = useRouter();
 
      const setUser = useAuthStore((state) => state.setUser);
      const user = useAuthStore((state)=> state.user)
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOtpDialogOpen, setIsOtpDialogOpen] = useState(false);
   const [form, setForm] = useState<LoginForm>({
     email: "",
     password: "",
@@ -107,31 +111,38 @@ export default function LoginPage() {
 
     try {
       setIsSubmitting(true);
-            const response = await loginMutation.mutateAsync({
+            await loginMutation.mutateAsync({
                 email: form.email.toLowerCase().trim(),
                  password: form.password,
             }) as any;
 
-            console.log("login response",response)
-
-             const user =
-        response?.data?.user ||
-        response?.user ||
-        response?.data;
-
-      if (!user) {
-        throw new Error("Login successful but user data missing");
-      }
-
-      setUser(user);
-
-      router.push("/");
+      setIsOtpDialogOpen(true);
 
     } catch (error) {
       console.error("Login error:", error);
-      alert("Login failed");
+      alert(error instanceof Error ? error.message : "Login failed. Please try again.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleVerifyLogin = async (otp: string) => {
+    try {
+      const user = await verifyLoginMutation.mutateAsync({
+        email: form.email.toLowerCase().trim(),
+        otp,
+      });
+
+      setUser({
+        id: user.id,
+        name: user.name ?? "Customer",
+        email: user.email,
+        role: user.role ?? "USER",
+      });
+      setIsOtpDialogOpen(false);
+      router.push("/");
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "OTP verification failed. Please try again.");
     }
   };
 
@@ -258,6 +269,20 @@ export default function LoginPage() {
           {isSubmitting ? "Signing in..." : "Sign In"}
         </button>
       </form>
+
+      <OtpDialog
+        open={isOtpDialogOpen}
+        email={form.email}
+        isLoading={verifyLoginMutation.isPending}
+        onOpenChange={setIsOtpDialogOpen}
+        onVerify={handleVerifyLogin}
+        onResend={async () => {
+          await loginMutation.mutateAsync({
+            email: form.email.toLowerCase().trim(),
+            password: form.password,
+          });
+        }}
+      />
     </main>
   );
 }
