@@ -6,7 +6,7 @@ import {
   Menu,
   MapPin,
   LogIn,
-  User,
+  UserRound,
   Package,
   Phone,
   Info,
@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/sheet";
 
 import { useAuthStore } from "@/store/auth.store";
-import { Route } from "next";
+import type { Route } from "next";
 
 const links = [
   {
@@ -47,6 +47,12 @@ export default function MobileMenu() {
   const [open, setOpen] = useState(false);
 
   const user = useAuthStore((state) => state.user);
+  const initials = user?.name
+    ?.split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "";
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -117,28 +123,28 @@ export default function MobileMenu() {
 
           <div className="border-t pt-6">
 
-            <Button
-              className="w-full justify-start"
-              variant={
-                user
-                  ? "secondary"
-                  : "default"
-              }
-            >
-              {user ? (
-                <>
-                  <User className="mr-2 h-4 w-4" />
-
-                  {user.name}
-                </>
-              ) : (
-                <>
+            {user ? (
+              <Link
+                href={"/account" as Route}
+                onClick={() => setOpen(false)}
+                className="flex w-full items-center gap-3 rounded-md border bg-muted/40 p-3 transition-colors hover:bg-muted"
+              >
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                  {initials || <UserRound className="size-4" aria-hidden="true" />}
+                </span>
+                <span className="min-w-0 text-left">
+                  <span className="block truncate text-sm font-medium">{user.name}</span>
+                  <span className="block truncate text-xs text-muted-foreground">{user.email}</span>
+                </span>
+              </Link>
+            ) : (
+              <Button asChild className="w-full justify-start">
+                <Link href="/auth/login" onClick={() => setOpen(false)}>
                   <LogIn className="mr-2 h-4 w-4" />
-
                   Login
-                </>
-              )}
-            </Button>
+                </Link>
+              </Button>
+            )}
 
           </div>
 
