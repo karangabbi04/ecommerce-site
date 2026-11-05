@@ -11,12 +11,22 @@ import {
   CreditCard,
   Users,
   MessageSquare,
-  BarChart3,
+  Activity,
   Settings,
   LogOut,
   Sparkles,
-  Search
+  Search,
+  BarChart3
 } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useAdminSession } from "@/hooks/queries/use-admin-session"
 
 import {
   Sidebar,
@@ -36,6 +46,14 @@ import { cn } from "@/lib/utils"
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const { user, isLoading, isLoggingOut, logout } = useAdminSession()
+  const displayName = user?.name || "Admin"
+  const initials = displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "A"
 
   const navigation = [
     {
@@ -70,6 +88,7 @@ export function AppSidebar() {
       group: "Reports",
       items: [
         { title: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
+        { title: "Recent Activity", href: "/dashboard/auditlog", icon: Activity },
       ]
     },
     {
@@ -145,23 +164,40 @@ export function AppSidebar() {
 
       {/* Footer Profile */}
       <SidebarFooter className="border-t border-sidebar-border/40 py-3 px-3">
-        <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-sidebar-accent/20 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:bg-transparent">
-          <div className="flex items-center gap-2.5 group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:justify-center">
-            <div className="flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs group-data-[collapsible=icon]:mx-auto">
-              KB
-            </div>
-            <div className="flex flex-col transition-opacity duration-200 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:hidden">
-              <span className="font-semibold text-xs leading-none text-sidebar-foreground">Karan Gabbi</span>
-              <span className="text-[9px] text-sidebar-foreground/55 mt-0.5">karan@bottlecraft.com</span>
-            </div>
-          </div>
-          <button 
-            className="flex items-center justify-center size-7 shrink-0 rounded-md text-sidebar-foreground/60 hover:bg-destructive/10 hover:text-destructive transition-colors group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:hidden"
-            title="Log out"
-          >
-            <LogOut className="size-4" />
-          </button>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label="Open admin account menu"
+              className="flex w-full min-w-0 items-center gap-2.5 rounded-lg bg-sidebar-accent/20 p-2 text-left transition-colors hover:bg-sidebar-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-1"
+            >
+              <span className="flex size-8.5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                {initials}
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col group-data-[collapsible=icon]:hidden">
+                <span className="truncate text-xs font-semibold leading-tight text-sidebar-foreground">
+                  {isLoading && !user ? "Loading admin..." : displayName}
+                </span>
+                <span className="truncate text-[10px] text-sidebar-foreground/55">
+                  {user?.role ?? "ADMIN"} · {user?.email ?? ""}
+                </span>
+              </span>
+              <LogOut className="size-4 shrink-0 text-sidebar-foreground/50 group-data-[collapsible=icon]:hidden" aria-hidden="true" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="top" align="start" className="w-64">
+            <DropdownMenuLabel className="font-normal">
+              <p className="truncate text-sm font-semibold">{displayName}</p>
+              <p className="truncate text-xs text-muted-foreground">{user?.email ?? ""}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{user?.role ?? "ADMIN"}</p>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive" disabled={isLoggingOut} onSelect={logout}>
+              <LogOut aria-hidden="true" />
+              {isLoggingOut ? "Logging out..." : "Log out"}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </SidebarFooter>
     </Sidebar>
   )
