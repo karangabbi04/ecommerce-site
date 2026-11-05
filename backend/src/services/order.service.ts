@@ -345,6 +345,8 @@ export const getFilteredOrders = async (queryParams: any) => {
     whereClause.currentStatus = status;
   }
 
+ 
+
   const startOfDay = (date: Date) =>
     new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
@@ -384,6 +386,9 @@ export const getFilteredOrders = async (queryParams: any) => {
     };
 }
 
+ export const getOrdersForUser = async (userId: string) => {
+    return orderRepository.findOrdersForUser(userId);
+  };
 
 
 export const getOrderDetailsByRazorpayId = async (razorpayOrderId: string) => {

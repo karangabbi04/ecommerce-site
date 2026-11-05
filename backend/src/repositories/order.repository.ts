@@ -106,6 +106,29 @@ class OrderRepository {
     });
   }
 
+  async findOrdersForUser(userId: string) {
+    return prisma.order.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        orderNumber: true,
+        currentStatus: true,
+        paymentStatus: true,
+        total: true,
+        createdAt: true,
+        items: {
+          select: {
+            productName: true,
+            quantity: true,
+            unitPrice: true,
+            totalPrice: true,
+          },
+        },
+      },
+    });
+  }
+
 
     async findOrderByRazorpayId(RazorId: string) {
       return prisma.payment.findUnique({

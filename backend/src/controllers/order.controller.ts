@@ -2,7 +2,7 @@ import { Request,Response } from "express";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { ApiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler";
-import { createOrderService , CreateOrderDto,getOrderDetailsByRazorpayId, updateOrderStatus,getFilteredOrders } from "../services/order.service.js";
+import { createOrderService , CreateOrderDto,getOrderDetailsByRazorpayId, updateOrderStatus,getFilteredOrders, getOrdersForUser } from "../services/order.service.js";
 import { UpdateOrderStatusRequest } from "../types/order.types.js";
 
 
@@ -119,3 +119,13 @@ export const getOrderByRazorpayOrderId = asyncHandler(async (req: Request, res: 
 
   res.status(200).json(new ApiResponse(200, order, "Order fetched successfully"));
 })
+
+export const getMyOrders = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+
+  const orders = await getOrdersForUser(userId);
+  res.status(200).json(new ApiResponse(200, orders, "Your orders fetched successfully"));
+});
