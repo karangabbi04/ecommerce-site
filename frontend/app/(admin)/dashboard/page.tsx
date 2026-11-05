@@ -1,9 +1,8 @@
 "use client"
 
-import React, { useState,useEffect } from 'react'
+import React, { useEffect } from 'react'
 import AnalyticsCard from '@/components/admin/dashboard/analytics/AnalyticsCard'
 import {KPICard} from '@/components/admin/dashboard/KPI-card/KPICard'
-import { dashboardKPI } from '@/components/admin/dashboard/KPI-card/dummydata'
 import { KPIGrid } from '@/components/admin/dashboard/KPI-card/KPIGrid'
 import { QuickActionCard } from '@/components/admin/dashboard/QuickAction/quick-action-card'
 import { QuickActions } from '@/components/admin/dashboard/QuickAction/quick-actions'
@@ -17,6 +16,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Edit, Eye } from 'lucide-react'
 import {useOrdersForAdminWithCount} from '@/hooks/queries/use-orders'
+import { useRecentAuditLogs } from '@/hooks/queries/use-audit-logs'
+import { useDashboardKpis } from '@/hooks/queries/use-dashboard-kpis'
 // import {DataTable} from '@/components/data-table/data-table'
 
 
@@ -36,6 +37,32 @@ const mockProducts: Product[] = [
 function Page() {
 
   const { data: ordersData, isLoading } = useOrdersForAdminWithCount();
+  const { data: kpiData, isLoading: isKpiLoading, isError: isKpiError } = useDashboardKpis();
+  const { data: recentActivityData, isLoading: isActivityLoading, isError: hasActivityError, } = useRecentAuditLogs({ limit: 6 });
+  const recentActivity = recentActivityData?.logs ?? [];
+  const kpiCards = [
+    {
+      title: "Revenue",
+      value: isKpiError ? "Unavailable" : kpiData ? new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(kpiData.monthlyRevenue) : "₹0",
+      description: "Delivered revenue this month",
+      variant: "success" as const,
+      badge: "This month",
+    },
+    {
+      title: "Orders",
+      value: isKpiError ? "Unavailable" : kpiData?.totalOrders.toLocaleString("en-IN") ?? "0",
+      description: "Orders across all statuses",
+      variant: "default" as const,
+      badge: "All time",
+    },
+    {
+      title: "Products",
+      value: isKpiError ? "Unavailable" : kpiData?.totalProducts.toLocaleString("en-IN") ?? "0",
+      description: "Products in inventory",
+      variant: "warning" as const,
+      badge: "Catalog",
+    },
+  ];
 
 
     
@@ -84,17 +111,22 @@ function Page() {
            <div className=' flex flex-wrap w-[65%] gap-4 px-4 '>
              <div className='w-full h-fit px-1 '>
                         <KPIGrid>
-                        {dashboardKPI.map((item) => (
+                        {kpiCards.map((item) => (
                             <KPICard
                             key={item.title}
                             title={item.title}
                             value={item.value}
-                            trend={item.trend}
                             description={item.description}
                             variant={item.variant}
                             badge={item.badge}
+                            loading={isKpiLoading}
                             />
                          ))}
+                         {isKpiError && (
+                          <p role="alert" className="col-span-full px-2 text-sm text-destructive">
+                            Dashboard KPI data could not be loaded.
+                          </p>
+                         )}
                         </KPIGrid>
 
 
@@ -138,7 +170,13 @@ function Page() {
                         <QuickActions/>
                     </div>
 
-                        <div className=' w-fit h-fit'><RecentActivity/></div>
+                        <div className=' w-fit h-fit'>
+                          <RecentActivity
+                            activities={recentActivity}
+                            isLoading={isActivityLoading}
+                            hasError={hasActivityError}
+                          />
+                        </div>
 
 
                  </div>
