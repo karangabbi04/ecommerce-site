@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { useAuthStore } from "@/store/auth.store";
 import {
   Card,
   CardContent,
@@ -23,6 +24,7 @@ import {
 
 export default function AdminLogin() {
   const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
   const loginMutation = useAdminLogin();
   const verifyMutation = useAdminLoginVerify();
   const [email, setEmail] = useState("");
@@ -51,7 +53,16 @@ export default function AdminLogin() {
 
   async function handleVerify(otp: string) {
     try {
-      await verifyMutation.mutateAsync({ email, otp });
+      const result = await verifyMutation.mutateAsync({ email, otp });
+      const admin = result?.admin;
+      if (admin) {
+        setUser({
+          id: admin.id,
+          name: admin.name ?? "Admin",
+          email: admin.email,
+          role: "ADMIN",
+        });
+      }
       toast.success("Admin login verified successfully.");
       setIsOtpDialogOpen(false);
       router.replace("/dashboard");
