@@ -22,7 +22,7 @@ export const AdminsignupService = {
          try {
       console.log("verifylogin called",);
 
-      const response = await api.post(`auth/verifyotp`, { email, otp });
+      const response = await api.post(`admin/verify`, { email, otp });
 
       console.log("verifylogin  response", response.data);
 
@@ -32,5 +32,22 @@ export const AdminsignupService = {
       throw new Error(error?.response?.data?.message || "verifylogin failed");
     }
 
-    }
+    },
+
+    async checkAdminAccess(token: string) {
+        try {
+            const response = await api.get(`admin/check-access`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            return response.data;
+        } catch (error: any) {
+            console.log("checkAdminAccess error", error?.response?.data || error);
+            throw new Error(error?.response?.data?.message || "Check admin access failed");
+        }
+    },
+
+
 }
