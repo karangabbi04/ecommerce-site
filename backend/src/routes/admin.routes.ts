@@ -5,6 +5,7 @@ import { authorize } from "../middlewares/authorize.middleware";
 import { createCategory, deleteCategory, getAdminCategories, updateCategory } from "../controllers/category.controller";
 import {getallproductsforadmin, updateProductStatus,updateProductPrice,getProductPriceHistory} from "../controllers/product.controller";
 import { orderQuery } from "../controllers/order.controller";
+import { recentAuditLogs } from "../controllers/auditlog.controller";
 const router =Router()
 
 router.post("/login",adminController.adminLogin)
@@ -12,6 +13,7 @@ router.post("/login",adminController.adminLogin)
 router.post("/verify",adminController.adminVerify)
 router.get("/orders-count",verifyJWT,authorize("ADMIN"),adminController.orderInfo) // for order count via status and total
 router.get("/orders/all",verifyJWT,authorize("ADMIN"),adminController.allOrders)
+router.get("/audit-logs",verifyJWT,authorize("ADMIN"),recentAuditLogs)
 router.get("/revenue",verifyJWT,authorize("ADMIN"),adminController.revenueDetail)
 
 router.post("/add-category",verifyJWT,authorize("ADMIN"),createCategory)
