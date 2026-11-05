@@ -98,4 +98,13 @@ export const signupService = {
       throw new Error(error?.response?.data?.message || "Login failed");
     }
   },
+
+  async LoginVerify(payload: VerifyOtpRequest) {
+    try {
+      const response = await api.post(`/auth/loginVerify`, payload);
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error?.response?.data?.message || "OTP verification failed");
+    }
+  },
 };
