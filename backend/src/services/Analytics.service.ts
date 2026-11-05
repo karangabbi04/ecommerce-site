@@ -257,6 +257,10 @@ class AdminService{
 
           return order;
         };
+
+        recentAuditLogs = async () => {
+          return adminRepository.findRecentAuditLogs();
+        };
 }
 
 

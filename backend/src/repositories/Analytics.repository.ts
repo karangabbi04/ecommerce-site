@@ -51,6 +51,24 @@ class AdminRepository {
     });
   }
 
+  async findRecentAuditLogs(limit = 6) {
+    return prisma.auditLog.findMany({
+      orderBy: { timestamp: "desc" },
+      take: limit,
+      select: {
+        id: true,
+        adminEmail: true,
+        action: true,
+        entityType: true,
+        entityId: true,
+        entityName: true,
+        oldValue: true,
+        newValue: true,
+        timestamp: true,
+      },
+    });
+  }
+
   
 }
 

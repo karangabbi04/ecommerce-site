@@ -61,6 +61,8 @@ import {  analyticsService } from "../services/Analytics.service";
   })
 
 
+
+
     revenueDetail = asyncHandler(async (req: Request, res: Response) => {
 
       const query = req.query;
