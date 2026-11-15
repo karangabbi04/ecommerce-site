@@ -31,6 +31,7 @@ class ProductRepository {
         price: data.price,
         stock: data.stock,
         status: data.status,
+        imageUrl: data.images[0]?.url,
         category: data.categoryId,
         images: {
           create: data.images.map((image) => ({
