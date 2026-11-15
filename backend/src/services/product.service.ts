@@ -9,7 +9,10 @@ import {buildProductInclude,buildProductOrderBy,buildProductWhere,} from "../hel
 import { transformProduct, transformProducts,} from "../helper/product-transform.helper.js";
 
 import { productRepository } from "../repositories/product.repository.js";
-import {CreateProductInput} from "../validations/product-validation.js"
+import {
+  CreateProductInput,
+  CreateProductFromAIToolInput,
+} from "../validations/product-validation.js"
 import { analyticsRepository } from "../repositories/Analytics.repository.js";
 import type { AdminProductQueryDto } from "../validations/product-validation.js";
 import { Prisma } from "@prisma/client";
@@ -77,6 +80,42 @@ if (!product) {
   return product;
 
 
+};
+
+const createProductFromAITool = async (productData: CreateProductFromAIToolInput) => {
+  const categorySlug = slugify(productData.category, { lower: true, strict: true, trim: true });
+  const category = await prisma.category.findFirst({
+    where: {
+      OR: [
+        { slug: categorySlug },
+        { name: { equals: productData.category, mode: "insensitive" } },
+      ],
+    },
+    select: { id: true },
+  });
+
+  if (!category) {
+    throw new ApiError(400, `Category '${productData.category}' was not found`);
+  }
+
+  const baseSlug = slugify(productData.name, { lower: true, strict: true, trim: true });
+  const existingProduct = await productRepository.findbyslug(baseSlug);
+  const slug = existingProduct ? `${baseSlug}-${Date.now()}` : baseSlug;
+
+  return productRepository.create(prisma, {
+    name: productData.name,
+    slug,
+    description: productData.description,
+    tag: productData.tag ?? "",
+    price: productData.price,
+    stock: productData.stock,
+    status: productData.status,
+    categoryId: { connect: { id: category.id } },
+    images: productData.imageUrls.map((url) => ({
+      url,
+      publicId: `external:${new URL(url).hostname}`,
+    })),
+  });
 };
 
 const getAllProducts = async (
@@ -245,6 +284,7 @@ export const productService = {
   getProductById,
   updateProductStatus,
   createProducts,
+  createProductFromAITool,
   getallproductsforadmin,
   updateProductPrice,
   priceHistory,
