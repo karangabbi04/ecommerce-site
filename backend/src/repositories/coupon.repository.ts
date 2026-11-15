@@ -12,7 +12,9 @@ class couponRepository {
               description:data.description,
               discountType:data.discountType,
               discountValue:data.discountValue,
+              minOrderAmount:data.minOrderAmount,
               maxDiscount:data.maxDiscount,
+              usageLimit:data.usageLimit,
               startsAt:data.startsAt,
               expiresAt:data.expiresAt,
               isActive:data.isActive
