@@ -1,6 +1,7 @@
 import { FunctionCallingConfigMode, GoogleGenAI } from "@google/genai";
 import { ToolExecutor } from "../tools/tool.executor.js";
 import { getAllowedToolNames, getExecutorByName,getToolDefinitions } from "../tools/tool-registry.js";
+import { buildAdminAssistantPrompt } from "../prompts/admin-assistant.prompt.js";
 
 
 // ========================================
@@ -59,7 +60,7 @@ export class AIService {
 
       console.log(`📋 Tools Available for ${user.role}:`, toolNames.join(', '));
 
-      const systemInstruction = this.buildSystemInstruction(user.role, toolNames);
+      const systemInstruction = buildAdminAssistantPrompt(user.role, toolNames);
 
       console.log('\n📞 Making FIRST Gemini call...');
       const response = await this.callGemini(
@@ -259,29 +260,6 @@ export class AIService {
     return response;
   }
 
-  private buildSystemInstruction(userRole: string, toolNames: string[]): string {
-    const toolsList = toolNames.length > 0 ? toolNames.join(', ') : 'None';
-    
-    return `You are an expert AI assistant for an admin dashboard. You help admins manage coupons, products, and view sales data.
-
-AVAILABLE TOOLS: ${toolsList}
-
-CRITICAL RULES:
-1. When an admin explicitly asks to create a coupon, call the 'create_coupon' tool. Do not respond with coupon copy or suggestions.
-2. When asked to create a product, use 'create_product' ONLY when name, description, price, stock, category, and image URL are available. Ask for missing details.
-3. NEVER claim an action succeeded unless the tool response has "success: true".
-4. If required details are missing, ask the admin for them before calling the tool.
-5. Respond in the same language as the user (Hindi/English mix is perfectly fine).
-6. Be concise, professional, and helpful.
-7. If a tool fails, explain the error in simple terms to the admin.
-8. NEVER expose sensitive data like passwords, API keys, or raw database errors.
-9. After successful tool execution, briefly confirm what was done.
-10. If the user wants to CREATE, UPDATE, DELETE, or FETCH data → YOU MUST USE THE AVAILABLE TOOLS.
-11. NEVER write marketing descriptions unless explicitly asked to do so.
-12. When in doubt, ASK for clarification instead of guessing.
-
-USER ROLE: ${userRole}`;
-  }
 }
 
 export const aiService = new AIService();
