@@ -18,6 +18,10 @@ export const couponschema = z.object({
     discountValue : z
                 .number(),
 
+        minOrderAmount: z
+                                .number()
+                                .optional(),
+
     maxDiscount: z
                 .number()
                 .optional(),
