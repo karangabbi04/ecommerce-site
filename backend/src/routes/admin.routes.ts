@@ -6,6 +6,7 @@ import { createCategory, deleteCategory, getAdminCategories, updateCategory } fr
 import {getallproductsforadmin, updateProductStatus,updateProductPrice,getProductPriceHistory} from "../controllers/product.controller";
 import { orderQuery } from "../controllers/order.controller";
 import { recentAuditLogs } from "../controllers/auditlog.controller";
+import {chatController} from "../controllers/chat.controller";
 const router =Router()
 
 router.post("/login",adminController.adminLogin)
@@ -26,6 +27,8 @@ router.patch("/products/:id/price",verifyJWT,authorize("ADMIN"), updateProductPr
 router.get("/products/:id/history",verifyJWT,authorize("ADMIN"), getProductPriceHistory);
 
 router.get("/order-query",verifyJWT,authorize("ADMIN"),orderQuery)
+
+router.post("/ai",verifyJWT,authorize("ADMIN"),chatController.chatWithAI)
 
 
 
