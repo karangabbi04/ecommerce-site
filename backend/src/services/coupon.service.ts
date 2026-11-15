@@ -23,6 +23,54 @@ class couponService {
 
     }
 
+      async getCouponDetails(code: string,) {
+       
+
+        const normalizedCode = code.trim().toUpperCase();
+        if (!normalizedCode) {
+          throw new ApiError(400, "Coupon code is required");
+        }
+
+        const coupon = await CouponRepository.findCoupon(prisma, normalizedCode);
+        if (!coupon) {
+          throw new ApiError(404, "Coupon not found");
+        }
+
+        const now = new Date();
+        const remainingMilliseconds = Math.max(0, coupon.expiresAt.getTime() - now.getTime());
+        const remainingSeconds = Math.floor(remainingMilliseconds / 1000);
+        const days = Math.floor(remainingSeconds / 86400);
+        const hours = Math.floor((remainingSeconds % 86400) / 3600);
+        const minutes = Math.floor((remainingSeconds % 3600) / 60);
+        const seconds = remainingSeconds % 60;
+        const isExpired = remainingMilliseconds === 0;
+        const isScheduled = now < coupon.startsAt;
+        const isAvailable = coupon.isActive && !isExpired && !isScheduled;
+
+        return {
+          id: coupon.id,
+          code: coupon.code,
+          description: coupon.description,
+          discountType: coupon.discountType,
+          discountValue: coupon.discountValue,
+          minOrderAmount: coupon.minOrderAmount,
+          maxDiscount: coupon.maxDiscount,
+          isActive: coupon.isActive,
+          status: isExpired ? "EXPIRED" : isScheduled ? "SCHEDULED" : coupon.isActive ? "ACTIVE" : "INACTIVE",
+          isAvailable,
+          startsAt: coupon.startsAt,
+          expiresAt: coupon.expiresAt,
+          timeUntilExpiry: { days, hours, minutes, seconds },
+          usage: {
+            usedCount: coupon.usedCount,
+            usageLimit: coupon.usageLimit,
+            remainingUses: coupon.usageLimit === null
+              ? null
+              : Math.max(0, coupon.usageLimit - coupon.usedCount),
+          },
+        };
+      }
+
     async applycoupon({code, checkoutId}: { code: string; checkoutId: string }) {
 
         const coupon= await CouponRepository.findCoupon(prisma,code)
