@@ -104,3 +104,20 @@ export const createProductSchema = z.object({
 export type CreateProductInput = z.infer<
   typeof createProductSchema
 >;
+
+export const createProductFromAIToolSchema = z.object({
+  name: z.string().trim().min(3).max(120),
+  description: z.string().trim().min(10).max(5000),
+  price: z.number().positive().finite(),
+  stock: z.number().int().nonnegative(),
+  category: z.string().trim().min(1).max(100),
+  imageUrls: z.array(
+    z.string().url().refine((value) => new URL(value).protocol === "https:", {
+      message: "Product image URLs must use HTTPS",
+    }),
+  ).min(1).max(5),
+  status: z.enum(["ACTIVE", "DRAFT", "ARCHIVED"]).default("DRAFT"),
+  tag: z.string().trim().max(80).optional(),
+});
+
+export type CreateProductFromAIToolInput = z.infer<typeof createProductFromAIToolSchema>;
