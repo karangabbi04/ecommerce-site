@@ -6,11 +6,11 @@ import { asyncHandler } from "./asyncHandler.js";
 import { ApiError } from "./apiError.js";
 
 const GUEST_CART_COOKIE_NAME = "guest_cart_id";
-const GUEST_CART_MAX_AGE = 1000 * 60 * 60 * 24 * 30; // 30 days
+const GUEST_CART_MAX_AGE = 1000 * 60 * 60 * 24 * 7; // 7 days
 
 const guestCartCookieOptions: CookieOptions = {
   httpOnly: true,
-  sameSite: "none",
+  sameSite: "lax",
   // secure: process.env.NODE_ENV === "test",
   secure: true, // Set to true for production
   maxAge: GUEST_CART_MAX_AGE,
