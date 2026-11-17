@@ -49,6 +49,15 @@ export class AIService {
   ): Promise<AIResponse> {
     console.log('\n🤖 ========== AI SERVICE START ==========');
     console.log('📩 User Message:', userMessage);
+
+    const maxToolCalls = 5;
+    const actions: Array<{ function: string; args: any }> = [];
+    const toolResults: Array<{
+      name: string;
+      args: Record<string, unknown>;
+      result: any;
+      executed: boolean;
+    }> = [];
     
     try {
       const availableTools = getAllowedToolNames(user.role);
@@ -63,48 +72,116 @@ export class AIService {
       const systemInstruction = buildAdminAssistantPrompt(user.role, toolNames);
 
       console.log('\n📞 Making FIRST Gemini call...');
-      const response = await this.callGemini(
-        userMessage,
-        systemInstruction,
-        toolDefinitions,
-        conversationHistory
-      );
-      
-      console.log('✅ First response received');
+      const contents: any[] = [
+        ...conversationHistory.map((message) => ({
+          role: message.role,
+          parts: [{ text: message.content }],
+        })),
+        { role: "user", parts: [{ text: userMessage }] },
+      ];
 
-      // 1. Get ALL parts from the response
-      const parts = response.candidates?.[0]?.content?.parts || [];
-      
-      // 2. Filter the EXACT 'part' objects that contain functionCall (preserves thought_signature)
-      const functionCallParts = parts.filter((part: any) => part.functionCall);
-      
-      // 3. Get text parts if any
-      const textResponse = parts
-        .filter((part: any) => part.text)
-        .map((part: any) => part.text)
-        .join("");
+      let response = await this.callGemini(contents, systemInstruction, toolDefinitions);
+      let toolCallsExecuted = 0;
 
-      console.log('🔍 Parsed Function Call Parts:', functionCallParts.length);
+      while (true) {
+        const parts = response.candidates?.[0]?.content?.parts || [];
+        const functionCallParts = parts.filter((part: any) => part.functionCall);
+        const textResponse = parts
+          .filter((part: any) => part.text)
+          .map((part: any) => part.text)
+          .join("");
 
-      if (functionCallParts && functionCallParts.length > 0) {
-        console.log('\n🔧 Function calls detected:', functionCallParts.map((p: any) => p.functionCall.name));
-        
-        // Pass the WHOLE part objects, not just the inner functionCall
-        return await this.handleFunctionCalls(
-          functionCallParts, 
-          user,
-          userMessage,
-          systemInstruction,
-          conversationHistory
-        );
-      } else {
-        console.log('💬 Simple text response (No tool call needed)');
-        console.log('🤖 ========== AI SERVICE END ==========\n');
-        
-        return {
-          reply: textResponse || "Sorry, I couldn't process that.",
-          actions: null
-        };
+        console.log("🔍 Parsed Function Call Parts:", functionCallParts.length);
+
+        if (functionCallParts.length === 0) {
+          console.log("🤖 ========== AI SERVICE END ==========\n");
+          return {
+            reply: textResponse || "Sorry, I couldn't process that.",
+            actions: actions.length ? actions : null,
+          };
+        }
+
+        if (toolCallsExecuted >= maxToolCalls) {
+          return {
+            reply: textResponse || `I reached the limit of ${maxToolCalls} tool calls for this request.`,
+            actions: actions.length ? actions : null,
+          };
+        }
+
+        console.log(`🔧 Tool call round ${toolCallsExecuted + 1}; calls: ${functionCallParts.length}`);
+        const functionResponses: any[] = [];
+
+        for (const part of functionCallParts) {
+          const functionCall = part.functionCall;
+          const functionName = functionCall?.name;
+
+          if (!functionCall || typeof functionName !== "string") {
+            functionResponses.push({
+              name: "unknown_tool",
+              response: { success: false, error: "The model returned an invalid tool call." },
+            });
+            continue;
+          }
+
+          if (toolCallsExecuted >= maxToolCalls) {
+            const result = {
+              success: false,
+              error: `Not executed because the ${maxToolCalls}-tool-call limit was reached.`,
+            };
+            functionResponses.push({
+              name: functionName,
+              response: result,
+            });
+            toolResults.push({ name: functionName, args: functionCall.args ?? {}, result, executed: false });
+            continue;
+          }
+
+          toolCallsExecuted += 1;
+          console.log(`⚙️ Executing tool ${toolCallsExecuted}/${maxToolCalls}: ${functionName}`);
+
+          const args = functionCall.args ?? {};
+          const result = await ToolExecutor.execute(functionName, args, user);
+          functionResponses.push({ name: functionName, response: result });
+          toolResults.push({ name: functionName, args, result, executed: true });
+
+          if (result.success) {
+            actions.push({ function: functionName, args });
+          }
+        }
+
+        // Keep Gemini's original function-call parts (including thought signatures),
+        // then let it choose the next tool based on the results.
+        contents.push({ role: "model", parts: functionCallParts });
+        contents.push({
+          role: "user",
+          parts: functionResponses.map((functionResponse) => ({
+            functionResponse: {
+              name: functionResponse.name,
+              response: functionResponse.response,
+            },
+          })),
+        });
+
+        if (toolCallsExecuted >= maxToolCalls) {
+          const finalResponse = await this.callGemini(
+            contents,
+            `${systemInstruction}\n\nFINAL RESPONSE: The tool-call budget is exhausted. Do not request or claim any more tool actions. Summarize which requested actions succeeded, which failed, and whether the user's full request was completed. If only some matching records were updated, clearly say the operation is partial. Use only the tool results in the conversation; do not guess counts or claim unfinished work succeeded.`,
+            [],
+          );
+          const finalParts = finalResponse.candidates?.[0]?.content?.parts || [];
+          const finalText = finalParts
+            .filter((part: any) => part.text)
+            .map((part: any) => part.text)
+            .join("")
+            .trim();
+
+          return {
+            reply: finalText || this.buildToolLimitSummary(toolResults, maxToolCalls),
+            actions: actions.length ? actions : null,
+          };
+        }
+
+        response = await this.callGemini(contents, systemInstruction, toolDefinitions);
       }
 
     } catch (error: any) {
@@ -113,23 +190,36 @@ export class AIService {
     }
   }
 
+  private buildToolLimitSummary(
+    toolResults: Array<{
+      name: string;
+      args: Record<string, unknown>;
+      result: any;
+      executed: boolean;
+    }>,
+    maxToolCalls: number,
+  ): string {
+    const completed = toolResults.filter((item) => item.executed && item.result?.success);
+    const failed = toolResults.filter((item) => item.executed && !item.result?.success);
+    const notExecuted = toolResults.filter((item) => !item.executed);
+    const completedNames = completed.map((item) =>
+      typeof item.result?.message === "string" ? item.result.message : item.name,
+    );
+
+    let summary = `I completed ${completed.length} tool action${completed.length === 1 ? "" : "s"} before reaching the ${maxToolCalls}-call limit.`;
+    if (completedNames.length) summary += ` Completed: ${completedNames.join("; ")}.`;
+    if (failed.length) summary += ` ${failed.length} action${failed.length === 1 ? "" : "s"} failed and need review.`;
+    if (notExecuted.length) {
+      summary += ` The full request was not completed; ${notExecuted.length} requested action${notExecuted.length === 1 ? " was" : "s were"} not run. Please ask me to continue.`;
+    }
+    return summary;
+  }
+
   private async callGemini(
-    userMessage: string,
+    contents: any[],
     systemInstruction: string,
     toolDefinitions: any[],
-    conversationHistory: ConversationMessage[]
   ) {
-    const contents = [
-      ...conversationHistory.map(msg => ({
-        role: msg.role,
-        parts: [{ text: msg.content }]
-      })),
-      {
-        role: 'user',
-        parts: [{ text: userMessage }]
-      }
-    ];
-
     const response = await this.genAI.models.generateContent({
       model: this.MODEL_NAME,
       contents: contents,
@@ -142,121 +232,6 @@ export class AIService {
       }
     });
 
-    return response;
-  }
-
-  private async handleFunctionCalls(
-    functionCallParts: any[], // <-- CHANGED: Now receives the whole part objects
-    user: User,
-    originalMessage: string,
-    systemInstruction: string,
-    conversationHistory: ConversationMessage[]
-  ): Promise<AIResponse> {
-    console.log('\n🔧 ========== HANDLING FUNCTION CALLS ==========');
-    
-    const functionResponses: any[] = [];
-    const actions: Array<{ function: string; args: any }> = [];
-
-    for (const part of functionCallParts) {
-      // Extract inner object ONLY for execution
-      const fc = part.functionCall; 
-      const functionName = fc.name;
-      const args = fc.args;
-      
-      console.log(`\n⚙️ Executing: ${functionName}`);
-      console.log('📥 Args:', args);
-
-      try {
-        const result = await ToolExecutor.execute(functionName, args, user);
-        console.log('✅ Result:', result);
-        
-        functionResponses.push({
-          name: functionName,
-          response: result
-        });
-        
-        if (result.success) {
-          actions.push({ function: functionName, args: args });
-        }
-
-      } catch (error: any) {
-        console.error(`❌ Error executing ${functionName}:`, error.message);
-        functionResponses.push({
-          name: functionName,
-          response: { success: false, error: error.message }
-        });
-      }
-    }
-
-    console.log('\n📞 Making SECOND Gemini call with results...');
-    
-    const finalResponse = await this.callGeminiWithResults(
-      originalMessage,
-      systemInstruction,
-      functionCallParts, // <-- PASS THE ORIGINAL PARTS HERE
-      functionResponses,
-      conversationHistory
-    );
-    
-    const finalParts = finalResponse.candidates?.[0]?.content?.parts || [];
-    const finalText = finalParts
-      .filter((part: any) => part.text)
-      .map((part: any) => part.text)
-      .join("") || "Task completed successfully.";
-    
-    console.log('💬 Final reply:', finalText);
-    console.log('🔧 ========== FUNCTION CALLS END ==========\n');
-
-    return {
-      reply: finalText,
-      actions: actions.length > 0 ? actions : null
-    };
-  }
-
-  private async callGeminiWithResults(
-    originalMessage: string,
-    systemInstruction: string,
-    functionCallParts: any[], // <-- CHANGED: Receives original parts
-    functionResponses: any[],
-    conversationHistory: ConversationMessage[]
-  ) {
-    const contents = [
-      ...conversationHistory.map(msg => ({
-        role: msg.role,
-        parts: [{ text: msg.content }]
-      })),
-      {
-        role: 'user',
-        parts: [{ text: originalMessage }]
-      },
-      {
-        role: 'model',
-        // ✅ FIX: Use the EXACT original parts array. This preserves the thought_signature!
-        parts: functionCallParts 
-      },
-      {
-        role: 'user',
-        parts: functionResponses.map((fr: any) => ({
-          functionResponse: {
-            name: fr.name,
-            response: fr.response
-          }
-        }))
-      }
-    ];
-
-    const response = await this.genAI.models.generateContent({
-      model: this.MODEL_NAME,
-      contents: contents,
-      config: {
-        systemInstruction,
-        toolConfig: {
-          functionCallingConfig: { mode: FunctionCallingConfigMode.NONE }
-        },
-      },
-    });
-    
-    console.log('✅ Second Gemini response received');
     return response;
   }
 
