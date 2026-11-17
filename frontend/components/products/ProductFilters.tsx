@@ -1,8 +1,6 @@
 "use client";
 
-import { Search, SlidersHorizontal } from "lucide-react";
-
-import { Input } from "@/components/ui/input";
+import { SlidersHorizontal } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 
@@ -14,10 +12,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
-import {
-    PRODUCT_CATEGORIES,
-    SORT_OPTIONS,
-} from "@/constants/products-constants";
+import { SORT_OPTIONS } from "@/constants/products-constants";
+import { useCategories } from "@/hooks/queries/use-category";
 
 interface ProductFiltersProps {
     search: string;
@@ -37,7 +33,8 @@ export default function ProductFilters({
     onCategoryChange,
     onSortChange,
 }: ProductFiltersProps) {
-    console.log(search)
+    const { data: categories = [], isLoading, isError } = useCategories();
+
     return (
         <section className="mb-10 space-y-6">
 
@@ -64,24 +61,42 @@ export default function ProductFilters({
 
                 <div className="flex flex-wrap gap-2">
 
-                    {PRODUCT_CATEGORIES.map((item) => (
+                    <Badge
+                        onClick={() => onCategoryChange("")}
+                        variant={!category ? "default" : "secondary"}
+                        className="cursor-pointer rounded-full px-4 py-2"
+                    >
+                        All
+                    </Badge>
+
+                    {categories.map((item: { id: string; name: string }) => (
 
                         <Badge
-                            key={item}
+                            key={item.id}
                             onClick={() =>
-                                onCategoryChange(item)
+                                onCategoryChange(item.name)
                             }
                             variant={
-                                category === item
+                                category === item.name
                                     ? "default"
                                     : "secondary"
                             }
                             className="cursor-pointer rounded-full px-4 py-2"
                         >
-                            {item}
+                            {item.name}
                         </Badge>
 
                     ))}
+
+                    {isLoading && (
+                        <span className="self-center text-sm text-muted-foreground">Loading categories...</span>
+                    )}
+                    {isError && categories.length === 0 && (
+                        <span className="self-center text-sm text-destructive">Categories could not be loaded.</span>
+                    )}
+                    {!isLoading && !isError && categories.length === 0 && (
+                        <span className="self-center text-sm text-muted-foreground">No categories available.</span>
+                    )}
 
                 </div>
 
@@ -95,7 +110,7 @@ export default function ProductFilters({
                         value={sort}
                         onValueChange={onSortChange}
                     >
-                        <SelectTrigger className="w-[220px]">
+                        <SelectTrigger className="w-55">
 
                             <SelectValue />
 
