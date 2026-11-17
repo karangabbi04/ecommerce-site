@@ -268,6 +268,72 @@ const updateProductPrice = async (id: string, price: number, reason:string) => {
   });
 };
 
+const bulkUpdateProductPrices = async (input: {
+  priceBelow: number;
+  newPrice: number;
+  reason: string;
+  categoryId?: string;
+  status?: Prisma.ProductWhereInput["status"];
+  changedBy?: string;
+}) => {
+  const { priceBelow, newPrice, reason, categoryId, status, changedBy = "SYSTEM" } = input;
+
+  if (!Number.isFinite(priceBelow) || priceBelow <= 0) {
+    throw new ApiError(400, "priceBelow must be a positive number");
+  }
+  if (!Number.isFinite(newPrice) || newPrice <= 0) {
+    throw new ApiError(400, "newPrice must be a positive number");
+  }
+  if (!reason.trim()) {
+    throw new ApiError(400, "A reason is required for a bulk price update");
+  }
+
+  const where: Prisma.ProductWhereInput = {
+    price: { lt: priceBelow },
+    ...(categoryId ? { categoryId } : {}),
+    ...(status ? { status } : {}),
+  };
+
+  return prisma.$transaction(async (tx) => {
+    const products = await tx.product.findMany({
+      where,
+      select: { id: true, name: true, price: true },
+      take: 1001,
+    });
+
+    if (products.length > 1000) {
+      throw new ApiError(400, "More than 1000 products match; narrow the filters and retry");
+    }
+
+    await Promise.all(products.map(async (product) => {
+      const oldPrice = Number(product.price);
+      await productRepository.updatePrice(tx, product.id, newPrice, oldPrice);
+
+      if (oldPrice !== newPrice) {
+        await tx.priceHistory.create({
+          data: {
+            productId: product.id,
+            oldPrice,
+            newPrice,
+            reason: reason.trim(),
+            changedBy,
+          },
+        });
+      }
+    }));
+
+    return {
+      updatedCount: products.length,
+      products: products.map((product) => ({
+        id: product.id,
+        name: product.name,
+        oldPrice: Number(product.price),
+        newPrice,
+      })),
+    };
+  });
+};
+
 
 const priceHistory = async (id: string) => {
   const product = await productRepository.findById(id);
@@ -287,6 +353,7 @@ export const productService = {
   createProductFromAITool,
   getallproductsforadmin,
   updateProductPrice,
+  bulkUpdateProductPrices,
   priceHistory,
 
 };
