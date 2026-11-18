@@ -13,7 +13,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-xl">
       <div className="container mx-auto">
 
-        <div className="flex h-20 items-center justify-between gap-6">
+        <div className="flex h-20 items-center justify-between gap-6 px-2">
 
           {/* Left */}
 
@@ -35,11 +35,13 @@ export default function Navbar() {
 
           {/* Right */}
 
-          <NavbarActions
+          <div>
+            <NavbarActions
                 onMenuClick={() =>
                     setIsMenuOpen(true)
                 }
             />
+          </div>
 
         </div>
 
