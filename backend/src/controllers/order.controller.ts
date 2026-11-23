@@ -4,6 +4,7 @@ import { ApiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler";
 import { createOrderService , CreateOrderDto,getOrderDetailsByRazorpayId, updateOrderStatus,getFilteredOrders, getOrdersForUser } from "../services/order.service.js";
 import { UpdateOrderStatusRequest } from "../types/order.types.js";
+import { orderRepository } from "../repositories/order.repository.js";
 
 
 
@@ -125,6 +126,7 @@ export const getMyOrders = asyncHandler(async (req: Request, res: Response) => {
   if (!userId) {
     throw new ApiError(401, "Unauthorized request");
   }
+  // const orders =  orderRepository.findorderbyEmail
 
   const orders = await getOrdersForUser(userId);
   res.status(200).json(new ApiResponse(200, orders, "Your orders fetched successfully"));
