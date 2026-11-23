@@ -37,14 +37,14 @@ export const getOrCreateCart = async ({
   res,
 }: GetOrCreateCartParams): Promise<Cart> => {
 
-  console.log("Received Guest ID:", guestId);
+  // console.log("Received Guest ID:", guestId);
 
   if (!isValidGuestId(guestId)) {
-    console.log("Creating NEW Guest ID in 1st check");
+    // console.log("Creating NEW Guest ID in 1st check");
   }
 
   if (!isValidGuestId(guestId)) {
-    console.log("Creating NEW Guest ID in 2nd check");
+    // console.log("Creating NEW Guest ID in 2nd check");
   }
   if (userId) {
     return prisma.cart.upsert({
@@ -62,7 +62,7 @@ export const getOrCreateCart = async ({
 
   if (!isValidGuestId(finalGuestId)) {
 
-    console.log("Creating NEW Guest ID  in  final guest id ");
+    // console.log("Creating NEW Guest ID  in  final guest id ");
     finalGuestId = createGuestId();
 
     res.cookie(
