@@ -87,3 +87,15 @@ export const getOdersForAdminWithCount = async () => {
 
     return response.data.data;
 }
+
+export const getOrderForUser = async ()=>{
+
+  const response = await api.get("/order/my-orders");
+  console.log(response,"sdlfslkf")
+
+  if (!response.data || !Array.isArray(response.data.data)) {
+    throw new Error("Invalid response from server while fetching your orders");
+  }
+
+  return response.data.data;
+}
