@@ -179,6 +179,37 @@ export const fetchCheckoutSession = async (
   return checkout;
 
 };
+
+export const cleanupExpiredCheckoutSessions = async (batchSize = 500) => {
+  const now = new Date();
+
+  return prisma.$transaction(async (tx) => {
+    const expiredSessions = await tx.checkoutSession.findMany({
+      where: {
+        expiresAt: { lte: now },
+        status: { in: ["ACTIVE", "EXPIRED", "CANCELLED"] },
+      },
+      select: { id: true },
+      orderBy: { expiresAt: "asc" },
+      take: batchSize,
+    });
+
+    if (expiredSessions.length === 0) {
+      return 0;
+    }
+
+    const sessionIds = expiredSessions.map((session) => session.id);
+    await tx.checkoutItem.deleteMany({
+      where: { checkoutSessionId: { in: sessionIds } },
+    });
+
+    const result = await tx.checkoutSession.deleteMany({
+      where: { id: { in: sessionIds } },
+    });
+
+    return result.count;
+  });
+};
     
   export const  attachAddressToCheckout = async(
     checkoutId: string,

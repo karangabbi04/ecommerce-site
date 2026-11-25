@@ -18,6 +18,9 @@ import couponRouter from "./routes/coupon.routes.js"
 import trackerRouter from "./routes/orderTrack.routes.js"
 import {notFound} from "./middlewares/notFound.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import { initWhatsapp } from "./whatsapp-api/whatsapp-service.js";
+import { sendMessage } from "./whatsapp-api/whatsapp-service.js";
+
 
 const app = express();
 
@@ -28,13 +31,43 @@ app.use(
 app.use(cors(
  { origin: process.env.FRONTEND_URL,
   credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
 }
 ));
-
+    
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
+
+// initWhatsapp().catch(error => {
+//     console.error("❌ WhatsApp initialization failed:", error.message);
+// });
+
+
+
+// 🔥 Test endpoint - Delivery update bhejne ke liye
+app.post('/api/wasend', async (req, res) => {
+    const { userPhone,msg } = req.body;
+
+    if ( !userPhone || !msg) {
+        return res.status(400).json({
+            success: false,
+            error: "Missing required fields: orderId, userPhone, deliveryStatus"
+        });
+    }
+
+    try {
+        const result = await sendMessage(userPhone,msg );
+        res.json(result);
+    } catch (error:any) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
 
 
 

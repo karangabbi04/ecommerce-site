@@ -107,6 +107,14 @@ export class CheckoutRepository {
       data,
     })
   }
+
+  async deletecheckout(checkoutId:string,){
+        return prisma.checkoutSession.delete({
+          where:{
+            id:checkoutId
+          }
+        })
+  }
 }
 
 

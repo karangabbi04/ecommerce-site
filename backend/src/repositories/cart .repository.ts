@@ -180,6 +180,15 @@ async getCartItemCount(cartId: string) {
     },
   });
 }
+async clearcartusinguserId(userId:string){
+    return prisma.cart.delete({
+      where:{
+        userId
+      }
+    })
 }
+
+}
+
 
 export const cartRepository = new CartRepository();
