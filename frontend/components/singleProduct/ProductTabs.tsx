@@ -44,9 +44,11 @@ export default function ProductTabs({
             Product Overview
           </h3>
 
-          <p className="text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-            {description}
-          </p>
+         <div className="max-h-28 overflow-y-auto pr-2 sm:max-h-24">
+  <p className="whitespace-pre-line text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
+    {description}
+  </p>
+</div>
         </div>
       </TabsContent>
 
