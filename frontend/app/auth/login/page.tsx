@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { Route } from "next";
 import { useLogin } from "@/hooks/mutations/use-login";
 import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "next/navigation";
@@ -140,7 +141,7 @@ export default function LoginPage() {
         role: user.role ?? "USER",
       });
       setIsOtpDialogOpen(false);
-      router.push("/");
+      router.replace("/account" as Route);
     } catch (error) {
       alert(error instanceof Error ? error.message : "OTP verification failed. Please try again.");
     }
