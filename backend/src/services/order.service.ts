@@ -9,10 +9,15 @@ import { prisma } from "../lib/prisma.js";
 import { CouponService } from "./coupon.service.js";
 import { CouponRepository } from "../repositories/coupon.repository.js";
 import { calculateCheckoutPricing } from "./price.service.js";
-import { OrderStatus, Prisma } from "@prisma/client";
+import { Prisma, OrderStatus } from "@prisma/client";
+
+
 import { UpdateOrderStatusRequest } from "../types/order.types.js";
 import { orderTrack } from "../controllers/OrderTracking.controller.js";
 import { TrackingRepsitory } from "../repositories/orderTracking.repository.js";
+import { create } from "axios";
+import { cartRepository } from "../repositories/cart .repository.js";
+import { check } from "zod";
 
 
 export interface CreateOrderDto {
@@ -282,7 +287,12 @@ export const createOrderService = async (
           process.env.RAZORPAY_KEY_ID,
       };
       
-    });
+    }); 
+
+    if(createOrder){
+
+
+    }
 
   return createOrder;
 
@@ -386,8 +396,13 @@ export const getFilteredOrders = async (queryParams: any) => {
     };
 }
 
- export const getOrdersForUser = async (userId: string) => {
-    return orderRepository.findOrdersForUser(userId);
+ export const getOrdersForUser = async (email: string) => {
+    const order =await orderRepository.findOrdersForUser(email);
+
+    if(!order){
+       throw new  ApiError(500,"something wrong to fetch order ")
+    }
+    return order
   };
 
 

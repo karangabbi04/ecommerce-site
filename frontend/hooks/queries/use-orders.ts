@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllOrders, getFilteredOrders,getOdersForAdminWithCount,getOrderByRazorId } from "@/services/order.service";
+import { getAllOrders, getFilteredOrders, getOdersForAdminWithCount, getOrderByRazorId, getOrderForUser } from "@/services/order.service";
 
 export function useAllOrders() {
   return useQuery({
@@ -29,5 +29,13 @@ export function useOrdersForAdminWithCount() {
       const response = await getOdersForAdminWithCount();
       return response;
     },
+  });
+}
+
+export function useOrdersForUser() {
+  return useQuery({
+    queryKey: ["account", "orders"],
+    queryFn: getOrderForUser,
+    retry: false,
   });
 }

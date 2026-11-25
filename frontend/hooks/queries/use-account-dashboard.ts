@@ -6,6 +6,9 @@ export function useAccountProfile() {
     queryKey: ["account", "profile"],
     queryFn: accountService.getProfile,
     retry: false,
+
+    staleTime: 0,       // Data ko turant "purana" (stale) maan lo
+    gcTime: 0,  
   });
 }
 

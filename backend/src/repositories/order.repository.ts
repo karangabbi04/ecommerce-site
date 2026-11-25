@@ -148,6 +148,14 @@ class OrderRepository {
         
     })
 }
+
+    async findorderbyEmail(email:string){
+      return prisma.order.findMany({
+       where:{
+        customerEmail:email
+       }
+      })
+    }
 }
   
 

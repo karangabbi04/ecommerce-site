@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, type ColumnConfig } from "@/components/data-table/DataTable";
-import { useAccountOrders, useAccountProfile } from "@/hooks/queries/use-account-dashboard";
+import { useAccountProfile } from "@/hooks/queries/use-account-dashboard";
+import { useOrdersForUser } from "@/hooks/queries/use-orders";
 import type { AccountOrder } from "@/services/account.service";
 
 function formatPrice(value: number | string) {
@@ -79,12 +80,12 @@ const columns: ColumnConfig<AccountOrder>[] = [
 
 export default function AccountPage() {
   const profileQuery = useAccountProfile();
-  const ordersQuery = useAccountOrders();
+  const ordersQuery = useOrdersForUser();
   const orders = ordersQuery.data ?? [];
-  const deliveredOrders = orders.filter((order) => order.currentStatus === "DELIVERED").length;
+  const deliveredOrders = orders.filter((order: { currentStatus: string; }) => order.currentStatus === "DELIVERED").length;
   const paidTotal = orders
-    .filter((order) => order.paymentStatus === "PAID")
-    .reduce((total, order) => total + Number(order.total), 0);
+    .filter((order: { paymentStatus: string; }) => order.paymentStatus === "PAID")
+    .reduce((total: number, order: { total: any; }) => total + Number(order.total), 0);
   const displayName = profileQuery.data?.name || "Customer";
   const initials = displayName
     .split(/\s+/)
