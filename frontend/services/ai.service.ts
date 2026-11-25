@@ -15,11 +15,10 @@ export interface AIChatResponse {
 }
 
 
-type EnhancePayload = {
+export type EnhancePayload = {
   name: string;
   description: string;
   category: string;
-  tags: string[];
 };
 
 type EnhanceResponse = {

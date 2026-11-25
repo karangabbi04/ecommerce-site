@@ -25,10 +25,10 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { useInhanceDescription } from "@/hooks/mutations/use-addProduct";
 
-// Hooks (Tumhare actual hooks ke naam ke hisab se adjust kar lena)
+
 import { useCreateProduct } from "@/hooks/mutations/use-addProduct";
-// import { useUpdateProduct } from "@/hooks/mutations/use-editProduct"; 
 
 type ProductFormInitialData = Omit<ProductSchemaType, "category" | "images"> & {
   id: string;
@@ -46,7 +46,7 @@ export default function ProductForm({ initialData, onSuccess, onClose }: Product
   const [isSuccess, setIsSuccess] = useState(false);
   
   const createProduct = useCreateProduct();
-  // const updateProduct = useUpdateProduct(); // ✅ Update hook uncomment karna
+  const generateDescription = useInhanceDescription();
 
   const isEditMode = !!initialData; // ✅ Check karo ki ye Edit mode hai ya Create
   const normalizedCategory =
@@ -74,6 +74,36 @@ export default function ProductForm({ initialData, onSuccess, onClose }: Product
       tag: "",
     },
   });
+
+/// description  inhancer 
+
+async function handleGenerateDescription() {
+  const { name, description, category } = form.getValues();
+
+  if (!name?.trim() || !description?.trim()) {
+    toast.error("Please enter product name and a short description first.");
+    return;
+  }
+
+  try {
+    const result = await generateDescription.mutateAsync({
+      name,
+     description,
+      category, // category ID jaa rahi hai, backend me ID se name nikaal lena
+    });
+
+    form.setValue("description", result.description, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    toast.success("Description generated!");
+  } catch (error) {
+    console.error("GENERATE DESCRIPTION ERROR:", error);
+    toast.error("Failed to generate description");
+  }
+}
+
+
 
   async function onSubmit(values: ProductSchemaType) {
     try {
@@ -264,6 +294,21 @@ export default function ProductForm({ initialData, onSuccess, onClose }: Product
         </div>
 
         <div className="space-y-6">
+          {/* <div>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Product details..." className="w-full min-h-25" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div> */}
           <div>
             <FormField
               control={form.control}
@@ -274,6 +319,15 @@ export default function ProductForm({ initialData, onSuccess, onClose }: Product
                   <FormControl>
                     <Textarea placeholder="Product details..." className="w-full min-h-25" {...field} />
                   </FormControl>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleGenerateDescription}
+                    disabled={generateDescription.isPending}
+                    className="w-full sm:w-auto"
+                  >
+                    {generateDescription.isPending ? "Generating..." : "Generate with AI"}
+                  </Button>
                   <FormMessage />
                 </FormItem>
               )}
