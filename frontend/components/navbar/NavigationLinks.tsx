@@ -7,15 +7,17 @@ import clsx from "clsx";
 const NAV_LINKS = [
   {
     label: "Products",
-    href: "/",
+       href: "/products?sort=newest",
+
   },
   {
     label: "About",
-    href: "//",
+        href: "/products",
+
   },
   {
     label: "Contact",
-    href: "////",
+    href: "/products",
   },
 ];
 
@@ -27,7 +29,7 @@ export default function NavigationLinks() {
       {NAV_LINKS.map((item) => (
         <Link
           key={item.href}
-          href="/"
+          href="/products?sort=newest"
           className={clsx(
             "text-sm font-medium transition-colors",
             pathname === item.href
