@@ -1,6 +1,5 @@
 "use client";
 
-import Logo from "./logo";
 import SearchBox from "./SearchBox";
 import NotificationButton from "./NotificationButton";
 import ThemeToggle from "./ThemeToggle";
@@ -10,26 +9,16 @@ import UserMenu from "./UserMenu";
 
 export default function Navbar() {
   return (
-    <header className="  w-full sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl supports-backdrop-filter:bg-background/60">
-      <div className="flex h-16 items-center justify-between gap-2 px-6">
-
-        {/* Left */}
-        <div className="flex items-center gap-8">
-        </div>
-
-        {/* Center */}
-        <div className="hidden flex-1 justify-center lg:flex">
-          <SearchBox />
-        </div>
-
-        {/* Right */}
-        <div className="flex items-center gap-2">
-          <NotificationButton />
-          <ThemeToggle />
-          <UserMenu />
-        </div>
-
+    <div className="flex min-w-0 flex-1 items-center gap-2">
+      <div className="hidden min-w-0 flex-1 md:block">
+        <SearchBox className="max-w-xl" />
       </div>
-    </header>
+
+      <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+        <NotificationButton />
+        <ThemeToggle />
+        <UserMenu />
+      </div>
+    </div>
   );
 }

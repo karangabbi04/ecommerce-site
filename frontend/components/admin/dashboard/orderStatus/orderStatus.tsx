@@ -88,10 +88,10 @@ const STATUS_STYLES: Record<
 
 export default function OrderStatusCard({ orderStatusData }: OrderStatusCardProps) {
   return (
-    <section className="rounded-3xl p-6">
-      <div className="mb-6 flex items-center justify-between">
+    <section className="rounded-3xl p-3 sm:p-4">
+      <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white">Order Status</h2>
+          <h2 className="text-lg font-bold text-foreground sm:text-xl">Order Status</h2>
           <p className="text-sm text-slate-400">Monitor order activity</p>
         </div>
       </div>

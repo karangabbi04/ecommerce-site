@@ -62,21 +62,10 @@ export function KPICard({
 
   if (loading) {
     return (
-      <Card className={cn("rounded-2xl border", className)}>
-        <CardContent className="space-y-3 p-4">
-          <div className="flex items-center justify-between">
-            <div className="h-4 w-24 animate-pulse rounded bg-muted" />
-            <div className="h-12 w-12 animate-pulse rounded-xl bg-muted" />
-          </div>
-
-          <div className="h-9 w-36 animate-pulse rounded bg-muted" />
-
-          <div className="flex items-center gap-2">
-            <div className="h-5 w-16 animate-pulse rounded bg-muted" />
-            <div className="h-4 w-24 animate-pulse rounded bg-muted" />
-          </div>
-
-          <div className="h-4 w-40 animate-pulse rounded bg-muted" />
+      <Card className={cn("min-w-0 rounded-lg border py-2 sm:rounded-2xl sm:py-4", className)}>
+        <CardContent className="space-y-2 px-2 sm:space-y-3 sm:p-4">
+          <div className="h-3 w-12 animate-pulse rounded bg-muted sm:h-4 sm:w-24" />
+          <div className="h-4 w-full animate-pulse rounded bg-muted sm:h-9 sm:w-36" />
         </CardContent>
       </Card>
     );
@@ -85,22 +74,21 @@ export function KPICard({
   return (
     <Card
       className={cn(
-        "group  rounded-xl  bg-gray-100 border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl",
+        "group min-w-0 rounded-lg border bg-gray-100 py-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:rounded-xl sm:py-4",
         className
       )}
     >
-      <CardContent className="space-y-2 px-7">
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-muted-foreground">
+      <CardContent className="space-y-1 px-2 sm:space-y-2 sm:px-5">
+        <div className="flex items-start justify-between gap-1">
+          <div className="min-w-0 space-y-1">
+            <p className="truncate text-[11px] font-medium text-muted-foreground sm:text-sm">
               {title}
             </p>
 
             {badge && (
               <Badge
                 variant="secondary"
-                className="rounded-full px-2 py-0 text-[11px]"
+                className="hidden rounded-full px-2 py-0 text-[11px] sm:inline-flex"
               >
                 {badge}
               </Badge>
@@ -110,15 +98,14 @@ export function KPICard({
           <div
             className={cn(
               iconContainerVariants({ variant }),
-              "transition-transform duration-300 group-hover:scale-110"
+              "hidden transition-transform duration-300 group-hover:scale-110 sm:flex"
             )}
           >
             {/* <Icon className="h-6 w-6" /> */}
           </div>
         </div>
 
-        {/* Value */}
-        <h2 className="text-2xl font-bold tracking-tight">{value}</h2>
+        <h2 className="text-[13px] leading-tight font-bold tracking-tight break-words sm:text-2xl">{value}</h2>
 
         {/* Trend */}
         {trend !== undefined && (

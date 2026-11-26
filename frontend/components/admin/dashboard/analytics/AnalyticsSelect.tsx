@@ -32,7 +32,7 @@ function AnalyticsSelect({
       value={value}
       onValueChange={onChange}
     >
-      <SelectTrigger className="w-45">
+      <SelectTrigger className="w-full min-w-0">
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
 

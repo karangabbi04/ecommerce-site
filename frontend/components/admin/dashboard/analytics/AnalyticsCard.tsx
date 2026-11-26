@@ -15,8 +15,8 @@ function AnalyticsCard() {
     const { data, isError, isLoading } = useanalytics(dateRange);
 
     return (
-        <main className='flex w-full h-full bg-gray-800 rounded-2xl flex-wrap p-4'>
-            <div className='w-full h-12 flex justify-between  flex-3'>
+        <section className="flex w-full min-w-0 flex-col gap-3 rounded-2xl bg-card p-3 text-card-foreground ring-1 ring-border sm:p-4">
+            <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3">
                 <AnalyticsSelect
                     value={metric}
                     options={metricOptions}
@@ -36,22 +36,24 @@ function AnalyticsCard() {
                 />
              </div>
 
-                        <div className='w-full h-fit'>
+                        <div className="relative h-60 w-full min-w-0 sm:h-80">
                             {isLoading ? (
-                                <p className="py-8 text-center text-sm text-slate-300">Loading analytics...</p>
+                                <p className="py-8 text-center text-sm text-muted-foreground">Loading analytics...</p>
                             ) : isError ? (
-                                <p role="alert" className="py-8 text-center text-sm text-red-300">
+                                <p role="alert" className="py-8 text-center text-sm text-destructive">
                                     Could not load revenue analytics.
                                 </p>
                             ) : (
+                                <div className="absolute inset-0">
                                 <AnalyticsChart
                                     type={chartType}
                                     data={data ?? []}
                                     dataKey={metric}
                                 />
+                                </div>
                             )}
             </div>
-        </main>
+        </section>
     )
 }
 

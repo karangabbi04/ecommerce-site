@@ -87,7 +87,12 @@ export function DataTable<T>({
               </TableHead>
             )}
             {columns.map((col, idx) => (
-              <TableHead key={idx} className={col.className}>{col.header}</TableHead>
+              <TableHead
+                key={idx}
+                className={`${col.className ?? ""} ${col.hideOnMobile ? "hidden md:table-cell" : ""}`}
+              >
+                {col.header}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
@@ -108,7 +113,10 @@ export function DataTable<T>({
                   </TableCell>
                 )}
                 {columns.map((col, colIndex) => (
-                  <TableCell key={colIndex} className={col.className}>
+                  <TableCell
+                    key={colIndex}
+                    className={`${col.className ?? ""} ${col.hideOnMobile ? "hidden md:table-cell" : ""}`}
+                  >
                     {col.cell ? col.cell(row, rowIndex) : row[col.accessorKey!] as any}
                   </TableCell>
                 ))}

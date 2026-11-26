@@ -66,7 +66,7 @@ export function RecentActivity({ activities, isLoading = false, hasError = false
   return (
     <section className="space-y-3 p-2 rounded-xl">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="text-xl font-semibold tracking-tight">
             Recent Activity

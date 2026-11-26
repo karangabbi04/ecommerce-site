@@ -7,13 +7,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b ">
-          <SidebarTrigger className="px-2 py-1 hidden max-[768]:block"/>
-            <span className="sr-only">Toggle sidebar</span>
-          <Navbar/>
+      <SidebarInset className="min-w-0 overflow-x-hidden">
+        <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b bg-background/80 px-3 backdrop-blur-xl supports-backdrop-filter:bg-background/60 sm:h-16 sm:px-4">
+          <SidebarTrigger className="md:hidden" />
+          <Navbar />
         </header>
-        <div className="flex flex-1 flex-col gap-4 ">
+        <div className="flex min-w-0 flex-1 flex-col">
           {children}
         </div>
       </SidebarInset>

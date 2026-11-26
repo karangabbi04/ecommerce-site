@@ -67,7 +67,7 @@ function Page() {
 
     
   const columns: ColumnConfig<Product>[] = [
-    { header: "SKU", accessorKey: "sku", className: "font-mono text-xs" },
+    { header: "SKU", accessorKey: "sku", className: "font-mono text-xs", hideOnMobile: true },
     { header: "Product Name", accessorKey: "name", className: "font-medium" },
     {
       header: "Stock",
@@ -79,6 +79,7 @@ function Page() {
     },
     {
       header: "Availability",
+      hideOnMobile: true,
       cell: (row) => (
         <Badge variant={row.isAvailable ? "default" : "destructive"}>
           {row.isAvailable ? "In Stock" : "Out of Stock"}
@@ -91,8 +92,14 @@ function Page() {
       // Different actions for products!
       cell: (row) => (
         <div className="flex justify-end gap-2">
-          <Button size="sm" variant="outline"><Eye className="h-4 w-4 mr-1" /> View</Button>
-          <Button size="sm"><Edit className="h-4 w-4 mr-1" /> Edit</Button>
+          <Button size="sm" variant="outline" aria-label="View product">
+            <Eye className="h-4 w-4" />
+            <span className="hidden sm:inline">View</span>
+          </Button>
+          <Button size="sm" aria-label="Edit product">
+            <Edit className="h-4 w-4" />
+            <span className="hidden sm:inline">Edit</span>
+          </Button>
         </div>
       ),
     },
@@ -105,83 +112,70 @@ function Page() {
   }, [isLoading, ordersData]);
 
 
-    return (
-        <main className=' flex justify-between w-full   rounded-xl'>
-{/* left side */}
-           <div className=' flex flex-wrap w-[65%] gap-4 px-4 '>
-             <div className='w-full h-fit px-1 '>
-                        <KPIGrid>
-                        {kpiCards.map((item) => (
-                            <KPICard
-                            key={item.title}
-                            title={item.title}
-                            value={item.value}
-                            description={item.description}
-                            variant={item.variant}
-                            badge={item.badge}
-                            loading={isKpiLoading}
-                            />
-                         ))}
-                         {isKpiError && (
-                          <p role="alert" className="col-span-full px-2 text-sm text-destructive">
-                            Dashboard KPI data could not be loaded.
-                          </p>
-                         )}
-                        </KPIGrid>
+   return (
+  <main className="flex w-full min-w-0 flex-col gap-4 p-3 sm:p-4 xl:flex-row xl:items-start">
+    <div className="flex w-full min-w-0 flex-col gap-4 xl:flex-1">
+      <div className="w-full min-w-0">
+        <KPIGrid>
+          {kpiCards.map((item) => (
+            <KPICard
+              key={item.title}
+              title={item.title}
+              value={item.value}
+              description={item.description}
+              variant={item.variant}
+              badge={item.badge}
+              loading={isKpiLoading}
+            />
+          ))}
+          {isKpiError && (
+            <p role="alert" className="col-span-full px-2 text-sm text-destructive">
+              Dashboard KPI data could not be loaded.
+            </p>
+          )}
+        </KPIGrid>
 
+        <div className="mt-3 w-full min-w-0">
+          <AnalyticsCard />
+        </div>
 
+        <div className="mt-3 w-full min-w-0">
+          <DataTable
+            data={mockProducts}
+            columns={columns}
+            isSelectable={true}
+            // selectedRowIds={selectedIds}
+            // onSelectionChange={setSelectedIds}
+            // getRowId={(row) => row.id}
+          />
+        </div>
+      </div>
+    </div>
 
-                       <div className='w-full h-fit mt-2     '>
-                          <AnalyticsCard/>
-                       </div>
+    {/* right side */}
+    <aside className="grid h-fit w-full min-w-0 grid-cols-1 gap-4 lg:grid-cols-2 xl:flex xl:w-[340px] xl:shrink-0 xl:flex-col">
+      <div className="w-full">
+        <SalesGoalCard goal={500000} currentSales={263460} />
+      </div>
 
+      <div className="w-full">
+        <OrderStatusCard orderStatusData={ordersData ?? []} />
+      </div>
 
+      <div className="w-full">
+        <QuickActions />
+      </div>
 
-                <div className='w-full h-fit mt-2 '>
-                          <DataTable
-                                 data={mockProducts}
-                                 columns={columns}
-                                 isSelectable={true}
-                                //  selectedRowIds={selectedIds}
-                                //  onSelectionChange={setSelectedIds}
-                                //  getRowId={(row) => row.id}
-                               />
-                 </div>
-                </div>
-           </div>
-
-           {/* // right side */}
-              <div className='w-[35%] h-fit p-2 rounded-xl ' >
-                
-                <div className=" mb-4">
-                    <SalesGoalCard
-                    goal={500000}
-                currentSales={263460}
-                />
-              </div>
-                 <div className=' w-full'>
-                    <OrderStatusCard
-                      orderStatusData={ordersData ?? []}
-                />
-            </div>
-
-                
-                <div className=' w-full '>
-                        <QuickActions/>
-                    </div>
-
-                        <div className=' w-fit h-fit'>
-                          <RecentActivity
-                            activities={recentActivity}
-                            isLoading={isActivityLoading}
-                            hasError={hasActivityError}
-                          />
-                        </div>
-
-
-                 </div>
-        </main>
-    )
+      <div className="h-fit w-full">
+        <RecentActivity
+          activities={recentActivity}
+          isLoading={isActivityLoading}
+          hasError={hasActivityError}
+        />
+      </div>
+    </aside>
+  </main>
+)
 }
 
 export default Page

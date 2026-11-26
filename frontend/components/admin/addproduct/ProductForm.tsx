@@ -91,6 +91,8 @@ async function handleGenerateDescription() {
      description,
       category, // category ID jaa rahi hai, backend me ID se name nikaal lena
     });
+    console.log(result)
+
 
     form.setValue("description", result.description, {
       shouldValidate: true,

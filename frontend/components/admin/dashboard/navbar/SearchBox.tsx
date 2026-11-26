@@ -10,7 +10,7 @@ type SearchBoxProps = {
 
 export default function SearchBox({
   className,
-  placeholder = "                Search products, orders, customers...",
+  placeholder = "Search products, orders, customers...",
 }: SearchBoxProps) {
   return (
     <div

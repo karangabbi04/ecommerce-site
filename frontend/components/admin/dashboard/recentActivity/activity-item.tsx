@@ -38,12 +38,12 @@ export default function ActivityItem({
 
           <div className=" w-full">
 
-            <div className=" flex  justify-between  font-semibold text-[12px] w-full">
-              <span >{activity.title}</span> 
-              <span >{activity.time}</span>
+            <div className="flex w-full flex-col gap-1 text-[12px] font-semibold sm:flex-row sm:items-start sm:justify-between">
+              <span className="min-w-0 break-words">{activity.title}</span>
+              <span className="shrink-0 text-muted-foreground">{activity.time}</span>
             </div>
 
-            <p className="mt-1 text-[13px] text-muted-foreground">
+            <p className="mt-1 break-words text-[13px] text-muted-foreground">
               {activity.description}
             </p>
 
