@@ -73,8 +73,8 @@ export function QuickActions() {
 
   return (
     <>
-      {/* Cards Grid - Mobile pe 2 columns, Desktop pe 2 columns (ya jarurat ke hisab se adjust karo) */}
-      <div className="grid w-full grid-cols-1 gap-3 min-[420px]:grid-cols-2">
+      {/* Mobile: horizontal scrollable row | sm+: 2-col grid */}
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide sm:grid sm:grid-cols-2 sm:gap-3">
         {quickActionsData.map((action) => (
           <QuickActionCard
             key={action.title}

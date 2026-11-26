@@ -128,6 +128,10 @@ function Page() {
               loading={isKpiLoading}
             />
           ))}
+          {/* Mobile only: compact Monthly Goal as 4th KPI card */}
+          <div className="sm:hidden">
+            <SalesGoalCard goal={500000} currentSales={263460} compact />
+          </div>
           {isKpiError && (
             <p role="alert" className="col-span-full px-2 text-sm text-destructive">
               Dashboard KPI data could not be loaded.
@@ -139,7 +143,13 @@ function Page() {
           <AnalyticsCard />
         </div>
 
-        <div className="mt-3 w-full min-w-0">
+        {/* Mobile only: OrderStatus below chart */}
+        <div className="mt-3 flex w-full min-w-0 flex-col gap-4 xl:hidden">
+          <OrderStatusCard orderStatusData={ordersData ?? []} />
+        </div>
+
+        {/* Product table — hidden on mobile */}
+        <div className="mt-3 hidden w-full min-w-0 sm:block">
           <DataTable
             data={mockProducts}
             columns={columns}
@@ -154,11 +164,12 @@ function Page() {
 
     {/* right side */}
     <aside className="grid h-fit w-full min-w-0 grid-cols-1 gap-4 lg:grid-cols-2 xl:flex xl:w-[340px] xl:shrink-0 xl:flex-col">
-      <div className="w-full">
+      {/* Hidden on mobile — shown above chart on mobile instead */}
+      <div className="hidden w-full xl:block">
         <SalesGoalCard goal={500000} currentSales={263460} />
       </div>
 
-      <div className="w-full">
+      <div className="hidden w-full xl:block">
         <OrderStatusCard orderStatusData={ordersData ?? []} />
       </div>
 

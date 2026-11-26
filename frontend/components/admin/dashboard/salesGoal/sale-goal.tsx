@@ -6,11 +6,13 @@ import { Progress } from "@/components/ui/progress";
 interface SalesGoalProps {
   goal: number;
   currentSales: number;
+  compact?: boolean;
 }
 
 export default function SalesGoal({
   goal,
   currentSales,
+  compact = false,
 }: SalesGoalProps) {
   const progress = Math.min((currentSales / goal) * 100, 100);
   const remaining = Math.max(goal - currentSales, 0);
@@ -23,6 +25,31 @@ export default function SalesGoal({
       maximumFractionDigits: 0,
     }).format(value);
 
+  /* ── Compact variant: same visual style as KPICard ── */
+  if (compact) {
+    return (
+      <Card
+        className={`group min-w-0 rounded-lg border bg-gray-100 py-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+          completed ? "border-green-500" : "border-border"
+        }`}
+      >
+        <CardContent className="space-y-1 px-2">
+          <p className="truncate text-[11px] font-medium text-muted-foreground">
+            {completed ? "🎉 Goal!" : "Goal"}
+          </p>
+          <h2 className="text-[13px] font-bold leading-tight tracking-tight break-words">
+            {Math.round(progress)}%
+          </h2>
+          <Progress
+            value={progress}
+            className={`h-1.5 rounded-full ${completed ? "bg-green-200" : "bg-gray-300"}`}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  /* ── Full variant: original card ── */
   return (
     <Card
       className={`overflow-hidden rounded-2xl border transition-all duration-500 ${

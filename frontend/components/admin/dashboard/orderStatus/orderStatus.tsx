@@ -99,7 +99,7 @@ export default function OrderStatusCard({ orderStatusData }: OrderStatusCardProp
       {orderStatusData.length === 0 ? (
         <p className="text-sm text-slate-400">No order status data available.</p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           {orderStatusData.map(({ status, count }) => {
             const style = STATUS_STYLES[status] ?? STATUS_STYLES.PENDING;
             const Icon = style.icon;
@@ -108,22 +108,16 @@ export default function OrderStatusCard({ orderStatusData }: OrderStatusCardProp
             return (
               <div
                 key={status}
-                className={`relative overflow-hidden rounded-2xl border p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${style.border} ${style.hover}`}
+                className={`relative flex-shrink-0 overflow-hidden rounded-xl border p-2.5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl w-[110px] sm:w-[130px] ${style.border} ${style.hover}`}
               >
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] capitalize">{title}</p>
-                    <p className="mt-2 text-xl font-bold">
-                      {count.toLocaleString()}
-                    </p>
-                  </div>
-                  <div
-                    className="flex size-10 items-center justify-center rounded-full"
-                    style={{ backgroundColor: style.iconBg }}
-                  >
-                    <Icon className="size-5" style={{ color: style.iconColor }} />
-                  </div>
+                <div
+                  className="mb-2 flex size-7 items-center justify-center rounded-full"
+                  style={{ backgroundColor: style.iconBg }}
+                >
+                  <Icon className="size-3.5" style={{ color: style.iconColor }} />
                 </div>
+                <p className="text-[10px] capitalize leading-tight text-muted-foreground">{title}</p>
+                <p className="mt-1 text-base font-bold">{count.toLocaleString()}</p>
               </div>
             );
           })}
